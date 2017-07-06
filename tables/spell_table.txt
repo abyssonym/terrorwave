@@ -1,0 +1,6 @@
+name_text,8,str
+unk1,1
+element,1
+characters,bit:maxim selan guy artea tia dekar lexis u37
+unk4,1
+mp_cost,1

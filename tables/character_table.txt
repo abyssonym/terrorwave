@@ -1,0 +1,7 @@
+hp,2
+mp,2
+str,2
+agl,2
+int,2
+gut,2
+mgr,2

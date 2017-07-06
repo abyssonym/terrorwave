@@ -1,0 +1,11 @@
+usability,bit:consumable equipable u02 cursed fruit unsellable usable_menu usable_battle
+unknown,1
+targetting,1
+icon,1
+sprite,1
+price,2
+item_type,bit:weapon armor shield helmet ring jewel u66 u67
+equipability,bit:maxim selan guy artea tia dekar lexis u77
+misc1,bit:menu_effect battle_effect weapon_effect armor_effect increase_atp increase_dfp increase_str increase_agl
+misc2,bit:increase_int increase_gut increase_mgr u93 u94 battle_animation u96 ip_effect
+zero,2

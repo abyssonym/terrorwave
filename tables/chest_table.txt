@@ -1,0 +1,3 @@
+misc1,bit:u00 u01 u02 u03 u04 u05 item_high_bit u07
+misc2,1
+item_low_byte,1

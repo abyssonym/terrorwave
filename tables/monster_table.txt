@@ -1,0 +1,15 @@
+name_text,13,str
+level,1
+unknown,1
+battle_sprite,1
+palette,1
+hp,2
+mp,2
+attack,2
+defense,2
+agility,1
+intelligence,1
+guts,1
+magic_resistance,1
+xp,2
+gold,2

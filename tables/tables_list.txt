@@ -1,0 +1,10 @@
+# objname tablefile address count grouped
+ChestObject         chest_table.txt             chest_pointers.txt
+SpellObject         spell_table.txt             spell_pointers.txt
+CharacterObject     character_table.txt         bb93c   7
+MonsterObject       monster_table.txt           monster_pointers.txt
+ItemObject          item_table.txt              item_pointers.txt
+CapsuleObject       capsule_table.txt           capsule_pointers.txt
+ItemNameObject      item_name_table.txt         f47e8   467
+$capsule_end        bee9d
+.patch              unlock_gift_mode.txt
