@@ -13,3 +13,4 @@ guts,1
 magic_resistance,1
 xp,2
 gold,2
+misc,1
