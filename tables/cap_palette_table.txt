@@ -1,0 +1,16 @@
+color0,2
+color1,2
+color2,2
+color3,2
+color4,2
+color5,2
+color6,2
+color7,2
+color8,2
+color9,2
+colorA,2
+colorB,2
+colorC,2
+colorD,2
+colorE,2
+colorF,2

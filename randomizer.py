@@ -75,6 +75,53 @@ class CapsuleObject(TableObject):
     def name(self):
         return self.name_text.strip()
 
+    @staticmethod
+    def reorder_capsules(ordering):
+        sprites = [CapSpritePTRObject.get(i).sprite_pointer
+                   for i in ordering]
+        palettes = [CapPaletteObject.get(i).get_all_colors()
+                    for i in ordering]
+        pointers = [CapsuleObject.get(i).pointer for i in ordering]
+        start = CapsuleObject.specspointer
+        for i, (pointer, sprite, palette) in enumerate(
+                zip(pointers, sprites, palettes)):
+            c = CapsuleObject.get(i)
+            f = open(get_outfile(), "r+b")
+            f.seek(start + (2*c.index))
+            write_multi(f, pointer-start, length=2)
+            c.pointer = pointer
+            f.close()
+            c.read_data(filename=get_outfile(), pointer=c.pointer)
+            CapSpritePTRObject.get(i).sprite_pointer = sprite
+            CapPaletteObject.get(i).set_all_colors(palette)
+
+    @classmethod
+    def randomize_all(cls):
+        ordering = []
+        for c in CapsuleObject.every:
+            candidates = [c2.index for c2 in CapsuleObject.every
+                          if c2.capsule_class == c.capsule_class]
+            candidates = [c2 for c2 in candidates if c2 not in ordering]
+            ordering.append(random.choice(candidates))
+        CapsuleObject.reorder_capsules(ordering)
+        super(CapsuleObject, cls).randomize_all()
+
+
+class CapSpritePTRObject(TableObject): pass
+
+
+class CapPaletteObject(TableObject):
+    def get_all_colors(self):
+        colors = []
+        for i in xrange(0x10):
+            c = getattr(self, "color%X" % i)
+            colors.append(c)
+        return colors
+
+    def set_all_colors(self, colors):
+        for i, c in enumerate(colors):
+            setattr(self, "color%X" % i, c)
+
 
 class ChestObject(TableObject):
     @property
@@ -85,6 +132,15 @@ class ChestObject(TableObject):
     @property
     def item(self):
         return ItemObject.get(self.item_index)
+
+    def set_item(self, item):
+        if isinstance(item, ItemObject):
+            item = item.index
+        if item & 0x100:
+            self.set_bit("item_high_bit", True)
+        else:
+            self.set_bit("item_high_bit", False)
+        self.item_low_byte = item & 0xFF
 
 
 class SpellObject(TableObject):
@@ -119,6 +175,16 @@ class MonsterObject(TableObject):
     @property
     def drop_rate(self):
         return self.drop_data >> 9
+
+    def set_drop(self, item):
+        if isinstance(item, ItemObject):
+            item = item.index
+        new_data = self.drop_data & 0xFE00
+        self.drop_data = new_data | item
+
+    def set_drop_rate(self, rate):
+        new_data = self.drop_data & 0x1FF
+        self.drop_data = new_data | (rate << 9)
 
     def read_data(self, filename=None, pointer=None):
         super(MonsterObject, self).read_data(filename, pointer)
