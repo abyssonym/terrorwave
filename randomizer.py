@@ -1,7 +1,8 @@
 from randomtools.tablereader import (
-    TableObject, get_global_label, tblpath, addresses)
+    TableObject, get_global_label, tblpath, addresses,
+    mutate_normal, shuffle_normal)
 from randomtools.utils import (
-    classproperty, mutate_normal, shuffle_bits, get_snes_palette_transformer,
+    classproperty, get_snes_palette_transformer,
     read_multi, write_multi, utilrandom as random)
 from randomtools.interface import (
     get_outfile, get_seed, get_flags, run_interface, rewrite_snes_meta,
@@ -71,9 +72,40 @@ class AdditionalPropertiesMixin(object):
 
 
 class CapsuleObject(TableObject):
+    intershuffle_attributes = [
+        ("hp", "hp_factor"),
+        "attack",
+        "defense",
+        ("strength", "strength_factor"),
+        ("agility", "agility_factor"),
+        ("intelligence", "intelligence_factor"),
+        ("guts", "guts_factor"),
+        ("magic_resistance", "magic_resistance_factor"),
+        ]
+    mutate_attributes = {
+        "hp": None,
+        "hp_factor": None,
+        "attack": None,
+        "defense": None,
+        "strength": None,
+        "strength_factor": None,
+        "agility": None,
+        "agility_factor": None,
+        "intelligence": None,
+        "intelligence_factor": None,
+        "guts": None,
+        "guts_factor": None,
+        "magic_resistance": None,
+        "magic_resistance_factor": None,
+    }
+
     @property
     def name(self):
         return self.name_text.strip()
+
+    @property
+    def rank(self):
+        return self.capsule_class
 
     @staticmethod
     def reorder_capsules(ordering):
@@ -96,7 +128,7 @@ class CapsuleObject(TableObject):
             CapPaletteObject.get(i).set_all_colors(palette)
 
     @classmethod
-    def randomize_all(cls):
+    def full_randomize(cls):
         ordering = []
         for c in CapsuleObject.every:
             candidates = [c2.index for c2 in CapsuleObject.every
@@ -104,7 +136,7 @@ class CapsuleObject(TableObject):
             candidates = [c2 for c2 in candidates if c2 not in ordering]
             ordering.append(random.choice(candidates))
         CapsuleObject.reorder_capsules(ordering)
-        super(CapsuleObject, cls).randomize_all()
+        super(CapsuleObject, cls).full_randomize()
 
 
 class CapSpritePTRObject(TableObject): pass
@@ -142,6 +174,10 @@ class ChestObject(TableObject):
             self.set_bit("item_high_bit", False)
         self.item_low_byte = item & 0xFF
 
+    def mutate(self):
+        i = self.item.get_similar()
+        self.set_item(i)
+
 
 class SpellObject(TableObject):
     @property
@@ -156,6 +192,27 @@ class CharacterObject(TableObject):
 
 
 class MonsterObject(TableObject):
+    intershuffle_attributes = [
+        "hp", "attack", "defense", "agility", "intelligence",
+        "guts", "magic_resistance", "xp", "gold"]
+
+    mutate_attributes = {
+        "level": None,
+        "hp": None,
+        "attack": None,
+        "defense": None,
+        "agility": None,
+        "intelligence": None,
+        "guts": None,
+        "magic_resistance": None,
+        "xp": None,
+        "gold": None,
+    }
+
+    @property
+    def intershuffle_valid(self):
+        return self.rank >= 0 and not 0xA7 <= self.index <= 0xAA
+
     @property
     def name(self):
         return self.name_text.strip()
@@ -175,6 +232,25 @@ class MonsterObject(TableObject):
     @property
     def drop_rate(self):
         return self.drop_data >> 9
+
+    @property
+    def is_boss(self):
+        return self.index >= 0xBC
+
+    @property
+    def rank(self):
+        if hasattr(self, "_rank"):
+            return self._rank
+        assert self.level * self.hp * self.xp != 0
+        self._rank = self.level * self.hp * self.xp
+        return self.rank
+
+    @classmethod
+    def intershuffle(cls):
+        super(MonsterObject, cls).intershuffle(
+            candidates=[m for m in MonsterObject.every if not m.is_boss])
+        super(MonsterObject, cls).intershuffle(
+            candidates=[m for m in MonsterObject.every if m.is_boss])
 
     def set_drop(self, item):
         if isinstance(item, ItemObject):
@@ -202,6 +278,18 @@ class MonsterObject(TableObject):
             write_multi(f, self.drop_data, length=2)
             f.close()
 
+    def mutate(self):
+        super(MonsterObject, self).mutate()
+        if self.has_drop:
+            i = self.drop.get_similar()
+            self.set_drop(i)
+
+    def cleanup(self):
+        if self.is_boss:
+            for attr in self.old_data:
+                if getattr(self, attr) < self.old_data[attr]:
+                    setattr(self, attr, self.old_data[attr])
+
 
 class ItemObject(AdditionalPropertiesMixin, TableObject):
     additional_bitnames = ['misc1', 'misc2']
@@ -209,6 +297,46 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
     @property
     def name(self):
         return ItemNameObject.get(self.index).name_text.strip()
+
+    @property
+    def rank(self):
+        if hasattr(self, "_rank"):
+            return self._rank
+
+        rankdict = {
+            0x00: -1,
+
+            0x11: 20000,
+            0x12: 20000,
+            0x13: 20000,
+            0x14: 20000,
+            0x15: 20000,
+            0x16: 20000,
+
+            0x23: 1000,
+            0x2c: 2000,
+            0x2d: -1,
+
+            0x2e: 20000,
+            0x2f: 20000,
+            0x30: 20000,
+            0x31: 20000,
+            0x32: 20000,
+            0x33: 20000,
+            0x34: 20000,
+            0x35: 20000,
+
+            0x1a6: 100 * 2000
+        }
+        if self.index in rankdict:
+            self._rank = rankdict[self.index]
+        elif 0x18e <= self.index <= 0x19b:
+            self._rank = self.price * 2000
+        elif self.price <= 2 or self.get_bit("unsellable"):
+            self._rank = -1
+        else:
+            self._rank = self.price
+        return self.rank
 
 
 class ItemNameObject(TableObject): pass
@@ -223,7 +351,7 @@ if __name__ == "__main__":
         ALL_OBJECTS = [g for g in globals().values()
                        if isinstance(g, type) and issubclass(g, TableObject)
                        and g not in [TableObject]]
-        run_interface(ALL_OBJECTS, snes=True)
+        run_interface(ALL_OBJECTS, snes=True, custom_degree=True)
         hexify = lambda x: "{0:0>2}".format("%x" % x)
         numify = lambda x: "{0: >3}".format(x)
         minmax = lambda x: (min(x), max(x))
