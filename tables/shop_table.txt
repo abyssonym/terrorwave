@@ -1,0 +1,3 @@
+unknown0,1
+shop_type,bit:pawn coin item weapon armor spell unk16 sell
+unknown2,1

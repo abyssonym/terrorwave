@@ -433,10 +433,29 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
     flag_description = "equipment"
 
     additional_bitnames = ['misc1', 'misc2']
+    mutate_attributes = {
+        "price": None,
+    }
 
     @property
     def name(self):
         return ItemNameObject.get(self.index).name_text.strip()
+
+    @property
+    def is_coin_set(self):
+        return 0x18a <= self.index <= 0x18d
+
+    @property
+    def alt_cursed(self):
+        if self.get_bit("cursed"):
+            return ItemObject.get(self.index+1)
+        elif self.index == 0:
+            return None
+        else:
+            test = ItemObject.get(self.index-1)
+            if test.get_bit("cursed"):
+                return test
+        return None
 
     @property
     def rank(self):
@@ -466,7 +485,12 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
             0x34: 20000,
             0x35: 20000,
 
-            0x1a6: 100 * 2000
+            0x1a6: 100 * 2000,
+
+            0x1ce: 0,
+            0x1cf: 0,
+            0x1d1: 0,
+            0x1d2: 0,
         }
         if self.index in rankdict:
             self._rank = rankdict[self.index]
@@ -474,9 +498,205 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
             self._rank = self.price * 2000
         elif self.price <= 2 or self.get_bit("unsellable"):
             self._rank = -1
+        elif self.alt_cursed:
+            self._rank = max(self.price, self.alt_cursed.price)
         else:
             self._rank = self.price
         return self.rank
+
+    def cleanup(self):
+        power = 0
+        price = self.price
+        assert price < 65536
+        price = price * 2
+        while 0 < price < 10000:
+            price *= 10
+            power += 1
+        price = int(round(price, -3))
+        price /= (10**power)
+        price = price / 2
+        assert price <= 65500
+        self.price = price
+
+
+class ShopObject(TableObject):
+    flag = 's'
+    flag_description = "shops"
+
+    def __repr__(self):
+        s = "SHOP %x\n" % self.index
+        for menu in ["coin", "item", "weapon", "armor"]:
+            if self.get_bit(menu):
+                s += "%s\n" % menu.upper()
+                for value in self.wares[menu]:
+                    i = ItemObject.get(value)
+                    s += "{0:12} {1}\n".format(i.name, i.price)
+        if self.get_bit("spell"):
+            s += "SPELL\n"
+            for value in self.spells:
+                s += "%s\n" % SpellObject.get(value).name
+        return s.strip()
+
+    @property
+    def wares_flat(self):
+        flat = []
+        for menu in ["item", "weapon", "armor"]:
+            flat.extend(self.wares[menu])
+        return [ItemObject.get(v) for v in flat]
+
+    @classproperty
+    def shop_items(self):
+        items = set([])
+        for s in ShopObject.every:
+            for i in s.wares_flat:
+                items.add(i)
+        return sorted(items, key=lambda i: i.index)
+
+    @classproperty
+    def shoppable_items(self):
+        if hasattr(ShopObject, "_shoppable_items"):
+            return ShopObject._shoppable_items
+
+        assert hasattr(ItemObject.get(1), "_rank")
+        shoppable_items = list(ShopObject.shop_items)
+        for i in ItemObject.every:
+            if (i not in shoppable_items and not i.get_bit("unsellable")
+                    and i.rank == i.old_data["price"] and i.price > 0
+                    and not i.is_coin_set):
+                shoppable_items.append(i)
+        shoppable_items = sorted(shoppable_items, key=lambda i: i.index)
+        ShopObject._shoppable_items = shoppable_items
+        return ShopObject.shoppable_items
+
+    def read_data(self, filename=None, pointer=None):
+        super(ShopObject, self).read_data(filename, pointer)
+
+        f = open(filename, "r+b")
+        f.seek(self.pointer+3)
+        self.wares = {}
+        for menu in ["coin", "item", "weapon", "armor"]:
+            self.wares[menu] = []
+            if self.get_bit(menu):
+                assert not self.get_bit("pawn")
+                assert not self.get_bit("spell")
+                while True:
+                    value = read_multi(f, length=2)
+                    if value == 0:
+                        break
+                    self.wares[menu].append(value)
+
+        self.spells = []
+        if self.get_bit("spell"):
+            assert self.shop_type == 0x20
+            while True:
+                value = ord(f.read(1))
+                if value == 0xFF:
+                    break
+                self.spells.append(value)
+
+        f.close()
+
+    def write_data(self, filename=None, pointer=None):
+        super(ShopObject, self).write_data(filename, pointer)
+
+        f = open(filename, "r+b")
+        f.seek(self.pointer+3)
+        for menu in ["coin", "item", "weapon", "armor"]:
+            if self.get_bit(menu):
+                assert self.wares[menu]
+                assert not self.get_bit("pawn")
+                assert not self.get_bit("spell")
+                for value in self.wares[menu]:
+                    write_multi(f, value, length=2)
+                write_multi(f, 0, length=2)
+
+        if self.get_bit("spell"):
+            assert self.shop_type == 0x20
+            assert self.spells
+            for value in self.spells:
+                f.write(chr(value))
+            f.write("\xff")
+
+        f.close()
+
+    @classmethod
+    def full_randomize(cls):
+        shoppable_items = sorted(ShopObject.shoppable_items,
+                                 key=lambda i: i.rank)
+        coin_items = set([])
+        for s in ShopObject.every:
+            if s.wares["coin"]:
+                coin_items |= set(s.wares_flat)
+        shuffled_items = shuffle_normal(
+            shoppable_items, random_degree=(get_random_degree() ** 0.5))
+        new_coin_items = set([])
+        for a, b in zip(shoppable_items, shuffled_items):
+            if a in coin_items:
+                new_coin_items.add(b)
+        for i in (coin_items - new_coin_items):
+            i.price = min(i.price * 2000, 65000)
+        for i in (new_coin_items - coin_items):
+            i.price = max(i.price / 2000, 1)
+        non_coin_items = set(shoppable_items) - new_coin_items
+        assert len(coin_items) == len(new_coin_items)
+
+        for s in ShopObject.every:
+            s.reseed(salt="mut")
+            while True:
+                badflag = False
+                if s.wares_flat:
+                    if s.wares["coin"]:
+                        candidates = new_coin_items
+                    else:
+                        candidates = non_coin_items
+                    if ((s.wares["weapon"] or s.wares["armor"])
+                            and not s.wares["coin"]):
+                        if not s.wares["weapon"]:
+                            candidates = [c for c in candidates
+                                          if not c.get_bit("weapon")
+                                          or not c.get_bit("equipable")]
+                        if not s.wares["armor"]:
+                            candidates = [c for c in candidates
+                                          if c.get_bit("weapon")
+                                          or not c.get_bit("equipable")]
+                        if not s.wares["item"]:
+                            candidates = [c for c in candidates
+                                          if c.get_bit("equipable")]
+
+                    new_wares = ItemObject.get_similar_set(
+                        s.wares_flat, candidates)
+                    d = {}
+                    d["weapon"] = [i for i in new_wares if i.get_bit("weapon")]
+                    d["armor"] = [i for i in new_wares
+                                  if i.get_bit("equipable")
+                                  and i not in d["weapon"]]
+                    d["item"] = [i for i in new_wares
+                                 if i not in d["weapon"] + d["armor"]]
+
+                    if ((s.wares["weapon"] or s.wares["armor"])
+                            and not s.wares["coin"]):
+                        for key in ["weapon", "armor", "item"]:
+                            a = len(s.wares[key])
+                            b = len(d[key])
+                            if bool(a) != bool(b):
+                                badflag = True
+                                break
+                    else:
+                        d["item"].extend(d["weapon"])
+                        d["item"].extend(d["armor"])
+                        d["weapon"] = []
+                        d["armor"] = []
+
+                    if badflag:
+                        continue
+                    for key in ["weapon", "armor", "item"]:
+                        if s.wares[key]:
+                            s.wares[key] = sorted([i.index for i in d[key]])
+                break
+
+        for i in ShopObject.shop_items:
+            if i.alt_cursed:
+                i.price = max(i.price, i.alt_cursed.price)
 
 
 class ItemNameObject(TableObject): pass
