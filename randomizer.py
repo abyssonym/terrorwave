@@ -1,6 +1,6 @@
 from randomtools.tablereader import (
     TableObject, get_global_label, tblpath, addresses,
-    mutate_normal, shuffle_normal)
+    mutate_normal, shuffle_normal, get_random_degree)
 from randomtools.utils import (
     classproperty, get_snes_palette_transformer,
     read_multi, write_multi, utilrandom as random)
@@ -72,6 +72,9 @@ class AdditionalPropertiesMixin(object):
 
 
 class CapsuleObject(TableObject):
+    flag = 'p'
+    flag_description = "capsule monsters"
+
     intershuffle_attributes = [
         ("hp", "hp_factor"),
         "attack",
@@ -156,6 +159,9 @@ class CapPaletteObject(TableObject):
 
 
 class ChestObject(TableObject):
+    flag = 't'
+    flag_description = "treasure chests"
+
     @property
     def item_index(self):
         return (
@@ -180,18 +186,149 @@ class ChestObject(TableObject):
 
 
 class SpellObject(TableObject):
+    flag = 'l'
+    flag_description = "learnable spells"
+
     @property
     def name(self):
         return self.name_text.strip()
+
+    @classproperty
+    def after_order(self):
+        if 'c' in get_flags():
+            return [CharacterObject]
+
+    @staticmethod
+    def intershuffle():
+        old_casters = []
+        for i in xrange(7):
+            mask = (1 << i)
+            charmasks = [s.characters & mask for s in SpellObject.every]
+            if not any(charmasks):
+                continue
+            old_casters.append(i)
+            num_learnable = len([c for c in charmasks if c])
+            num_learnable = mutate_normal(num_learnable, 1, len(charmasks),
+                                          wide=True)
+            charmasks = [mask if i < num_learnable else 0
+                         for i in xrange(len(charmasks))]
+            random.shuffle(charmasks)
+            for s, charmask in zip(SpellObject.every, charmasks):
+                if s.characters & mask:
+                    s.characters = s.characters ^ mask
+                assert not s.characters & mask
+                s.characters |= charmask
+
+        old_spells = {}
+        for i in old_casters:
+            mask = (1 << i)
+            spells = [bool(s.characters & mask) for s in SpellObject.every]
+            old_spells[i] = spells
+
+        for s in SpellObject.every:
+            s.characters = 0
+
+        new_casters = [i for i in xrange(7)
+                       if CharacterObject.get(i).is_caster]
+        random.shuffle(new_casters)
+        for a, b in zip(old_casters, new_casters):
+            mask = (1 << b)
+            spells = old_spells[a]
+            for truth, s in zip(spells, SpellObject.every):
+                if truth:
+                    s.characters |= mask
+
+        for s in SpellObject.every:
+            if not s.characters:
+                mask = (1 << random.choice(new_casters))
+                s.characters |= mask
+
+
+class CharGrowthObject(TableObject):
+    flag = 'c'
+
+    mutate_attributes = {
+        "hp": None,
+        "mp": None,
+        "str": None,
+        "agl": None,
+        "int": None,
+        "gut": None,
+        "mgr": None,
+        }
+
+    @classproperty
+    def after_order(self):
+        return [CharacterObject]
+
+    @staticmethod
+    def get_character(character_index):
+        if not isinstance(character_index, int):
+            character_index = character_index.index
+        return [cg for cg in CharGrowthObject.every
+                if cg.index / 13 == character_index]
+
+    def mutate(self):
+        super(CharGrowthObject, self).mutate()
 
 
 class CharacterObject(TableObject):
+    flag = 'c'
+    flag_description = "characters"
+
     @property
     def name(self):
-        return self.name_text.strip()
+        return {0: "Maxim",
+                1: "Selan",
+                2: "Guy",
+                3: "Artea",
+                4: "Tia",
+                5: "Dekar",
+                6: "Lexis"}[self.index]
+
+    @staticmethod
+    def intershuffle():
+        indexes = [c.index for c in CharacterObject.every]
+        ordering = list(indexes)
+        random.shuffle(ordering)
+
+        for (ai, bi) in zip(indexes, ordering):
+            aa = CharGrowthObject.get_character(ai)
+            bb = CharGrowthObject.get_character(bi)
+            for (a, b) in zip(aa, bb):
+                for key in CharGrowthObject.mutate_attributes:
+                    bv = b.old_data[key]
+                    setattr(a, key, bv)
+
+            a = CharacterObject.get(ai)
+            b = CharacterObject.get(bi)
+            for key in CharGrowthObject.mutate_attributes:
+                bv = b.old_data[key]
+                setattr(a, key, bv)
+
+    @property
+    def growths(self):
+        return CharGrowthObject.get_character(self.index)
+
+    @property
+    def growth_mp(self):
+        return sum([cg.mp for cg in self.growths])
+
+    @property
+    def mp_rank(self):
+        cs = sorted(CharacterObject.every,
+                    key=lambda c: (c.growth_mp, c.index))
+        return cs.index(self)
+
+    @property
+    def is_caster(self):
+        return self.mp_rank >= 2
 
 
 class MonsterObject(TableObject):
+    flag = 'm'
+    flag_description = "monsters"
+
     intershuffle_attributes = [
         "hp", "attack", "defense", "agility", "intelligence",
         "guts", "magic_resistance", "xp", "gold"]
@@ -292,6 +429,9 @@ class MonsterObject(TableObject):
 
 
 class ItemObject(AdditionalPropertiesMixin, TableObject):
+    flag = 'q'
+    flag_description = "equipment"
+
     additional_bitnames = ['misc1', 'misc2']
 
     @property
