@@ -150,6 +150,7 @@ class CapsuleObject(TableObject):
 
     @classmethod
     def full_randomize(cls):
+        CapsuleObject.class_reseed("full")
         ordering = []
         for c in CapsuleObject.every:
             candidates = [c2.index for c2 in CapsuleObject.every
@@ -223,6 +224,7 @@ class SpellObject(PriceMixin, TableObject):
 
     @staticmethod
     def intershuffle():
+        SpellObject.class_reseed("inter")
         old_casters = []
         for i in xrange(7):
             mask = (1 << i)
@@ -318,6 +320,7 @@ class CharacterObject(TableObject):
 
     @staticmethod
     def intershuffle():
+        CharacterObject.class_reseed("inter")
         indexes = [c.index for c in CharacterObject.every]
         ordering = list(indexes)
         random.shuffle(ordering)
@@ -408,12 +411,19 @@ class MonsterObject(TableObject):
     def rank(self):
         if hasattr(self, "_rank"):
             return self._rank
-        assert self.level * self.hp * self.xp != 0
-        self._rank = self.level * self.hp * self.xp
+        rankdict = {
+            0xdf: -1,
+            }
+        if self.index in rankdict:
+            self._rank = rankdict[self.index]
+        else:
+            assert self.level * self.hp * self.xp != 0
+            self._rank = self.level * self.hp * self.xp
         return self.rank
 
     @classmethod
     def intershuffle(cls):
+        MonsterObject.class_reseed("inter")
         super(MonsterObject, cls).intershuffle(
             candidates=[m for m in MonsterObject.every if not m.is_boss])
         super(MonsterObject, cls).intershuffle(
@@ -547,6 +557,49 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             return
         self.price_clean()
 
+    @staticmethod
+    def intershuffle():
+        ItemObject.class_reseed("inter")
+        candidates = [i for i in ItemObject.ranked
+                      if "ip_effect" in i.additional_properties]
+        negranks = [c for c in candidates if c.rank < 0]
+        for c in negranks:
+            candidates.remove(c)
+            assert c not in candidates
+            max_index = len(candidates)
+            index = random.randint(random.randint(random.randint(
+                0, max_index), max_index), max_index)
+            candidates.insert(index, c)
+        shuffled = shuffle_normal(candidates,
+                                  random_degree=(get_random_degree() ** 0.25))
+        shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
+        for i, ip in zip(candidates, shuffled):
+            i.additional_properties["ip_effect"] = ip
+
+    @classmethod
+    def mutate_all(cls):
+        super(ItemObject, cls).mutate_all()
+        addprops = ["increase_atp", "increase_dfp", "increase_str",
+                    "increase_agl", "increase_int", "increase_gut",
+                    "increase_mgr"]
+        minmaxes = {}
+        for ap in addprops:
+            candidates = [i for i in ItemObject.every
+                          if ap in i.additional_properties]
+            assert candidates
+            values = [c.additional_properties[ap] for c in candidates]
+            minmaxes[ap] = (min(values), max(values))
+
+        for i in ItemObject.every:
+            i.reseed(salt="mut2")
+            for ap in addprops:
+                if ap not in i.additional_properties:
+                    continue
+                lower, upper = minmaxes[ap]
+                value = i.additional_properties[ap]
+                value = mutate_normal(value, lower, upper)
+                i.additional_properties[ap] = value
+
 
 class ShopObject(TableObject):
     flag = 's'
@@ -658,6 +711,7 @@ class ShopObject(TableObject):
 
     @classmethod
     def full_randomize(cls):
+        ShopObject.class_reseed("full")
         shoppable_items = sorted(ShopObject.shoppable_items,
                                  key=lambda i: i.rank)
         coin_items = set([])
