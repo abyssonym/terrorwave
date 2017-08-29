@@ -71,6 +71,24 @@ class AdditionalPropertiesMixin(object):
         f.close()
 
 
+class PriceMixin(object):
+    def price_clean(self):
+        power = 0
+        price = self.price
+        assert price < 65536
+        price = price * 2
+        while 0 < price < 10000:
+            price *= 10
+            power += 1
+        price = int(round(price, -3))
+        price /= (10**power)
+        price = price / 2
+        assert price <= 65500
+        if price > 10 and price % 10 == 0:
+            price = price - 1
+        self.price = price
+
+
 class CapsuleObject(TableObject):
     flag = 'p'
     flag_description = "capsule monsters"
@@ -185,9 +203,14 @@ class ChestObject(TableObject):
         self.set_item(i)
 
 
-class SpellObject(TableObject):
+class SpellObject(PriceMixin, TableObject):
     flag = 'l'
     flag_description = "learnable spells"
+
+    mutate_attributes = {
+        "price": None,
+        "mp_cost": None,
+    }
 
     @property
     def name(self):
@@ -242,6 +265,13 @@ class SpellObject(TableObject):
             if not s.characters:
                 mask = (1 << random.choice(new_casters))
                 s.characters |= mask
+
+    @property
+    def rank(self):
+        return self.old_data["price"]
+
+    def cleanup(self):
+        self.price_clean()
 
 
 class CharGrowthObject(TableObject):
@@ -428,7 +458,7 @@ class MonsterObject(TableObject):
                     setattr(self, attr, self.old_data[attr])
 
 
-class ItemObject(AdditionalPropertiesMixin, TableObject):
+class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'q'
     flag_description = "equipment"
 
@@ -444,6 +474,13 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
     @property
     def is_coin_set(self):
         return 0x18a <= self.index <= 0x18d
+
+    @property
+    def is_coin_item(self):
+        for s in ShopObject.every:
+            if s.wares["coin"] and self.index in s.wares["item"]:
+                return True
+        return False
 
     @property
     def alt_cursed(self):
@@ -505,18 +542,10 @@ class ItemObject(AdditionalPropertiesMixin, TableObject):
         return self.rank
 
     def cleanup(self):
-        power = 0
-        price = self.price
-        assert price < 65536
-        price = price * 2
-        while 0 < price < 10000:
-            price *= 10
-            power += 1
-        price = int(round(price, -3))
-        price /= (10**power)
-        price = price / 2
-        assert price <= 65500
-        self.price = price
+        if self.is_coin_item:
+            self.price = min(self.price, 2500)
+            return
+        self.price_clean()
 
 
 class ShopObject(TableObject):
@@ -551,6 +580,14 @@ class ShopObject(TableObject):
             for i in s.wares_flat:
                 items.add(i)
         return sorted(items, key=lambda i: i.index)
+
+    @classproperty
+    def shop_spells(self):
+        spells = set([])
+        for s in ShopObject.every:
+            spells |= set(s.spells)
+        spells = [SpellObject.get(s) for s in spells]
+        return sorted(spells, key=lambda s: s.index)
 
     @classproperty
     def shoppable_items(self):
@@ -693,6 +730,21 @@ class ShopObject(TableObject):
                         if s.wares[key]:
                             s.wares[key] = sorted([i.index for i in d[key]])
                 break
+
+        spells = list(ShopObject.shop_spells)
+        temp_spells = set([])
+        shops = list(ShopObject.every)
+        random.shuffle(shops)
+        for p in shops:
+            if not p.spells:
+                continue
+            if len(temp_spells) < len(p.spells):
+                temp_spells = sorted(spells)
+            old_spells = [SpellObject.get(s) for s in p.spells]
+            new_spells = SpellObject.get_similar_set(old_spells, temp_spells)
+            for n in new_spells:
+                temp_spells.remove(n)
+            p.spells = sorted([s.index for s in new_spells])
 
         for i in ShopObject.shop_items:
             if i.alt_cursed:

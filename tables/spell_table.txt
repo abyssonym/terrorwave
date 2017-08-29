@@ -4,3 +4,5 @@ element,1
 characters,bit:maxim selan guy artea tia dekar lexis u37
 unk4,1
 mp_cost,1
+zero,2
+price,2
