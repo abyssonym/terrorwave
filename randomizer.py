@@ -16,14 +16,6 @@ from collections import Counter
 VERSION = 1
 ALL_OBJECTS = None
 DEBUG_MODE = False
-RESEED_COUNTER = 0
-
-
-def reseed():
-    global RESEED_COUNTER
-    RESEED_COUNTER += 1
-    seed = get_seed()
-    random.seed(seed + (RESEED_COUNTER**2))
 
 
 class AdditionalPropertiesMixin(object):
@@ -221,6 +213,7 @@ class SpellObject(PriceMixin, TableObject):
     def after_order(self):
         if 'c' in get_flags():
             return [CharacterObject]
+        return []
 
     @staticmethod
     def intershuffle():
@@ -469,8 +462,8 @@ class MonsterObject(TableObject):
 
 
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
-    flag = 'q'
-    flag_description = "equipment"
+    flag = 'i'
+    flag_description = "items and equipment"
 
     additional_bitnames = ['misc1', 'misc2']
     mutate_attributes = {
@@ -509,6 +502,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         if hasattr(self, "_rank"):
             return self._rank
 
+        price = self.old_data["price"]
+
         rankdict = {
             0x00: -1,
 
@@ -542,13 +537,14 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         if self.index in rankdict:
             self._rank = rankdict[self.index]
         elif 0x18e <= self.index <= 0x19b:
-            self._rank = self.price * 2000
-        elif self.price <= 2 or self.get_bit("unsellable"):
+            self._rank = price * 2000
+        elif price <= 2 or self.get_bit("unsellable"):
             self._rank = -1
         elif self.alt_cursed:
-            self._rank = max(self.price, self.alt_cursed.price)
+            self._rank = max(price, self.alt_cursed.price)
         else:
-            self._rank = self.price
+            self._rank = price
+        self._rank = min(self._rank, 65000)
         return self.rank
 
     def cleanup(self):
@@ -575,6 +571,29 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
         for i, ip in zip(candidates, shuffled):
             i.additional_properties["ip_effect"] = ip
+
+        for equip_type in ["weapon", "armor", "shield",
+                           "helmet", "ring", "jewel"]:
+            equips = [i for i in ItemObject.every
+                      if i.get_bit("equipable") and i.get_bit(equip_type)]
+            ordering = range(7)
+            random.shuffle(ordering)
+            for i in equips:
+                old_equip = i.equipability
+                assert not (old_equip & 0x80)
+                new_equip = 0
+                for n, m in enumerate(ordering):
+                    if bool(old_equip & (1 << m)):
+                        new_equip |= (1 << n)
+                if random.random() < (get_random_degree() ** 4):
+                    new_equip = new_equip | (random.randint(0, 0x7f) &
+                                             random.randint(0, 0x7f))
+                if random.random() < (get_random_degree() ** 2):
+                    temp = new_equip & (random.randint(0, 0x7f) |
+                                        random.randint(0, 0x7f))
+                    if temp:
+                        new_equip = temp
+                i.equipability = new_equip
 
     @classmethod
     def mutate_all(cls):
