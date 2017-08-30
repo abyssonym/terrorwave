@@ -293,6 +293,10 @@ class CharGrowthObject(TableObject):
         return [cg for cg in CharGrowthObject.every
                 if cg.index / 13 == character_index]
 
+    @property
+    def name(self):
+        return CharacterObject.get(self.index/13).name
+
     def mutate(self):
         super(CharGrowthObject, self).mutate()
 
@@ -315,20 +319,19 @@ class CharacterObject(TableObject):
     def intershuffle():
         CharacterObject.class_reseed("inter")
         indexes = [c.index for c in CharacterObject.every]
-        ordering = list(indexes)
-        random.shuffle(ordering)
 
-        for (ai, bi) in zip(indexes, ordering):
-            aa = CharGrowthObject.get_character(ai)
-            bb = CharGrowthObject.get_character(bi)
-            for (a, b) in zip(aa, bb):
-                for key in CharGrowthObject.mutate_attributes:
+        for key in CharGrowthObject.mutate_attributes:
+            ordering = list(indexes)
+            random.shuffle(ordering)
+            for (ai, bi) in zip(indexes, ordering):
+                aa = CharGrowthObject.get_character(ai)
+                bb = CharGrowthObject.get_character(bi)
+                for (a, b) in zip(aa, bb):
                     bv = b.old_data[key]
                     setattr(a, key, bv)
 
-            a = CharacterObject.get(ai)
-            b = CharacterObject.get(bi)
-            for key in CharGrowthObject.mutate_attributes:
+                a = CharacterObject.get(ai)
+                b = CharacterObject.get(bi)
                 bv = b.old_data[key]
                 setattr(a, key, bv)
 
