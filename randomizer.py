@@ -152,6 +152,55 @@ class CapsuleObject(TableObject):
         CapsuleObject.reorder_capsules(ordering)
         super(CapsuleObject, cls).full_randomize()
 
+    def mutate(self):
+        super(CapsuleObject, self).mutate()
+
+        near_alignments = [self.alignment]
+        if self.capsule_class > 1:
+            near_alignments.append(CapsuleObject.get(self.index-1).alignment)
+        if self.capsule_class < 5:
+            near_alignments.append(CapsuleObject.get(self.index+1).alignment)
+        skill_ranks = {}
+        for c in CapsuleObject.every:
+            related = (c.alignment == self.alignment or
+                       (c.index / 5) == (self.index / 5))
+            near = (abs(c.capsule_class - self.capsule_class) <= 1
+                    and c.alignment in near_alignments)
+            if (related or near):
+                for key in ["start_skills", "upgrade_skills"]:
+                    for skill in c.old_data[key]:
+                        if skill == 0:
+                            continue
+                        value = c.capsule_class
+                        if key == "upgrade_skills":
+                            value += 0.5
+                        if (skill not in skill_ranks
+                                or skill_ranks[skill] > value):
+                            skill_ranks[skill] = value
+
+        skills = sorted(skill_ranks,
+                        key=lambda s: (skill_ranks[s], random.random(), s))
+
+        done = set([])
+        ordering = range(6)
+        random.shuffle(ordering)
+        for i in ordering:
+            s = (self.start_skills + self.upgrade_skills)[i]
+            if s == 0:
+                continue
+            while True:
+                index = skills.index(s)
+                index = mutate_normal(index, 0, len(skills)-1,
+                                      wide=True)
+                new_skill = skills[index]
+                if new_skill not in done:
+                    done.add(new_skill)
+                    if i <= 2:
+                        self.start_skills[i] = new_skill
+                    else:
+                        self.upgrade_skills[i%3] = new_skill
+                    break
+
 
 class CapSpritePTRObject(TableObject): pass
 
@@ -570,7 +619,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                 0, max_index), max_index), max_index)
             candidates.insert(index, c)
         shuffled = shuffle_normal(candidates,
-                                  random_degree=(get_random_degree() ** 0.25))
+                                  random_degree=(get_random_degree() ** 0.5),
+                                  wide=True)
         shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
         for i, ip in zip(candidates, shuffled):
             i.additional_properties["ip_effect"] = ip
