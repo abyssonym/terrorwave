@@ -5,8 +5,8 @@ from randomtools.utils import (
     classproperty, get_snes_palette_transformer,
     read_multi, write_multi, utilrandom as random)
 from randomtools.interface import (
-    get_outfile, get_seed, get_flags, run_interface, rewrite_snes_meta,
-    clean_and_write, finish_interface)
+    get_outfile, get_seed, get_flags, get_activated_codes,
+    run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
 from collections import defaultdict
 from os import path
 from time import time
@@ -625,8 +625,9 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         for i, ip in zip(candidates, shuffled):
             i.additional_properties["ip_effect"] = ip
 
-        for equip_type in ["weapon", "armor", "shield",
-                           "helmet", "ring", "jewel"]:
+        equip_types = ["weapon", "armor", "shield",
+                       "helmet", "ring", "jewel"]
+        for equip_type in equip_types:
             equips = [i for i in ItemObject.every
                       if i.get_bit("equipable") and i.get_bit(equip_type)]
             ordering = range(7)
@@ -646,7 +647,42 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                                         random.randint(0, 0x7f))
                     if temp:
                         new_equip = temp
+                assert new_equip
                 i.equipability = new_equip
+
+        equips = [i for i in ItemObject.every
+                  if i.get_bit("equipable") and i.item_type & 0x3F]
+        if "everywhere" in get_activated_codes():
+            # doesn't work, the game checks for multiple bits at equip menu
+            print "EQUIP EVERYWHERE CODE ACTIVATED"
+            for i in equips:
+                equip_score = 6 - (bin(i.equipability).count("1") - 1)
+                num_slots = 1 + ((equip_score / 6.0) * 5)
+                assert equip_score >= 0
+                num_slots = mutate_normal(
+                    num_slots, minimum=1, maximum=6,
+                    random_degree=get_random_degree() ** 0.5, wide=True)
+                bits = random.sample(range(6), num_slots)
+                new_item_type = 0
+                for b in bits:
+                    new_item_type |= (1 << b)
+                old_item_type = i.item_type
+                i.item_type = 0
+                for b in xrange(6):
+                    if random.random() < (get_random_degree()):
+                        i.item_type |= (new_item_type & (1 << b))
+                    else:
+                        i.item_type |= (old_item_type & (1 << b))
+                assert not old_item_type & 0xC0
+
+        elif "anywhere" in get_activated_codes():
+            # works, but "strongest" looks for appropriate icon
+            print "EQUIP ANYWHERE CODE ACTIVATED"
+            for i in equips:
+                if random.random() < (get_random_degree() ** 1.5):
+                    equip_type = random.choice(equip_types)
+                    i.item_type = 0
+                    i.set_bit(equip_type, True)
 
     @classmethod
     def mutate_all(cls):
@@ -882,14 +918,19 @@ class ItemNameObject(TableObject): pass
 
 if __name__ == "__main__":
     try:
-        print ('You are using the Lufia II '
-               'randomizer version %s.' % VERSION)
+        print ("You are using the Lufia II "
+               "randomizer version %s." % VERSION)
         print
 
         ALL_OBJECTS = [g for g in globals().values()
                        if isinstance(g, type) and issubclass(g, TableObject)
                        and g not in [TableObject]]
-        run_interface(ALL_OBJECTS, snes=True, custom_degree=True)
+
+        codes = {
+            "anywhere": ["anywhere"],
+            #"everywhere": ["everywhere"],
+        }
+        run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         hexify = lambda x: "{0:0>2}".format("%x" % x)
         numify = lambda x: "{0: >3}".format(x)
         minmax = lambda x: (min(x), max(x))
