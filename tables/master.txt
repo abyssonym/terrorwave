@@ -1,1 +1,2 @@
 LUFIA2_NA   6efc477d6203ed2b3b9133c1cd9e9c5d    tables_list.txt
+LUFIA2_FIX  026b649ed316448e038349e39a6fe579    tables_list.fixxxer.txt
