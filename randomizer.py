@@ -426,7 +426,8 @@ class MonsterObject(TableObject):
 
     @property
     def intershuffle_valid(self):
-        return self.rank >= 0 and not 0xA7 <= self.index <= 0xAA
+        return (self.rank >= 0 and not 0xA7 <= self.index <= 0xAA
+                and self.index not in [0xdf])
 
     @property
     def name(self):
@@ -456,11 +457,11 @@ class MonsterObject(TableObject):
     def rank(self):
         if hasattr(self, "_rank"):
             return self._rank
-        rankdict = {
-            0xdf: -1,
-            }
+        rankdict = {}
         if self.index in rankdict:
             self._rank = rankdict[self.index]
+        elif self.is_boss:
+            self._rank = self.level * (self.hp ** 2)
         else:
             assert self.level * self.hp * self.xp != 0
             self._rank = self.level * self.hp * self.xp
@@ -508,7 +509,7 @@ class MonsterObject(TableObject):
 
     def cleanup(self):
         if self.is_boss:
-            for attr in self.old_data:
+            for attr in self.mutate_attributes:
                 if getattr(self, attr) < self.old_data[attr]:
                     setattr(self, attr, self.old_data[attr])
 
@@ -618,9 +619,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             index = random.randint(random.randint(random.randint(
                 0, max_index), max_index), max_index)
             candidates.insert(index, c)
-        shuffled = shuffle_normal(candidates,
-                                  random_degree=(get_random_degree() ** 0.5),
-                                  wide=True)
+        shuffled = shuffle_normal(candidates, wide=True)
         shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
         for i, ip in zip(candidates, shuffled):
             i.additional_properties["ip_effect"] = ip
@@ -826,8 +825,7 @@ class ShopObject(TableObject):
         for s in ShopObject.every:
             if s.wares["coin"]:
                 coin_items |= set(s.wares_flat)
-        shuffled_items = shuffle_normal(
-            shoppable_items, random_degree=(get_random_degree() ** 0.5))
+        shuffled_items = shuffle_normal(shoppable_items)
         new_coin_items = set([])
         for a, b in zip(shoppable_items, shuffled_items):
             if a in coin_items:
