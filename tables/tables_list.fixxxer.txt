@@ -4,7 +4,7 @@ SpellObject         spell_table.txt             spell_pointers.txt
 CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt
 CharacterObject     character_table.txt         bb93c   7
 MonsterObject       monster_table.txt           monster_pointers.fixxxer.txt
-ItemObject          item_table.txt              item_pointers.txt
+ItemObject          item_table.txt              b4f69   467     point1  b4f69 2
 CapPaletteObject    cap_palette_table.txt       bd258   35
 CapsuleObject       capsule_table.txt           bdcb8   35      point1  bdcb8 2
 ShopObject          shop_table.txt              shop_pointers.txt
