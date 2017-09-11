@@ -914,6 +914,19 @@ class ShopObject(TableObject):
 class ItemNameObject(TableObject): pass
 
 
+def randomize_rng():
+    # haven't quite figured out how this works
+    # but certain values crash the game
+    a = random.randint(0, 0xFF)
+    b = 1
+    f = open(get_outfile(), "r+b")
+    f.seek(addresses.rng1)
+    f.write(chr(a))
+    f.seek(addresses.rng2)
+    f.write(chr(b))
+    f.close()
+
+
 if __name__ == "__main__":
     try:
         print ("You are using the Lufia II "
