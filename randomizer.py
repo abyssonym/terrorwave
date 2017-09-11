@@ -734,6 +734,14 @@ class ShopObject(TableObject):
         return [ItemObject.get(v) for v in flat]
 
     @classproperty
+    def after_order(self):
+        if 'i' in get_flags():
+            return [ItemObject]
+        else:
+            ItemObject.ranked
+        return []
+
+    @classproperty
     def shop_items(self):
         items = set([])
         for s in ShopObject.every:
@@ -818,6 +826,11 @@ class ShopObject(TableObject):
 
     @classmethod
     def full_randomize(cls):
+        for cls2 in cls.after_order:
+            if not (hasattr(cls2, "randomized") and cls2.randomized):
+                raise Exception("Randomize order violated: %s %s"
+                                % (cls, cls2))
+
         ShopObject.class_reseed("full")
         shoppable_items = sorted(ShopObject.shoppable_items,
                                  key=lambda i: i.rank)
