@@ -1,0 +1,56 @@
+Lufia 2 Terror Wave Randomizer
+Version:    1
+Date:       September 12, 2017
+URL:        www.abyssonym.com/2017/09/12/lufia-2-terror-wave-new-randomizer
+Contact:    https://twitter.com/abyssonym
+
+--- HOW TO USE ---
+Running the randomizer:
+    Windows users may use the executable file, "l2_terror_wave.exe". Other users, please run "randomizer.py" using Python version 2.7.
+
+Source rom file:
+    This randomizer requires a Lufia 2 (NA-SNES) or Estopolis 2 (J-SFC) rom with the MD5 hash listed below. The "Lufia 2 Fixxxer Deluxe" version is also supported; the IPS patch file is included in this repository.
+    MD5 - 6efc477d6203ed2b3b9133c1cd9e9c5d (NA)
+          18567d21df6a95a7b52029d250bac721 (J)
+          026b649ed316448e038349e39a6fe579 (Fixxxer)
+
+Seed value:
+    Input a seed value here, or leave it blank if you don't care.
+
+Flags:
+    c  Randomize characters.
+    i  Randomize items and equipment.
+    l  Randomize learnable spells.
+    m  Randomize monsters.
+    p  Randomize capsule monsters.
+    s  Randomize shops.
+    t  Randomize treasure chests.
+
+Randomness:
+    Terror Wave is the first Abyssonym randomizer to include a "randomness" option. This option controls how extreme the randomizations are. At 0.0, almost nothing will be randomized. At 1.0, enemies in the starting area will most likely have boss stats. I suggest leaving it at the default setting of 0.5 for your first run.
+
+Output files:
+    The randomizer will output a new, randomized rom with the seed in the filename.
+
+Credits:
+    Fixxxer Deluxe mod created by Relnqshd - www.romhacking.net/hacks/229/
+
+Like this randomizer? Be sure to check out my other projects:
+    FF6 Beyond Chaos Randomizer
+        https://github.com/abyssonym/beyondchaos
+    FF Tactics Rumble Chaos Crashdown Randomizer
+        https://github.com/abyssonym/rumble_chaos_crashdown
+    Breath of Fire 2 Painsong Randomizer
+        https://github.com/abyssonym/painsong
+    Chrono Trigger Eternal Nightmare Randomizer
+        https://github.com/abyssonym/eternalnightmare
+    Final Fantasy Mystic Quest Terrible Secret Randomizer
+        https://github.com/abyssonym/terriblesecret
+    Super Mario RPG Gentle Beauty and Raw Power Randomizer
+        https://github.com/abyssonym/smrpg_gbarp
+    FF5 Grand Cross Randomizer
+        https://github.com/abyssonym/grand_cross
+    FF4 Beyond Babil Ancient Cave Randomizer
+        https://github.com/abyssonym/beyond_babil
+    Castlevania Aria of Sorrow Item Randomizer
+        https://github.com/abyssonym/aos_rando
