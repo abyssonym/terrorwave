@@ -315,6 +315,9 @@ class SpellObject(PriceMixin, TableObject):
         return self.old_data["price"]
 
     def cleanup(self):
+        if self.index == 0x26:
+            self.set_bit("maxim", True)
+            self.mp_cost = 0
         self.price_clean()
 
 
