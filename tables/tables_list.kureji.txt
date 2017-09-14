@@ -1,15 +1,14 @@
 # objname tablefile address count grouped
 ChestObject         chest_table.txt             chest_pointers.txt
-SpellObject         spell_table.txt             spell_pointers.txt
+SpellObject         spell_table.txt             spell_pointers.frue.txt
 CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt
 CharacterObject     character_table.txt         bb93c   7
-MonsterObject       monster_table.txt           b05c0   224     point1  b05c0 2
+# kureji has 7 extra monsters, but we're ignoring bosses
+MonsterObject       monster_table.txt           282000  188     point1  282000 2
 ItemObject          item_table.txt              b4f69   467     point1  b4f69 2
 CapPaletteObject    cap_palette_table.txt       bd258   35
 CapsuleObject       capsule_table.txt           bdcb8   35      point1  bdcb8 2
-ShopObject          shop_table.txt              shop_pointers.txt
+# kureji needs special shop pointers
+ShopObject          shop_table.txt              shop_pointers.kureji.txt
 ItemNameObject      item_name_table.txt         f47e8   467
 CapSpritePTRObject  cap_sprite_ptr_table.txt    1384bc  35
-$rng1               63
-$rng2               2f4
-.patch              unlock_gift_mode.txt

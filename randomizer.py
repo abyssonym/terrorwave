@@ -19,7 +19,10 @@ DEBUG_MODE = False
 
 
 class AdditionalPropertiesMixin(object):
+    _pre_read = []
+
     def read_data(self, filename=None, pointer=None):
+        assert self not in self._pre_read
         super(AdditionalPropertiesMixin, self).read_data(filename, pointer)
 
         offset = self.pointer + self.total_size
@@ -38,10 +41,19 @@ class AdditionalPropertiesMixin(object):
                 offset += 2
         f.close()
 
-        if self.index > 0:
-            prev = ItemObject.get(self.index-1)
-            if prev.additional_addresses:
-                assert self.pointer > max(prev.additional_addresses.values())
+        prevs = [i for i in self._pre_read if i.pointer < self.pointer]
+        nexts = [i for i in self._pre_read if i.pointer > self.pointer]
+        if prevs:
+            p = max(prevs, key=lambda p2: p2.pointer)
+            assert self.pointer >= max(
+                [p.pointer] + p.additional_addresses.values())+2
+
+        if nexts:
+            n = min(nexts, key=lambda n2: n2.pointer)
+            assert max([self.pointer] +
+                       self.additional_addresses.values())+2 <= n.pointer
+
+        self._pre_read.append(self)
 
     def write_data(self, filename=None, pointer=None):
         super(AdditionalPropertiesMixin, self).write_data(filename, pointer)
@@ -318,6 +330,8 @@ class SpellObject(PriceMixin, TableObject):
         if self.index == 0x26:
             self.set_bit("maxim", True)
             self.mp_cost = 0
+        if 's' not in get_flags() and 'l' not in get_flags():
+            return
         self.price_clean()
 
 
@@ -590,7 +604,11 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             0x1d1: 0,
             0x1d2: 0,
         }
-        if self.index in rankdict:
+        artemis_mods = ["L2_FRUE", "L2_SPEKKIO", "L2_KUREJI", "L2_KUREJI_NB",
+                        "L2_KUREJI_HC", "L2_KUREJI_HC_NB"]
+        if get_global_label() in artemis_mods and self.index >= 0x1a7:
+            self._rank = -1
+        elif self.index in rankdict:
             self._rank = rankdict[self.index]
         elif 0x18e <= self.index <= 0x19b:
             self._rank = price * 2000
@@ -606,6 +624,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     def cleanup(self):
         if self.is_coin_item:
             self.price = min(self.price, 2500)
+            return
+        if 's' not in get_flags() and 'i' not in get_flags():
             return
         self.price_clean()
 
