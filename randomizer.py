@@ -1,6 +1,6 @@
 from randomtools.tablereader import (
     TableObject, get_global_label, tblpath, addresses,
-    mutate_normal, shuffle_normal, get_random_degree)
+    mutate_normal, shuffle_normal)
 from randomtools.utils import (
     classproperty, get_snes_palette_transformer,
     read_multi, write_multi, utilrandom as random)
@@ -96,6 +96,7 @@ class PriceMixin(object):
 class CapsuleObject(TableObject):
     flag = 'p'
     flag_description = "capsule monsters"
+    custom_random_enable = True
 
     intershuffle_attributes = [
         ("hp", "hp_factor"),
@@ -202,8 +203,8 @@ class CapsuleObject(TableObject):
                 continue
             while True:
                 index = skills.index(s)
-                index = mutate_normal(index, 0, len(skills)-1,
-                                      wide=True)
+                index = mutate_normal(index, 0, len(skills)-1, wide=True,
+                                      random_degree=self.random_degree)
                 new_skill = skills[index]
                 if new_skill not in done:
                     done.add(new_skill)
@@ -233,6 +234,7 @@ class CapPaletteObject(TableObject):
 class ChestObject(TableObject):
     flag = 't'
     flag_description = "treasure chests"
+    custom_random_enable = True
 
     @property
     def item_index(self):
@@ -260,6 +262,7 @@ class ChestObject(TableObject):
 class SpellObject(PriceMixin, TableObject):
     flag = 'l'
     flag_description = "learnable spells"
+    custom_random_enable = 'i'
 
     mutate_attributes = {
         "price": None,
@@ -287,8 +290,9 @@ class SpellObject(PriceMixin, TableObject):
                 continue
             old_casters.append(i)
             num_learnable = len([c for c in charmasks if c])
-            num_learnable = mutate_normal(num_learnable, 1, len(charmasks),
-                                          wide=True)
+            num_learnable = mutate_normal(
+                num_learnable, 1, len(charmasks), wide=True,
+                random_degree=SpellObject.random_degree)
             charmasks = [mask if i < num_learnable else 0
                          for i in xrange(len(charmasks))]
             random.shuffle(charmasks)
@@ -337,6 +341,7 @@ class SpellObject(PriceMixin, TableObject):
 
 class CharGrowthObject(TableObject):
     flag = 'c'
+    custom_random_enable = True
 
     mutate_attributes = {
         "hp": None,
@@ -370,6 +375,7 @@ class CharGrowthObject(TableObject):
 class CharacterObject(TableObject):
     flag = 'c'
     flag_description = "characters"
+    custom_random_enable = True
 
     @property
     def name(self):
@@ -423,6 +429,7 @@ class CharacterObject(TableObject):
 class MonsterObject(TableObject):
     flag = 'm'
     flag_description = "monsters"
+    custom_random_enable = True
 
     intershuffle_attributes = [
         "hp", "attack", "defense", "agility", "intelligence",
@@ -534,6 +541,7 @@ class MonsterObject(TableObject):
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'i'
     flag_description = "items and equipment"
+    custom_random_enable = 'i'
 
     additional_bitnames = ['misc1', 'misc2']
     mutate_attributes = {
@@ -642,7 +650,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             index = random.randint(random.randint(random.randint(
                 0, max_index), max_index), max_index)
             candidates.insert(index, c)
-        shuffled = shuffle_normal(candidates, wide=True)
+        shuffled = shuffle_normal(
+            candidates, wide=True, random_degree=ItemObject.random_degree)
         shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
         for i, ip in zip(candidates, shuffled):
             i.additional_properties["ip_effect"] = ip
@@ -661,10 +670,10 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                 for n, m in enumerate(ordering):
                     if bool(old_equip & (1 << m)):
                         new_equip |= (1 << n)
-                if random.random() < (get_random_degree() ** 4):
+                if random.random() < (ItemObject.random_degree ** 3):
                     new_equip = new_equip | (random.randint(0, 0x7f) &
                                              random.randint(0, 0x7f))
-                if random.random() < (get_random_degree() ** 2):
+                if random.random() < (ItemObject.random_degree ** 1.5):
                     temp = new_equip & (random.randint(0, 0x7f) |
                                         random.randint(0, 0x7f))
                     if temp:
@@ -683,7 +692,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                 assert equip_score >= 0
                 num_slots = mutate_normal(
                     num_slots, minimum=1, maximum=6,
-                    random_degree=get_random_degree() ** 0.5, wide=True)
+                    random_degree=ItemObject.random_degree ** 0.5, wide=True)
                 bits = random.sample(range(6), num_slots)
                 new_item_type = 0
                 for b in bits:
@@ -691,7 +700,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                 old_item_type = i.item_type
                 i.item_type = 0
                 for b in xrange(6):
-                    if random.random() < (get_random_degree()):
+                    if random.random() < ItemObject.random_degree:
                         i.item_type |= (new_item_type & (1 << b))
                     else:
                         i.item_type |= (old_item_type & (1 << b))
@@ -701,7 +710,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             # works, but "strongest" looks for appropriate icon
             print "EQUIP ANYWHERE CODE ACTIVATED"
             for i in equips:
-                if random.random() < (get_random_degree() ** 1.5):
+                if random.random() < (ItemObject.random_degree ** 1.5):
                     equip_type = random.choice(equip_types)
                     i.item_type = 0
                     i.set_bit(equip_type, True)
@@ -727,13 +736,15 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                     continue
                 lower, upper = minmaxes[ap]
                 value = i.additional_properties[ap]
-                value = mutate_normal(value, lower, upper)
+                value = mutate_normal(value, lower, upper,
+                                      random_degree=ItemObject.random_degree)
                 i.additional_properties[ap] = value
 
 
 class ShopObject(TableObject):
     flag = 's'
     flag_description = "shops"
+    custom_random_enable = True
 
     def __repr__(self):
         s = "SHOP %x\n" % self.index
@@ -861,7 +872,8 @@ class ShopObject(TableObject):
         for s in ShopObject.every:
             if s.wares["coin"]:
                 coin_items |= set(s.wares_flat)
-        shuffled_items = shuffle_normal(shoppable_items)
+        shuffled_items = shuffle_normal(
+            shoppable_items, random_degree=ShopObject.random_degree)
         new_coin_items = set([])
         for a, b in zip(shoppable_items, shuffled_items):
             if a in coin_items:
