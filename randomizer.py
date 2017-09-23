@@ -1,5 +1,5 @@
 from randomtools.tablereader import (
-    TableObject, get_global_label, tblpath, addresses,
+    TableObject, get_global_label, tblpath, addresses, get_random_degree,
     mutate_normal, shuffle_normal)
 from randomtools.utils import (
     classproperty, get_snes_palette_transformer,
@@ -960,6 +960,18 @@ class ShopObject(TableObject):
 
 
 class ItemNameObject(TableObject): pass
+
+
+class MonsterMoveObject(TableObject):
+    def mutate(self):
+        movements = [mm.old_data["movement"]
+                     for mm in MonsterMoveObject.every]
+        movements.append(0x1F)
+        movements_unique = sorted(set(movements))
+        if random.random() <= get_random_degree():
+            self.movement = random.choice(movements_unique)
+        else:
+            self.movement = random.choice(movements)
 
 
 def randomize_rng():
