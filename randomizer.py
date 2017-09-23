@@ -88,7 +88,7 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        if price > 10 and price % 10 == 0:
+        if price > 10 and price % 10 == 0 and VERSION % 2 == 1:
             price = price - 1
         self.price = price
 
