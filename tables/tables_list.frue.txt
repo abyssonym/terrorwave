@@ -3,10 +3,10 @@ ChestObject         chest_table.txt             chest_pointers.txt
 BlueChestObject     blue_chest_table.txt        30d880  42
 # Frue has different spell pointers than Fixxxer
 SpellObject         spell_table.txt             spell_pointers.frue.txt
-CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt
-CharacterObject     character_table.txt         bb93c   7
 MonsterObject       monster_table.txt           282000  224     point1  282000 2
 ItemObject          item_table.txt              b4f69   467     point1  b4f69 2
+CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt
+CharacterObject     character_table.txt         bb93c   7
 CapPaletteObject    cap_palette_table.txt       bd258   35
 CapsuleObject       capsule_table.txt           bdcb8   35      point1  bdcb8 2
 ShopObject          shop_table.txt              shop_pointers.txt

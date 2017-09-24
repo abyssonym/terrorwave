@@ -2,10 +2,10 @@
 ChestObject         chest_table.txt             chest_pointers_jp.txt
 BlueChestObject     blue_chest_table.txt        b6e4c   41
 SpellObject         spell_table_jp.txt          spell_pointers_jp.txt
-CharGrowthObject    char_growth_table.txt       char_growth_pointers_jp.txt
-CharacterObject     character_table.txt         8d31f   7
 MonsterObject       monster_table_jp.txt        monster_pointers_jp.txt
 ItemObject          item_table_jp.txt           93ce6   467     point1  93ce6 2
+CharGrowthObject    char_growth_table.txt       char_growth_pointers_jp.txt
+CharacterObject     character_table.txt         8d31f   7
 CapPaletteObject    cap_palette_table.txt       f97f4   35
 CapsuleObject       capsule_table_jp.txt        8e447   35      point1  8e447 2
 ShopObject          shop_table.txt              shop_pointers_jp.txt
@@ -15,3 +15,4 @@ $rng1               63
 $rng2               2f4
 .patch              unlock_gift_mode_jp.txt
 .patch              skip_tutorial_jp.txt
+.patch              fix_ac_items.txt
