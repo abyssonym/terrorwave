@@ -265,7 +265,7 @@ class SpellObject(PriceMixin, TableObject):
     custom_random_enable = 'i'
 
     mutate_attributes = {
-        "price": None,
+        "price": (1, 65500),
         "mp_cost": None,
     }
 
@@ -545,7 +545,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     additional_bitnames = ['misc1', 'misc2']
     mutate_attributes = {
-        "price": None,
+        "price": (1, 65500),
     }
 
     @property
@@ -807,8 +807,16 @@ class ShopObject(TableObject):
         ShopObject._shoppable_items = shoppable_items
         return ShopObject.shoppable_items
 
+    @classproperty
+    def vanilla_buyable_items(self):
+        return [ItemObject.get(i)
+                for i in sorted(ShopObject.vanilla_buyable_indexes)]
+
     def read_data(self, filename=None, pointer=None):
         super(ShopObject, self).read_data(filename, pointer)
+
+        if not hasattr(ShopObject, "vanilla_buyable_indexes"):
+            ShopObject.vanilla_buyable_indexes = set([])
 
         f = open(filename, "r+b")
         f.seek(self.pointer+3)
@@ -823,6 +831,7 @@ class ShopObject(TableObject):
                     if value == 0:
                         break
                     self.wares[menu].append(value)
+                    ShopObject.vanilla_buyable_indexes.add(value)
 
         self.spells = []
         if self.get_bit("spell"):
@@ -881,7 +890,26 @@ class ShopObject(TableObject):
         for i in (coin_items - new_coin_items):
             i.price = min(i.price * 2000, 65000)
         for i in (new_coin_items - coin_items):
-            i.price = max(i.price / 2000, 1)
+            # Dragonblade - 2500 -> 500000 coins
+            if i in ShopObject.vanilla_buyable_items:
+                i.price = max(i.price / 2000, 1)
+            else:
+                max_index = len(ItemObject.ranked)-1
+                if i.rank < 0:
+                    index = max_index
+                else:
+                    index = ItemObject.ranked.index(i)
+                i.reseed(salt="coin")
+                score = index / float(max_index)
+                score = mutate_normal(score, 0, 1.0, wide=True,
+                                      return_float=True,
+                                      random_degree=ItemObject.random_degree)
+                score = score ** (8 - (7*(ItemObject.random_degree ** 2)))
+                assert 0 <= score <= 1
+                price = int(round(score * 2500))
+                price = min(2500, max(1, price))
+                i.price = price
+
         non_coin_items = set(shoppable_items) - new_coin_items
         assert len(coin_items) == len(new_coin_items)
 
