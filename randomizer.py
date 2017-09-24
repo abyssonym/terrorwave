@@ -258,6 +258,56 @@ class ChestObject(TableObject):
         i = self.item.get_similar()
         self.set_item(i)
 
+    @classmethod
+    def full_randomize(cls):
+        ChestObject.class_reseed("ac")
+        candidates = [i for i in ItemObject.every
+                      if i.equipability and i.get_bit("equipable")]
+        shuffled = shuffle_normal(
+            candidates, wide=True, random_degree=ChestObject.random_degree)
+
+        bits = [c.get_bit("ban_ancient_cave") for c in candidates]
+        assert len(bits) == len(shuffled)
+        for b, s in zip(bits, shuffled):
+            if random.random() < (ChestObject.random_degree ** 1.5):
+                b = random.choice(bits)
+            s.set_bit("ban_ancient_cave", b)
+
+        super(ChestObject, cls).full_randomize()
+
+
+class BlueChestObject(TableObject):
+    flag = 't'
+    custom_random_enable = True
+
+    @property
+    def item(self):
+        return ItemObject.get(self.item_index)
+
+    @property
+    def name(self):
+        return self.item.name
+
+    @classmethod
+    def mutate_all(cls):
+        candidates = [i for i in ItemObject.every
+                      if i.equipability and i.get_bit("equipable")]
+        done = set([])
+        for b in BlueChestObject.every:
+            b.reseed(salt="mut")
+            while True:
+                i = b.item.get_similar(
+                    candidates=candidates,
+                    random_degree=BlueChestObject.random_degree)
+                if i in done:
+                    continue
+                b.item_index = i.index
+                done.add(i)
+                break
+
+    def cleanup(self):
+        self.item.set_bit("ban_ancient_cave", True)
+
 
 class SpellObject(PriceMixin, TableObject):
     flag = 'l'
@@ -564,6 +614,10 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return False
 
     @property
+    def is_blue_chest_item(self):
+        return self in [b.item for b in BlueChestObject.every]
+
+    @property
     def alt_cursed(self):
         if self.get_bit("cursed"):
             return ItemObject.get(self.index+1)
@@ -630,6 +684,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self.rank
 
     def cleanup(self):
+        if self.is_blue_chest_item or self.is_coin_item:
+            self.set_bit("ban_ancient_cave", True)
         if self.is_coin_item:
             self.price = min(self.price, 2500)
             return

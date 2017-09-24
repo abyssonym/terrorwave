@@ -1,5 +1,6 @@
 # objname tablefile address count grouped
 ChestObject         chest_table.txt             chest_pointers_jp.txt
+BlueChestObject     blue_chest_table.txt        b6e4c   41
 SpellObject         spell_table_jp.txt          spell_pointers_jp.txt
 CharGrowthObject    char_growth_table.txt       char_growth_pointers_jp.txt
 CharacterObject     character_table.txt         8d31f   7

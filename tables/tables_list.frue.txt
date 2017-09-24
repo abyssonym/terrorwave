@@ -1,5 +1,6 @@
 # objname tablefile address count grouped
 ChestObject         chest_table.txt             chest_pointers.txt
+BlueChestObject     blue_chest_table.txt        30d880  42
 # Frue has different spell pointers than Fixxxer
 SpellObject         spell_table.txt             spell_pointers.frue.txt
 CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt

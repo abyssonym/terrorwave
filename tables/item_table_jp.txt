@@ -1,6 +1,6 @@
 name_text,8,str
 usability,bit:consumable equipable u02 cursed fruit unsellable usable_menu usable_battle
-unknown,1
+unknown,bit:u10 u11 u12 u13 u14 ban_ancient_cave u16 u17
 targetting,1
 icon,1
 sprite,1
