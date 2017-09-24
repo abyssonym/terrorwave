@@ -614,6 +614,21 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return False
 
     @property
+    def is_new_coin_item(self):
+        if hasattr(self, "_is_new_coin_item"):
+            return self._is_new_coin_item
+        self._is_new_coin_item = False
+        return self.is_new_coin_item
+
+    @property
+    def is_unbuyable(self):
+        for s in ShopObject.every:
+            for key in s.wares:
+                if self.index in s.wares[key]:
+                    return False
+        return True
+
+    @property
     def is_blue_chest_item(self):
         return self in [b.item for b in BlueChestObject.every]
 
@@ -684,6 +699,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self.rank
 
     def cleanup(self):
+        if self.is_new_coin_item and not self.is_coin_item:
+            self.price = max(self.price, self.old_data["price"])
         if self.is_blue_chest_item or self.is_coin_item:
             self.set_bit("ban_ancient_cave", True)
         if self.is_coin_item:
@@ -965,6 +982,7 @@ class ShopObject(TableObject):
                 price = int(round(score * 2500))
                 price = min(2500, max(1, price))
                 i.price = price
+            i._is_new_coin_item = True
 
         non_coin_items = set(shoppable_items) - new_coin_items
         assert len(coin_items) == len(new_coin_items)
