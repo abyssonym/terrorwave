@@ -945,17 +945,17 @@ class ShopObject(TableObject):
                 new_coin_items.add(b)
         for i in (coin_items - new_coin_items):
             i.price = min(i.price * 2000, 65000)
-        for i in (new_coin_items - coin_items):
+        for i in sorted(new_coin_items - coin_items, key=lambda i2: i2.index):
             # Dragonblade - 2500 -> 500000 coins
             if i in ShopObject.vanilla_buyable_items:
                 i.price = max(i.price / 2000, 1)
             else:
+                i.reseed(salt="coin")
                 max_index = len(ItemObject.ranked)-1
                 if i.rank < 0:
                     index = max_index
                 else:
                     index = ItemObject.ranked.index(i)
-                i.reseed(salt="coin")
                 score = index / float(max_index)
                 score = mutate_normal(score, 0, 1.0, wide=True,
                                       return_float=True,
