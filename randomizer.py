@@ -139,7 +139,7 @@ class PriceMixin(object):
         self.price = price
 
 
-class CapsuleObject(TableObject):
+class CapsuleObject(ReadExtraMixin, TableObject):
     flag = 'p'
     flag_description = "capsule monsters"
     custom_random_enable = True
@@ -201,6 +201,7 @@ class CapsuleObject(TableObject):
 
     @classmethod
     def full_randomize(cls):
+        CapsuleObject.end_pointer = addresses.capsule_end
         CapsuleObject.class_reseed("full")
         ordering = []
         for c in CapsuleObject.every:
@@ -213,7 +214,9 @@ class CapsuleObject(TableObject):
 
     def mutate(self):
         super(CapsuleObject, self).mutate()
+        #self.mutate_skills()
 
+    def mutate_skills(self):
         near_alignments = [self.alignment]
         if self.capsule_class > 1:
             near_alignments.append(CapsuleObject.get(self.index-1).alignment)
@@ -259,6 +262,12 @@ class CapsuleObject(TableObject):
                     else:
                         self.upgrade_skills[i%3] = new_skill
                     break
+
+    def cleanup(self):
+        # for use in reading capsule monster AI scripts
+        # skill uses seem to be in the format: 3E XX
+        # but it's not consistent in the case of Myconido, for example
+        self.read_extra()
 
 
 class CapSpritePTRObject(TableObject): pass

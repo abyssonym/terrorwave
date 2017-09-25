@@ -12,6 +12,7 @@ ShopObject          shop_table.txt              shop_pointers.txt
 ItemNameObject      item_name_table.txt         f47e8   467
 CapSpritePTRObject  cap_sprite_ptr_table.txt    1384bc  35
 MonsterMoveObject   monster_move_table.txt      27f6b5  112
+$capsule_end        beead
 $rng1               63
 $rng2               2f4
 .patch              unlock_gift_mode.txt
