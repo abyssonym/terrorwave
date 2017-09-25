@@ -18,7 +18,51 @@ ALL_OBJECTS = None
 DEBUG_MODE = False
 
 
-class AdditionalPropertiesMixin(object):
+class ReadExtraMixin(object):
+    end_pointer = None
+
+    def read_extra(self, filename=None, pointer=None):
+        if filename is None:
+            filename = self.filename
+
+        if pointer is None:
+            if hasattr(self, "additional_conclude_pointer"):
+                pointer = self.additional_conclude_pointer
+            else:
+                pointer = self.pointer + self.total_size
+
+        nexts = [o for o in self.every if o.pointer > self.pointer]
+        if nexts:
+            next_obj = min(nexts, key=lambda o2: o2.pointer)
+            end_pointer = next_obj.pointer
+        elif self.end_pointer is not None:
+            end_pointer = self.end_pointer
+        else:
+            end_pointer = pointer
+
+        f = open(filename, "r+b")
+        f.seek(pointer)
+        assert end_pointer >= pointer
+        self.extra_pointer = pointer
+        self.extra = f.read(end_pointer-pointer)
+        f.close()
+
+    def write_extra(self, filename=None, pointer=None):
+        if filename is None:
+            filename = self.filename
+
+        if pointer is None:
+            if not hasattr(self, "extra_pointer"):
+                self.read_extra(filename=filename)
+            pointer = self.extra_pointer
+
+        f = open(filename, "r+b")
+        f.seek(pointer)
+        f.write(self.extra)
+        f.close()
+
+
+class AdditionalPropertiesMixin(ReadExtraMixin):
     _pre_read = []
 
     def read_data(self, filename=None, pointer=None):
@@ -39,6 +83,7 @@ class AdditionalPropertiesMixin(object):
                 value = read_multi(f, length=2)
                 self.additional_properties[bitname] = value
                 offset += 2
+        self.additional_conclude_pointer = offset
         f.close()
 
         prevs = [i for i in self._pre_read if i.pointer < self.pointer]
@@ -73,6 +118,7 @@ class AdditionalPropertiesMixin(object):
                 assert bitname not in self.additional_addresses
                 assert bitname not in self.additional_properties
         f.close()
+        self.write_extra()
 
 
 class PriceMixin(object):
@@ -633,6 +679,20 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self in [b.item for b in BlueChestObject.every]
 
     @property
+    def ip_shuffle_valid(self):
+        if "ip_effect" not in self.additional_properties:
+            return False
+        if self.index in [0x100, 0x105, 0x10a, 0x10e, 0x13f, 0x142]:
+            return False
+        return True
+
+    @property
+    def ip_shuffle_special(self):
+        if not hasattr(self, "extra"):
+            self.read_extra()
+        return self.extra[4:6] == "\x0c\x81"
+
+    @property
     def alt_cursed(self):
         if self.get_bit("cursed"):
             return ItemObject.get(self.index+1)
@@ -712,9 +772,8 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     @staticmethod
     def intershuffle():
-        ItemObject.class_reseed("inter")
-        candidates = [i for i in ItemObject.ranked
-                      if "ip_effect" in i.additional_properties]
+        ItemObject.class_reseed("ip")
+        candidates = [i for i in ItemObject.ranked if i.ip_shuffle_valid]
         negranks = [c for c in candidates if c.rank < 0]
         for c in negranks:
             candidates.remove(c)
@@ -723,12 +782,25 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             index = random.randint(random.randint(random.randint(
                 0, max_index), max_index), max_index)
             candidates.insert(index, c)
-        shuffled = shuffle_normal(
-            candidates, wide=True, random_degree=ItemObject.random_degree)
-        shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
-        for i, ip in zip(candidates, shuffled):
-            i.additional_properties["ip_effect"] = ip
 
+        cand2s = [c for c in candidates if c.ip_shuffle_special]
+        cand1s = [c for c in candidates if c not in cand2s]
+        for candidates in [cand1s, cand2s]:
+            shuffled = shuffle_normal(
+                candidates, wide=True, random_degree=ItemObject.random_degree)
+
+            if candidates is cand2s:
+                extras = [i.extra for i in shuffled]
+                for i, extra in zip(candidates, extras):
+                    startlen = len(i.extra)
+                    i.extra = i.extra[:4] + extra[4:11] + i.extra[11:]
+                    assert len(i.extra) == startlen
+
+            shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
+            for i, ip in zip(candidates, shuffled):
+                i.additional_properties["ip_effect"] = ip
+
+        ItemObject.class_reseed("equip")
         equip_types = ["weapon", "armor", "shield",
                        "helmet", "ring", "jewel"]
         for equip_type in equip_types:
