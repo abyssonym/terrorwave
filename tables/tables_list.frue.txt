@@ -18,3 +18,4 @@ $rng1               63
 $rng2               2f4
 .patch              unlock_gift_mode.txt
 .patch              skip_tutorial.txt
+.option             ac_music_hack.txt

@@ -18,3 +18,4 @@ $capsule_end        beead
 $rng1               63
 $rng2               2f4
 .patch              skip_tutorial.txt
+.option             ac_music_hack.txt
