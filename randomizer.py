@@ -768,6 +768,11 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self.rank
 
     def cleanup(self):
+        if self.index == 0x36 and "KUREJI" in get_global_label().upper():
+            for charname in ["maxim", "selan", "guy", "artea",
+                             "tia", "dekar", "lexis"]:
+                self.set_bit(charname, True)
+
         if self.is_new_coin_item and not self.is_coin_item:
             self.price = max(self.price, self.old_data["price"])
         if self.is_blue_chest_item or self.is_coin_item:
