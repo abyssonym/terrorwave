@@ -1151,6 +1151,8 @@ class ItemNameObject(TableObject): pass
 
 
 class MonsterMoveObject(TableObject):
+    flag = 'm'
+
     def mutate(self):
         movements = [mm.old_data["movement"]
                      for mm in MonsterMoveObject.every]
