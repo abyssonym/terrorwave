@@ -18,4 +18,5 @@ $rng1               63
 $rng2               2f4
 .patch              skip_tutorial.txt
 .patch              spekkio_patch.txt
+.patch              clear_initial_spells.txt
 .option             ac_music_hack.txt

@@ -17,3 +17,4 @@ $rng2               2f4
 .patch              unlock_gift_mode_jp.txt
 .patch              skip_tutorial_jp.txt
 .patch              fix_ac_items.txt
+.patch              clear_initial_spells_jp.txt
