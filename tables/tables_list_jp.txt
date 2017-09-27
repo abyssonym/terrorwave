@@ -11,10 +11,11 @@ CapsuleObject       capsule_table_jp.txt        8e447   35      point1  8e447 2
 ShopObject          shop_table.txt              shop_pointers_jp.txt
 CapSpritePTRObject  cap_sprite_ptr_table.txt    1384bc  35
 MonsterMoveObject   monster_move_table.txt      27f6b5  112
+$airship_code       33dc3
 $capsule_end        8f5f6
 $rng1               63
 $rng2               2f4
 .patch              unlock_gift_mode_jp.txt
-.patch              skip_tutorial_jp.txt
+.patch.no_verify    skip_tutorial_jp.txt
 .patch              fix_ac_items.txt
 .patch              clear_initial_spells_jp.txt

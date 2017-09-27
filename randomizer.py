@@ -1188,6 +1188,7 @@ if __name__ == "__main__":
                        and g not in [TableObject]]
 
         codes = {
+            "airship": ["airship"],
             "anywhere": ["anywhere"],
             #"everywhere": ["everywhere"],
         }
@@ -1196,6 +1197,13 @@ if __name__ == "__main__":
         numify = lambda x: "{0: >3}".format(x)
         minmax = lambda x: (min(x), max(x))
 
+        if "airship" in get_activated_codes():
+            print "AIRSHIP CODE ACTIVATED"
+            f = open(get_outfile(), "r+b")
+            f.seek(addresses.airship_code)
+            s = "\x23\x00\x26\x7c\x02\x7e\x00\x7f\xff\x00"
+            f.write(s)
+            f.close()
         clean_and_write(ALL_OBJECTS)
 
         rewrite_snes_meta("L2-R", VERSION, lorom=True)
