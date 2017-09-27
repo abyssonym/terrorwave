@@ -139,6 +139,51 @@ class PriceMixin(object):
         self.price = price
 
 
+class AncientChestMixin(object):
+    flag = 't'
+    custom_random_enable = True
+
+    @property
+    def item(self):
+        return ItemObject.get(self.item_index)
+
+    @property
+    def name(self):
+        return self.item.name
+
+    @property
+    def distribution(self):
+        return [ac.old_data["item_index"] for ac in self.every]
+
+    @property
+    def equal_distribution(self):
+        return sorted(set(self.distribution))
+
+    def mutate(self):
+        if random.random() <= self.random_degree:
+            candidates = list(self.equal_distribution)
+        else:
+            candidates = list(self.distribution)
+        candidates.append(None)
+        while random.random() < (self.random_degree / 2):
+            candidates.append(None)
+        self.reseed(salt="ac_chest")
+        chosen = random.choice(candidates)
+        if chosen is None:
+            candidates = [i.index for i in ItemObject.every if i.rank > 0
+                          and (i.get_bit("equipable") is False
+                               or not i.equipability
+                               or i.get_bit("ban_ancient_cave") is True)]
+            candidates.append(0x36)  # dual blade
+            candidates = sorted(set(candidates))
+            chosen = random.choice(candidates)
+        self.item_index = chosen
+
+
+class AncientChest1Object(AncientChestMixin, TableObject): pass
+class AncientChest2Object(AncientChestMixin, TableObject): pass
+
+
 class CapsuleObject(ReadExtraMixin, TableObject):
     flag = 'p'
     flag_description = "capsule monsters"

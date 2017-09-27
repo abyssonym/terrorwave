@@ -1,6 +1,8 @@
 # objname tablefile address count grouped
 ChestObject         chest_table.txt             chest_pointers_jp.txt
+AncientChest2Object ancient_chest_table.txt     b7139   9
 BlueChestObject     blue_chest_table.txt        b6e4c   41
+AncientChest1Object ancient_chest_table.txt     b70e9   31
 SpellObject         spell_table_jp.txt          spell_pointers_jp.txt
 MonsterObject       monster_table_jp.txt        monster_pointers_jp.txt
 ItemObject          item_table_jp.txt           93ce6   467     point1  93ce6 2

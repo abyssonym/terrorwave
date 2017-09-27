@@ -1,6 +1,8 @@
 # objname tablefile address count grouped
 ChestObject         chest_table.txt             chest_pointers.txt
+AncientChest2Object ancient_chest_table.txt     8ffdc   9
 BlueChestObject     blue_chest_table.txt        30d880  42
+AncientChest1Object ancient_chest_table.txt     a713d   31
 SpellObject         spell_table.txt             spell_pointers.frue.txt
 # kureji has 7 extra monsters, but we're ignoring bosses
 MonsterObject       monster_table.txt           282000  188     point1  282000 2
