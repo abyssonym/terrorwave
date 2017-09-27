@@ -13,7 +13,7 @@ from time import time
 from collections import Counter
 
 
-VERSION = 1
+VERSION = 2
 ALL_OBJECTS = None
 DEBUG_MODE = False
 

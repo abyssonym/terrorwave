@@ -1,0 +1,15 @@
+VERSION 2
+-Most shop prices are rounded to 0 on even-numbered versions.
+-Detailed randomness settings are available.
+	Example: separate randomness for monsters and items.
+-The tutorial dungeon is skippable. Reset is learned upon exiting town.
+-Monster movement is randomized.
+-Treasure in the Ancient Cave is randomized (including Blue Chest items).
+-The Ancient Cave item bug from the original game is patched.
+-An optional patch for the Ancient Cave music is available.
+-New secret codes added, including a code to start the game with the airship.
+-Adjust some gold to coin price conversions for rare items.
+-Fixed some bugs involving IP skills not working after being shuffled.
+-Characters no longer start with any initially learned magic.
+-Capsule Monster skills are NOT randomized (they never actually were)
+-Various mods created by Artemis are supported by the randomizer.

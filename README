@@ -1,6 +1,6 @@
 Lufia 2 Terror Wave Randomizer
-Version:    1
-Date:       September 12, 2017
+Version:    2
+Date:       September 27, 2017
 URL:        www.abyssonym.com/2017/09/12/lufia-2-terror-wave-new-randomizer
 Contact:    https://twitter.com/abyssonym
 
@@ -14,6 +14,16 @@ Source rom file:
           18567d21df6a95a7b52029d250bac721 (J)
           026b649ed316448e038349e39a6fe579 (Fixxxer)
 
+    The following mods are also supported:
+        Frue Lufia                  38b9498ec568d08a1a4b6692d178b35e
+        Spekkio Lufia               5afddb3ba7788123c4cff6ee7fa83f3f
+        Kureji Lufia (4 versions)   faba981aa1f3831d1b065ae071ea555b
+                                    603f33033c185b38b89c066dbb1d5f94
+                                    1bbb110722e89b39c109794ef8c422ec
+                                    8a099fe9ae56c22d1ba829ddc2a9545e
+        The New Fierce Battle       6782948f762f050a045921191ebc67b5
+        The Wrath of Foomy          fa8d08fe8a988f9122766a67e6c4bf88
+
 Seed value:
     Input a seed value here, or leave it blank if you don't care.
 
@@ -26,14 +36,30 @@ Flags:
     s  Randomize shops.
     t  Randomize treasure chests.
 
+Secret Codes:
+    Codes are entered in the "flags" section. The codes are:
+
+    airship                 Start the game with the airship.
+    anywhere                Equipment slots are randomized (breaks "Strongest")
+    nothingpersonnelkid     Extremely aggressive enemies.
+
+    These codes are not recommended for a first playthrough of the randomizer.
+
 Randomness:
     Terror Wave is the first Abyssonym randomizer to include a "randomness" option. This option controls how extreme the randomizations are. At 0.0, almost nothing will be randomized. At 1.0, enemies in the starting area will most likely have boss stats. I suggest leaving it at the default setting of 0.5 for your first run.
+    It is possible to use different settings for different flags. Type "custom" to enable more detailed randomness settings. This is useful, for example, when you want to find high-level gear without fighting high-level enemies.
+
+Patches:
+    The English versions of the randomizer include an optional Ancient Cave music hack. This hack will randomize the music and tileset for each floor of the Ancient Cave. Additionally, it will disable the jingle that plays whenever you open a chest.
 
 Output files:
     The randomizer will output a new, randomized rom with the seed in the filename.
 
 Credits:
-    Fixxxer Deluxe mod created by Relnqshd - www.romhacking.net/hacks/229/
+    Artemis - Creator of various mods and assistance with several bugs and features
+    Relnqshd - Creator of "Fixxxer Deluxe" mod
+        http://www.romhacking.net/hacks/229/
+    Rainponcho - Creator of the Ancient Cave item fix patch
 
 Like this randomizer? Be sure to check out my other projects:
     FF6 Beyond Chaos Randomizer
