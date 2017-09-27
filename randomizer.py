@@ -1163,6 +1163,10 @@ class MonsterMoveObject(TableObject):
         else:
             self.movement = random.choice(movements)
 
+    def cleanup(self):
+        if "personnel" in get_activated_codes():
+            self.movement = 0x1F
+
 
 def randomize_rng():
     # haven't quite figured out how this works
@@ -1191,6 +1195,8 @@ if __name__ == "__main__":
             "airship": ["airship"],
             "anywhere": ["anywhere"],
             #"everywhere": ["everywhere"],
+            "personnel": ["nothingpersonnelkid", "nothing.personnel.kid",
+                          "nothing personnel kid", "nothing_personnel_kid"]
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         hexify = lambda x: "{0:0>2}".format("%x" % x)
@@ -1204,6 +1210,10 @@ if __name__ == "__main__":
             s = "\x23\x00\x26\x7c\x02\x7e\x00\x7f\xff\x00"
             f.write(s)
             f.close()
+
+        if "personnel" in get_activated_codes():
+            print "NOTHING PERSONNEL KID."
+
         clean_and_write(ALL_OBJECTS)
 
         rewrite_snes_meta("L2-R", VERSION, lorom=True)
