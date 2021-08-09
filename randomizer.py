@@ -1,19 +1,16 @@
 from randomtools.tablereader import (
     TableObject, get_global_label, tblpath, addresses, get_random_degree,
-    mutate_normal, shuffle_normal)
+    mutate_normal, shuffle_normal, get_open_file)
 from randomtools.utils import (
-    classproperty, get_snes_palette_transformer,
-    read_multi, write_multi, utilrandom as random)
+    classproperty, utilrandom as random)
 from randomtools.interface import (
-    get_outfile, get_seed, get_flags, get_activated_codes,
+    get_outfile, get_flags, get_activated_codes,
     run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
-from collections import defaultdict
-from os import path
-from time import time
-from collections import Counter
+
+from traceback import format_exc
 
 
-VERSION = 2
+VERSION = '3.0b'
 ALL_OBJECTS = None
 DEBUG_MODE = False
 
@@ -26,10 +23,10 @@ class ReadExtraMixin(object):
             filename = self.filename
 
         if pointer is None:
-            if hasattr(self, "additional_conclude_pointer"):
+            if hasattr(self, 'additional_conclude_pointer'):
                 pointer = self.additional_conclude_pointer
             else:
-                pointer = self.pointer + self.total_size
+                pointer = self.pointer + self.specs.total_size
 
         nexts = [o for o in self.every if o.pointer > self.pointer]
         if nexts:
@@ -40,26 +37,24 @@ class ReadExtraMixin(object):
         else:
             end_pointer = pointer
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         f.seek(pointer)
         assert end_pointer >= pointer
         self.extra_pointer = pointer
         self.extra = f.read(end_pointer-pointer)
-        f.close()
 
     def write_extra(self, filename=None, pointer=None):
         if filename is None:
             filename = self.filename
 
         if pointer is None:
-            if not hasattr(self, "extra_pointer"):
+            if not hasattr(self, 'extra_pointer'):
                 self.read_extra(filename=filename)
             pointer = self.extra_pointer
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         f.seek(pointer)
         f.write(self.extra)
-        f.close()
 
 
 class AdditionalPropertiesMixin(ReadExtraMixin):
@@ -68,30 +63,30 @@ class AdditionalPropertiesMixin(ReadExtraMixin):
     def read_data(self, filename=None, pointer=None):
         assert self not in self._pre_read
         super(AdditionalPropertiesMixin, self).read_data(filename, pointer)
+        filename = filename or self.filename
 
-        offset = self.pointer + self.total_size
+        offset = self.pointer + self.specs.total_size
         self.additional_addresses = {}
         self.additional_properties = {}
         bitnames = [bn for bns in self.additional_bitnames
-                    for bn in self.bitnames[bns]]
+                    for bn in self.specs.bitnames[bns]]
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         for bitname in bitnames:
             if self.get_bit(bitname):
                 self.additional_addresses[bitname] = offset
                 f.seek(offset)
-                value = read_multi(f, length=2)
+                value = int.from_bytes(f.read(2), byteorder='little')
                 self.additional_properties[bitname] = value
                 offset += 2
         self.additional_conclude_pointer = offset
-        f.close()
 
         prevs = [i for i in self._pre_read if i.pointer < self.pointer]
         nexts = [i for i in self._pre_read if i.pointer > self.pointer]
         if prevs:
             p = max(prevs, key=lambda p2: p2.pointer)
             assert self.pointer >= max(
-                [p.pointer] + p.additional_addresses.values())+2
+                [p.pointer] + sorted(p.additional_addresses.values()))+2
 
         if nexts:
             n = min(nexts, key=lambda n2: n2.pointer)
@@ -102,22 +97,22 @@ class AdditionalPropertiesMixin(ReadExtraMixin):
 
     def write_data(self, filename=None, pointer=None):
         super(AdditionalPropertiesMixin, self).write_data(filename, pointer)
+        filename = filename or self.filename
 
         bitnames = [bn for bns in self.additional_bitnames
-                    for bn in self.bitnames[bns]]
+                    for bn in self.specs.bitnames[bns]]
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         for bitname in bitnames:
             if self.get_bit(bitname):
                 offset = self.additional_addresses[bitname]
                 value = self.additional_properties[bitname]
                 f.seek(offset)
-                write_multi(f, value, length=2)
+                f.write(value.to_bytes(length=2, byteorder='little'))
                 offset += 2
             else:
                 assert bitname not in self.additional_addresses
                 assert bitname not in self.additional_properties
-        f.close()
         self.write_extra()
 
 
@@ -134,9 +129,9 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        if price > 10 and price % 10 == 0 and VERSION % 2 == 1:
+        if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
             price = price - 1
-        self.price = price
+        self.price = int(round(price))
 
 
 class AncientChestMixin(object):
@@ -153,7 +148,7 @@ class AncientChestMixin(object):
 
     @property
     def distribution(self):
-        return [ac.old_data["item_index"] for ac in self.every]
+        return [ac.old_data['item_index'] for ac in self.every]
 
     @property
     def equal_distribution(self):
@@ -167,13 +162,13 @@ class AncientChestMixin(object):
         candidates.append(None)
         while random.random() < (self.random_degree / 2):
             candidates.append(None)
-        self.reseed(salt="ac_chest")
+        self.reseed(salt='ac_chest')
         chosen = random.choice(candidates)
         if chosen is None:
             candidates = [i.index for i in ItemObject.every if i.rank > 0
-                          and (i.get_bit("equipable") is False
+                          and (i.get_bit('equipable') is False
                                or not i.equipability
-                               or i.get_bit("ban_ancient_cave") is True)]
+                               or i.get_bit('ban_ancient_cave') is True)]
             candidates.append(0x36)  # dual blade
             candidates = sorted(set(candidates))
             chosen = random.choice(candidates)
@@ -186,34 +181,34 @@ class AncientChest2Object(AncientChestMixin, TableObject): pass
 
 class CapsuleObject(ReadExtraMixin, TableObject):
     flag = 'p'
-    flag_description = "capsule monsters"
+    flag_description = 'capsule monsters'
     custom_random_enable = True
 
     intershuffle_attributes = [
-        ("hp", "hp_factor"),
-        "attack",
-        "defense",
-        ("strength", "strength_factor"),
-        ("agility", "agility_factor"),
-        ("intelligence", "intelligence_factor"),
-        ("guts", "guts_factor"),
-        ("magic_resistance", "magic_resistance_factor"),
+        ('hp', 'hp_factor'),
+        'attack',
+        'defense',
+        ('strength', 'strength_factor'),
+        ('agility', 'agility_factor'),
+        ('intelligence', 'intelligence_factor'),
+        ('guts', 'guts_factor'),
+        ('magic_resistance', 'magic_resistance_factor'),
         ]
     mutate_attributes = {
-        "hp": None,
-        "hp_factor": None,
-        "attack": None,
-        "defense": None,
-        "strength": None,
-        "strength_factor": None,
-        "agility": None,
-        "agility_factor": None,
-        "intelligence": None,
-        "intelligence_factor": None,
-        "guts": None,
-        "guts_factor": None,
-        "magic_resistance": None,
-        "magic_resistance_factor": None,
+        'hp': None,
+        'hp_factor': None,
+        'attack': None,
+        'defense': None,
+        'strength': None,
+        'strength_factor': None,
+        'agility': None,
+        'agility_factor': None,
+        'intelligence': None,
+        'intelligence_factor': None,
+        'guts': None,
+        'guts_factor': None,
+        'magic_resistance': None,
+        'magic_resistance_factor': None,
     }
 
     @property
@@ -231,15 +226,14 @@ class CapsuleObject(ReadExtraMixin, TableObject):
         palettes = [CapPaletteObject.get(i).get_all_colors()
                     for i in ordering]
         pointers = [CapsuleObject.get(i).pointer for i in ordering]
-        start = CapsuleObject.specspointer
+        start = CapsuleObject.specs.pointer
         for i, (pointer, sprite, palette) in enumerate(
                 zip(pointers, sprites, palettes)):
             c = CapsuleObject.get(i)
-            f = open(get_outfile(), "r+b")
+            f = get_open_file(get_outfile())
             f.seek(start + (2*c.index))
-            write_multi(f, pointer-start, length=2)
+            f.write((pointer-start).to_bytes(length=2, byteorder='little'))
             c.pointer = pointer
-            f.close()
             c.read_data(filename=get_outfile(), pointer=c.pointer)
             CapSpritePTRObject.get(i).sprite_pointer = sprite
             CapPaletteObject.get(i).set_all_colors(palette)
@@ -247,7 +241,7 @@ class CapsuleObject(ReadExtraMixin, TableObject):
     @classmethod
     def full_randomize(cls):
         CapsuleObject.end_pointer = addresses.capsule_end
-        CapsuleObject.class_reseed("full")
+        CapsuleObject.class_reseed('full')
         ordering = []
         for c in CapsuleObject.every:
             candidates = [c2.index for c2 in CapsuleObject.every
@@ -274,12 +268,12 @@ class CapsuleObject(ReadExtraMixin, TableObject):
             near = (abs(c.capsule_class - self.capsule_class) <= 1
                     and c.alignment in near_alignments)
             if (related or near):
-                for key in ["start_skills", "upgrade_skills"]:
+                for key in ['start_skills', 'upgrade_skills']:
                     for skill in c.old_data[key]:
                         if skill == 0:
                             continue
                         value = c.capsule_class
-                        if key == "upgrade_skills":
+                        if key == 'upgrade_skills':
                             value += 0.5
                         if (skill not in skill_ranks
                                 or skill_ranks[skill] > value):
@@ -321,25 +315,25 @@ class CapSpritePTRObject(TableObject): pass
 class CapPaletteObject(TableObject):
     def get_all_colors(self):
         colors = []
-        for i in xrange(0x10):
-            c = getattr(self, "color%X" % i)
+        for i in range(0x10):
+            c = getattr(self, 'color%X' % i)
             colors.append(c)
         return colors
 
     def set_all_colors(self, colors):
         for i, c in enumerate(colors):
-            setattr(self, "color%X" % i, c)
+            setattr(self, 'color%X' % i, c)
 
 
 class ChestObject(TableObject):
     flag = 't'
-    flag_description = "treasure chests"
+    flag_description = 'treasure chests'
     custom_random_enable = True
 
     @property
     def item_index(self):
         return (
-            self.get_bit("item_high_bit") << 8) | self.item_low_byte
+            self.get_bit('item_high_bit') << 8) | self.item_low_byte
 
     @property
     def item(self):
@@ -349,9 +343,9 @@ class ChestObject(TableObject):
         if isinstance(item, ItemObject):
             item = item.index
         if item & 0x100:
-            self.set_bit("item_high_bit", True)
+            self.set_bit('item_high_bit', True)
         else:
-            self.set_bit("item_high_bit", False)
+            self.set_bit('item_high_bit', False)
         self.item_low_byte = item & 0xFF
 
     def mutate(self):
@@ -360,18 +354,18 @@ class ChestObject(TableObject):
 
     @classmethod
     def full_randomize(cls):
-        ChestObject.class_reseed("ac")
+        ChestObject.class_reseed('ac')
         candidates = [i for i in ItemObject.every
-                      if i.equipability and i.get_bit("equipable")]
+                      if i.equipability and i.get_bit('equipable')]
         shuffled = shuffle_normal(
             candidates, wide=True, random_degree=ChestObject.random_degree)
 
-        bits = [c.get_bit("ban_ancient_cave") for c in candidates]
+        bits = [c.get_bit('ban_ancient_cave') for c in candidates]
         assert len(bits) == len(shuffled)
         for b, s in zip(bits, shuffled):
             if random.random() < (ChestObject.random_degree ** 1.5):
                 b = random.choice(bits)
-            s.set_bit("ban_ancient_cave", b)
+            s.set_bit('ban_ancient_cave', b)
 
         super(ChestObject, cls).full_randomize()
 
@@ -391,10 +385,11 @@ class BlueChestObject(TableObject):
     @classmethod
     def mutate_all(cls):
         candidates = [i for i in ItemObject.every
-                      if i.equipability and i.get_bit("equipable")]
+                      if i.equipability and i.get_bit('equipable')
+                      and i.rank >= 0]
         done = set([])
         for b in BlueChestObject.every:
-            b.reseed(salt="mut")
+            b.reseed(salt='mut')
             while True:
                 i = b.item.get_similar(
                     candidates=candidates,
@@ -406,17 +401,17 @@ class BlueChestObject(TableObject):
                 break
 
     def cleanup(self):
-        self.item.set_bit("ban_ancient_cave", True)
+        self.item.set_bit('ban_ancient_cave', True)
 
 
 class SpellObject(PriceMixin, TableObject):
     flag = 'l'
-    flag_description = "learnable spells"
+    flag_description = 'learnable spells'
     custom_random_enable = 'i'
 
     mutate_attributes = {
-        "price": (1, 65500),
-        "mp_cost": None,
+        'price': (1, 65500),
+        'mp_cost': None,
     }
 
     @property
@@ -431,9 +426,9 @@ class SpellObject(PriceMixin, TableObject):
 
     @staticmethod
     def intershuffle():
-        SpellObject.class_reseed("inter")
+        SpellObject.class_reseed('inter')
         old_casters = []
-        for i in xrange(7):
+        for i in range(7):
             mask = (1 << i)
             charmasks = [s.characters & mask for s in SpellObject.every]
             if not any(charmasks):
@@ -444,7 +439,7 @@ class SpellObject(PriceMixin, TableObject):
                 num_learnable, 1, len(charmasks), wide=True,
                 random_degree=SpellObject.random_degree)
             charmasks = [mask if i < num_learnable else 0
-                         for i in xrange(len(charmasks))]
+                         for i in range(len(charmasks))]
             random.shuffle(charmasks)
             for s, charmask in zip(SpellObject.every, charmasks):
                 if s.characters & mask:
@@ -461,7 +456,7 @@ class SpellObject(PriceMixin, TableObject):
         for s in SpellObject.every:
             s.characters = 0
 
-        new_casters = [i for i in xrange(7)
+        new_casters = [i for i in range(7)
                        if CharacterObject.get(i).is_caster]
         random.shuffle(new_casters)
         for a, b in zip(old_casters, new_casters):
@@ -478,11 +473,11 @@ class SpellObject(PriceMixin, TableObject):
 
     @property
     def rank(self):
-        return self.old_data["price"]
+        return self.old_data['price']
 
     def cleanup(self):
         if self.index == 0x26:
-            self.set_bit("maxim", True)
+            self.set_bit('maxim', True)
             self.mp_cost = 0
         if 's' not in get_flags() and 'l' not in get_flags():
             return
@@ -494,13 +489,13 @@ class CharGrowthObject(TableObject):
     custom_random_enable = True
 
     mutate_attributes = {
-        "hp": None,
-        "mp": None,
-        "str": None,
-        "agl": None,
-        "int": None,
-        "gut": None,
-        "mgr": None,
+        'hp': None,
+        'mp': None,
+        'str': None,
+        'agl': None,
+        'int': None,
+        'gut': None,
+        'mgr': None,
         }
 
     @classproperty
@@ -524,22 +519,22 @@ class CharGrowthObject(TableObject):
 
 class CharacterObject(TableObject):
     flag = 'c'
-    flag_description = "characters"
+    flag_description = 'characters'
     custom_random_enable = True
 
     @property
     def name(self):
-        return {0: "Maxim",
-                1: "Selan",
-                2: "Guy",
-                3: "Artea",
-                4: "Tia",
-                5: "Dekar",
-                6: "Lexis"}[self.index]
+        return {0: 'Maxim',
+                1: 'Selan',
+                2: 'Guy',
+                3: 'Artea',
+                4: 'Tia',
+                5: 'Dekar',
+                6: 'Lexis'}[self.index]
 
     @staticmethod
     def intershuffle():
-        CharacterObject.class_reseed("inter")
+        CharacterObject.class_reseed('inter')
         indexes = [c.index for c in CharacterObject.every]
 
         for key in CharGrowthObject.mutate_attributes:
@@ -578,24 +573,24 @@ class CharacterObject(TableObject):
 
 class MonsterObject(TableObject):
     flag = 'm'
-    flag_description = "monsters"
+    flag_description = 'monsters'
     custom_random_enable = True
 
     intershuffle_attributes = [
-        "hp", "attack", "defense", "agility", "intelligence",
-        "guts", "magic_resistance", "xp", "gold"]
+        'hp', 'attack', 'defense', 'agility', 'intelligence',
+        'guts', 'magic_resistance', 'xp', 'gold']
 
     mutate_attributes = {
-        "level": None,
-        "hp": None,
-        "attack": None,
-        "defense": None,
-        "agility": None,
-        "intelligence": None,
-        "guts": None,
-        "magic_resistance": None,
-        "xp": None,
-        "gold": None,
+        'level': None,
+        'hp': None,
+        'attack': None,
+        'defense': None,
+        'agility': None,
+        'intelligence': None,
+        'guts': None,
+        'magic_resistance': None,
+        'xp': None,
+        'gold': None,
     }
 
     @property
@@ -629,7 +624,7 @@ class MonsterObject(TableObject):
 
     @property
     def rank(self):
-        if hasattr(self, "_rank"):
+        if hasattr(self, '_rank'):
             return self._rank
         rankdict = {}
         if self.index in rankdict:
@@ -643,7 +638,7 @@ class MonsterObject(TableObject):
 
     @classmethod
     def intershuffle(cls):
-        MonsterObject.class_reseed("inter")
+        MonsterObject.class_reseed('inter')
         super(MonsterObject, cls).intershuffle(
             candidates=[m for m in MonsterObject.every if not m.is_boss])
         super(MonsterObject, cls).intershuffle(
@@ -661,19 +656,19 @@ class MonsterObject(TableObject):
 
     def read_data(self, filename=None, pointer=None):
         super(MonsterObject, self).read_data(filename, pointer)
+        filename = filename or self.filename
         if self.has_drop:
-            f = open(filename, "r+b")
-            f.seek(self.pointer+self.total_size)
-            self.drop_data = read_multi(f, length=2)
-            f.close()
+            f = get_open_file(filename)
+            f.seek(self.pointer+self.specs.total_size)
+            self.drop_data = int.from_bytes(f.read(2), byteorder='little')
 
     def write_data(self, filename=None, pointer=None):
         super(MonsterObject, self).write_data(filename, pointer)
+        filename = filename or self.filename
         if self.has_drop:
-            f = open(filename, "r+b")
-            f.seek(self.pointer+self.total_size)
-            write_multi(f, self.drop_data, length=2)
-            f.close()
+            f = get_open_file(filename)
+            f.seek(self.pointer+self.specs.total_size)
+            f.write(self.drop_data.to_bytes(length=2, byteorder='little'))
 
     def mutate(self):
         super(MonsterObject, self).mutate()
@@ -690,12 +685,12 @@ class MonsterObject(TableObject):
 
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'i'
-    flag_description = "items and equipment"
+    flag_description = 'items and equipment'
     custom_random_enable = 'i'
 
     additional_bitnames = ['misc1', 'misc2']
     mutate_attributes = {
-        "price": (1, 65500),
+        'price': (1, 65500),
     }
 
     @property
@@ -709,13 +704,13 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     @property
     def is_coin_item(self):
         for s in ShopObject.every:
-            if s.wares["coin"] and self.index in s.wares["item"]:
+            if s.wares['coin'] and self.index in s.wares['item']:
                 return True
         return False
 
     @property
     def is_new_coin_item(self):
-        if hasattr(self, "_is_new_coin_item"):
+        if hasattr(self, '_is_new_coin_item'):
             return self._is_new_coin_item
         self._is_new_coin_item = False
         return self.is_new_coin_item
@@ -734,7 +729,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     @property
     def ip_shuffle_valid(self):
-        if "ip_effect" not in self.additional_properties:
+        if 'ip_effect' not in self.additional_properties:
             return False
         if self.index in [0x100, 0x105, 0x10a, 0x10e, 0x13f, 0x142]:
             return False
@@ -742,28 +737,28 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     @property
     def ip_shuffle_special(self):
-        if not hasattr(self, "extra"):
+        if not hasattr(self, 'extra'):
             self.read_extra()
-        return self.extra[4:6] == "\x0c\x81"
+        return self.extra[4:6] == '\x0c\x81'
 
     @property
     def alt_cursed(self):
-        if self.get_bit("cursed"):
+        if self.get_bit('cursed'):
             return ItemObject.get(self.index+1)
         elif self.index == 0:
             return None
         else:
             test = ItemObject.get(self.index-1)
-            if test.get_bit("cursed"):
+            if test.get_bit('cursed'):
                 return test
         return None
 
     @property
     def rank(self):
-        if hasattr(self, "_rank"):
+        if hasattr(self, '_rank'):
             return self._rank
 
-        price = self.old_data["price"]
+        price = self.old_data['price']
 
         rankdict = {
             0x00: -1,
@@ -795,15 +790,15 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             0x1d1: 0,
             0x1d2: 0,
         }
-        artemis_mods = ["L2_FRUE", "L2_SPEKKIO", "L2_KUREJI", "L2_KUREJI_NB",
-                        "L2_KUREJI_HC", "L2_KUREJI_HC_NB"]
+        artemis_mods = ['L2_FRUE', 'L2_SPEKKIO', 'L2_KUREJI', 'L2_KUREJI_NB',
+                        'L2_KUREJI_HC', 'L2_KUREJI_HC_NB']
         if get_global_label() in artemis_mods and self.index >= 0x1a7:
             self._rank = -1
         elif self.index in rankdict:
             self._rank = rankdict[self.index]
         elif 0x18e <= self.index <= 0x19b:
             self._rank = price * 2000
-        elif price <= 2 or self.get_bit("unsellable"):
+        elif price <= 2 or self.get_bit('unsellable'):
             self._rank = -1
         elif self.alt_cursed:
             self._rank = max(price, self.alt_cursed.price)
@@ -813,15 +808,16 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self.rank
 
     def cleanup(self):
-        if self.index == 0x36 and "KUREJI" in get_global_label().upper():
-            for charname in ["maxim", "selan", "guy", "artea",
-                             "tia", "dekar", "lexis"]:
+        if self.index == 0x36 and 'KUREJI' in get_global_label().upper():
+            for charname in ['maxim', 'selan', 'guy', 'artea',
+                             'tia', 'dekar', 'lexis']:
                 self.set_bit(charname, True)
 
         if self.is_new_coin_item and not self.is_coin_item:
-            self.price = max(self.price, self.old_data["price"])
+            self.price = max(self.price, self.old_data['price'])
         if self.is_blue_chest_item or self.is_coin_item:
-            self.set_bit("ban_ancient_cave", True)
+            self.set_bit('ban_ancient_cave', True)
+        self.price = int(round(self.price))
         if self.is_coin_item:
             self.price = min(self.price, 2500)
             return
@@ -831,7 +827,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     @staticmethod
     def intershuffle():
-        ItemObject.class_reseed("ip")
+        ItemObject.class_reseed('ip')
         candidates = [i for i in ItemObject.ranked if i.ip_shuffle_valid]
         negranks = [c for c in candidates if c.rank < 0]
         for c in negranks:
@@ -855,17 +851,17 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                     i.extra = i.extra[:4] + extra[4:11] + i.extra[11:]
                     assert len(i.extra) == startlen
 
-            shuffled = [i.additional_properties["ip_effect"] for i in shuffled]
+            shuffled = [i.additional_properties['ip_effect'] for i in shuffled]
             for i, ip in zip(candidates, shuffled):
-                i.additional_properties["ip_effect"] = ip
+                i.additional_properties['ip_effect'] = ip
 
-        ItemObject.class_reseed("equip")
-        equip_types = ["weapon", "armor", "shield",
-                       "helmet", "ring", "jewel"]
+        ItemObject.class_reseed('equip')
+        equip_types = ['weapon', 'armor', 'shield',
+                       'helmet', 'ring', 'jewel']
         for equip_type in equip_types:
             equips = [i for i in ItemObject.every
-                      if i.get_bit("equipable") and i.get_bit(equip_type)]
-            ordering = range(7)
+                      if i.get_bit('equipable') and i.get_bit(equip_type)]
+            ordering = list(range(7))
             random.shuffle(ordering)
             for i in equips:
                 old_equip = i.equipability
@@ -886,12 +882,12 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                 i.equipability = new_equip
 
         equips = [i for i in ItemObject.every
-                  if i.get_bit("equipable") and i.item_type & 0x3F]
-        if "everywhere" in get_activated_codes():
+                  if i.get_bit('equipable') and i.item_type & 0x3F]
+        if 'everywhere' in get_activated_codes():
             # doesn't work, the game checks for multiple bits at equip menu
-            print "EQUIP EVERYWHERE CODE ACTIVATED"
+            print('EQUIP EVERYWHERE CODE ACTIVATED')
             for i in equips:
-                equip_score = 6 - (bin(i.equipability).count("1") - 1)
+                equip_score = 6 - (bin(i.equipability).count('1') - 1)
                 num_slots = 1 + ((equip_score / 6.0) * 5)
                 assert equip_score >= 0
                 num_slots = mutate_normal(
@@ -903,16 +899,16 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
                     new_item_type |= (1 << b)
                 old_item_type = i.item_type
                 i.item_type = 0
-                for b in xrange(6):
+                for b in range(6):
                     if random.random() < ItemObject.random_degree:
                         i.item_type |= (new_item_type & (1 << b))
                     else:
                         i.item_type |= (old_item_type & (1 << b))
                 assert not old_item_type & 0xC0
 
-        elif "anywhere" in get_activated_codes():
-            # works, but "strongest" looks for appropriate icon
-            print "EQUIP ANYWHERE CODE ACTIVATED"
+        elif 'anywhere' in get_activated_codes():
+            # works, but 'strongest' looks for appropriate icon
+            print('EQUIP ANYWHERE CODE ACTIVATED')
             for i in equips:
                 if random.random() < (ItemObject.random_degree ** 1.5):
                     equip_type = random.choice(equip_types)
@@ -922,9 +918,9 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     @classmethod
     def mutate_all(cls):
         super(ItemObject, cls).mutate_all()
-        addprops = ["increase_atp", "increase_dfp", "increase_str",
-                    "increase_agl", "increase_int", "increase_gut",
-                    "increase_mgr"]
+        addprops = ['increase_atp', 'increase_dfp', 'increase_str',
+                    'increase_agl', 'increase_int', 'increase_gut',
+                    'increase_mgr']
         minmaxes = {}
         for ap in addprops:
             candidates = [i for i in ItemObject.every
@@ -934,7 +930,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             minmaxes[ap] = (min(values), max(values))
 
         for i in ItemObject.every:
-            i.reseed(salt="mut2")
+            i.reseed(salt='mut2')
             for ap in addprops:
                 if ap not in i.additional_properties:
                     continue
@@ -947,27 +943,27 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
 class ShopObject(TableObject):
     flag = 's'
-    flag_description = "shops"
+    flag_description = 'shops'
     custom_random_enable = True
 
     def __repr__(self):
-        s = "SHOP %x\n" % self.index
-        for menu in ["coin", "item", "weapon", "armor"]:
+        s = 'SHOP %x\n' % self.index
+        for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
-                s += "%s\n" % menu.upper()
+                s += '%s\n' % menu.upper()
                 for value in self.wares[menu]:
                     i = ItemObject.get(value)
-                    s += "{0:12} {1}\n".format(i.name, i.price)
-        if self.get_bit("spell"):
-            s += "SPELL\n"
+                    s += '{0:12} {1}\n'.format(i.name, i.price)
+        if self.get_bit('spell'):
+            s += 'SPELL\n'
             for value in self.spells:
-                s += "%s\n" % SpellObject.get(value).name
+                s += '%s\n' % SpellObject.get(value).name
         return s.strip()
 
     @property
     def wares_flat(self):
         flat = []
-        for menu in ["item", "weapon", "armor"]:
+        for menu in ['item', 'weapon', 'armor']:
             flat.extend(self.wares[menu])
         return [ItemObject.get(v) for v in flat]
 
@@ -997,14 +993,14 @@ class ShopObject(TableObject):
 
     @classproperty
     def shoppable_items(self):
-        if hasattr(ShopObject, "_shoppable_items"):
+        if hasattr(ShopObject, '_shoppable_items'):
             return ShopObject._shoppable_items
 
-        assert hasattr(ItemObject.get(1), "_rank")
+        assert hasattr(ItemObject.get(1), '_rank')
         shoppable_items = list(ShopObject.shop_items)
         for i in ItemObject.every:
-            if (i not in shoppable_items and not i.get_bit("unsellable")
-                    and i.rank == i.old_data["price"] and i.price > 0
+            if (i not in shoppable_items and not i.get_bit('unsellable')
+                    and i.rank == i.old_data['price'] and i.price > 0
                     and not i.is_coin_set):
                 shoppable_items.append(i)
         shoppable_items = sorted(shoppable_items, key=lambda i: i.index)
@@ -1018,27 +1014,28 @@ class ShopObject(TableObject):
 
     def read_data(self, filename=None, pointer=None):
         super(ShopObject, self).read_data(filename, pointer)
+        filename = filename or self.filename
 
-        if not hasattr(ShopObject, "vanilla_buyable_indexes"):
+        if not hasattr(ShopObject, 'vanilla_buyable_indexes'):
             ShopObject.vanilla_buyable_indexes = set([])
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         f.seek(self.pointer+3)
         self.wares = {}
-        for menu in ["coin", "item", "weapon", "armor"]:
+        for menu in ['coin', 'item', 'weapon', 'armor']:
             self.wares[menu] = []
             if self.get_bit(menu):
-                assert not self.get_bit("pawn")
-                assert not self.get_bit("spell")
+                assert not self.get_bit('pawn')
+                assert not self.get_bit('spell')
                 while True:
-                    value = read_multi(f, length=2)
+                    value = int.from_bytes(f.read(2), byteorder='little')
                     if value == 0:
                         break
                     self.wares[menu].append(value)
                     ShopObject.vanilla_buyable_indexes.add(value)
 
         self.spells = []
-        if self.get_bit("spell"):
+        if self.get_bit('spell'):
             assert self.shop_type == 0x20
             while True:
                 value = ord(f.read(1))
@@ -1046,44 +1043,41 @@ class ShopObject(TableObject):
                     break
                 self.spells.append(value)
 
-        f.close()
-
     def write_data(self, filename=None, pointer=None):
         super(ShopObject, self).write_data(filename, pointer)
+        filename = filename or self.filename
 
-        f = open(filename, "r+b")
+        f = get_open_file(filename)
         f.seek(self.pointer+3)
-        for menu in ["coin", "item", "weapon", "armor"]:
+        for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
                 assert self.wares[menu]
-                assert not self.get_bit("pawn")
-                assert not self.get_bit("spell")
+                assert not self.get_bit('pawn')
+                assert not self.get_bit('spell')
                 for value in self.wares[menu]:
-                    write_multi(f, value, length=2)
-                write_multi(f, 0, length=2)
+                    f.write(value.to_bytes(length=2, byteorder='little'))
+                f.write((0).to_bytes(length=2, byteorder='little'))
 
-        if self.get_bit("spell"):
+        if self.get_bit('spell'):
             assert self.shop_type == 0x20
             assert self.spells
             for value in self.spells:
-                f.write(chr(value))
-            f.write("\xff")
-
-        f.close()
+                f.write(bytes([value]))
+            f.write(b'\xff')
 
     @classmethod
     def full_randomize(cls):
         for cls2 in cls.after_order:
-            if not (hasattr(cls2, "randomized") and cls2.randomized):
-                raise Exception("Randomize order violated: %s %s"
+            if not (hasattr(cls2, 'randomized') and cls2.randomized):
+                raise Exception('Randomize order violated: %s %s'
                                 % (cls, cls2))
 
-        ShopObject.class_reseed("full")
+        ShopObject.class_reseed('full')
         shoppable_items = sorted(ShopObject.shoppable_items,
                                  key=lambda i: i.rank)
         coin_items = set([])
         for s in ShopObject.every:
-            if s.wares["coin"]:
+            if s.wares['coin']:
                 coin_items |= set(s.wares_flat)
         shuffled_items = shuffle_normal(
             shoppable_items, random_degree=ShopObject.random_degree)
@@ -1098,7 +1092,7 @@ class ShopObject(TableObject):
             if i in ShopObject.vanilla_buyable_items:
                 i.price = max(i.price / 2000, 1)
             else:
-                i.reseed(salt="coin")
+                i.reseed(salt='coin')
                 max_index = len(ItemObject.ranked)-1
                 if i.rank < 0:
                     index = max_index
@@ -1119,55 +1113,55 @@ class ShopObject(TableObject):
         assert len(coin_items) == len(new_coin_items)
 
         for s in ShopObject.every:
-            s.reseed(salt="mut")
+            s.reseed(salt='mut')
             while True:
                 badflag = False
                 if s.wares_flat:
-                    if s.wares["coin"]:
+                    if s.wares['coin']:
                         candidates = new_coin_items
                     else:
                         candidates = non_coin_items
-                    if ((s.wares["weapon"] or s.wares["armor"])
-                            and not s.wares["coin"]):
-                        if not s.wares["weapon"]:
+                    if ((s.wares['weapon'] or s.wares['armor'])
+                            and not s.wares['coin']):
+                        if not s.wares['weapon']:
                             candidates = [c for c in candidates
-                                          if not c.get_bit("weapon")
-                                          or not c.get_bit("equipable")]
-                        if not s.wares["armor"]:
+                                          if not c.get_bit('weapon')
+                                          or not c.get_bit('equipable')]
+                        if not s.wares['armor']:
                             candidates = [c for c in candidates
-                                          if c.get_bit("weapon")
-                                          or not c.get_bit("equipable")]
-                        if not s.wares["item"]:
+                                          if c.get_bit('weapon')
+                                          or not c.get_bit('equipable')]
+                        if not s.wares['item']:
                             candidates = [c for c in candidates
-                                          if c.get_bit("equipable")]
+                                          if c.get_bit('equipable')]
 
                     new_wares = ItemObject.get_similar_set(
                         s.wares_flat, candidates)
                     d = {}
-                    d["weapon"] = [i for i in new_wares if i.get_bit("weapon")]
-                    d["armor"] = [i for i in new_wares
-                                  if i.get_bit("equipable")
-                                  and i not in d["weapon"]]
-                    d["item"] = [i for i in new_wares
-                                 if i not in d["weapon"] + d["armor"]]
+                    d['weapon'] = [i for i in new_wares if i.get_bit('weapon')]
+                    d['armor'] = [i for i in new_wares
+                                  if i.get_bit('equipable')
+                                  and i not in d['weapon']]
+                    d['item'] = [i for i in new_wares
+                                 if i not in d['weapon'] + d['armor']]
 
-                    if ((s.wares["weapon"] or s.wares["armor"])
-                            and not s.wares["coin"]):
-                        for key in ["weapon", "armor", "item"]:
+                    if ((s.wares['weapon'] or s.wares['armor'])
+                            and not s.wares['coin']):
+                        for key in ['weapon', 'armor', 'item']:
                             a = len(s.wares[key])
                             b = len(d[key])
                             if bool(a) != bool(b):
                                 badflag = True
                                 break
                     else:
-                        d["item"].extend(d["weapon"])
-                        d["item"].extend(d["armor"])
-                        d["weapon"] = []
-                        d["armor"] = []
+                        d['item'].extend(d['weapon'])
+                        d['item'].extend(d['armor'])
+                        d['weapon'] = []
+                        d['armor'] = []
 
                     if badflag:
                         continue
-                    for key in ["weapon", "armor", "item"]:
+                    for key in ['weapon', 'armor', 'item']:
                         if s.wares[key]:
                             s.wares[key] = sorted([i.index for i in d[key]])
                 break
@@ -1199,7 +1193,7 @@ class MonsterMoveObject(TableObject):
     flag = 'm'
 
     def mutate(self):
-        movements = [mm.old_data["movement"]
+        movements = [mm.old_data['movement']
                      for mm in MonsterMoveObject.every]
         movements.append(0x1F)
         movements_unique = sorted(set(movements))
@@ -1209,7 +1203,7 @@ class MonsterMoveObject(TableObject):
             self.movement = random.choice(movements)
 
     def cleanup(self):
-        if "personnel" in get_activated_codes():
+        if 'personnel' in get_activated_codes():
             self.movement = 0x1F
 
 
@@ -1218,51 +1212,48 @@ def randomize_rng():
     # but certain values crash the game
     a = random.randint(0, 0xFF)
     b = 1
-    f = open(get_outfile(), "r+b")
+    f = get_open_file(get_outfile())
     f.seek(addresses.rng1)
     f.write(chr(a))
     f.seek(addresses.rng2)
     f.write(chr(b))
-    f.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
-        print ("You are using the Lufia II "
-               "randomizer version %s." % VERSION)
-        print
+        print ('You are using the Lufia II '
+               'randomizer version %s.\n' % VERSION)
 
         ALL_OBJECTS = [g for g in globals().values()
                        if isinstance(g, type) and issubclass(g, TableObject)
                        and g not in [TableObject]]
 
         codes = {
-            "airship": ["airship"],
-            "anywhere": ["anywhere"],
-            #"everywhere": ["everywhere"],
-            "personnel": ["nothingpersonnelkid", "nothing.personnel.kid",
-                          "nothing personnel kid", "nothing_personnel_kid"]
+            'airship': ['airship'],
+            'anywhere': ['anywhere'],
+            #'everywhere': ['everywhere'],
+            'personnel': ['nothingpersonnelkid', 'nothing.personnel.kid',
+                          'nothing personnel kid', 'nothing_personnel_kid']
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
-        hexify = lambda x: "{0:0>2}".format("%x" % x)
-        numify = lambda x: "{0: >3}".format(x)
+        hexify = lambda x: '{0:0>2}'.format('%x' % x)
+        numify = lambda x: '{0: >3}'.format(x)
         minmax = lambda x: (min(x), max(x))
 
-        if "airship" in get_activated_codes():
-            print "AIRSHIP CODE ACTIVATED"
-            f = open(get_outfile(), "r+b")
+        if 'airship' in get_activated_codes():
+            print('AIRSHIP CODE ACTIVATED')
+            f = get_open_file(get_outfile())
             f.seek(addresses.airship_code)
-            s = "\x23\x00\x26\x7c\x02\x7e\x00\x7f\xff\x00"
+            s = '\x23\x00\x26\x7c\x02\x7e\x00\x7f\xff\x00'
             f.write(s)
-            f.close()
 
-        if "personnel" in get_activated_codes():
-            print "NOTHING PERSONNEL KID."
+        if 'personnel' in get_activated_codes():
+            print('NOTHING PERSONNEL KID.')
 
         clean_and_write(ALL_OBJECTS)
 
-        rewrite_snes_meta("L2-R", VERSION, lorom=True)
+        rewrite_snes_meta('L2-R', int(VERSION[0]), lorom=True)
         finish_interface()
-    except Exception, e:
-        print "ERROR: %s" % e
-        raw_input("Press Enter to close this program.")
+    except Exception:
+        print(format_exc())
+        input('Press Enter to close this program.')
