@@ -1,25 +1,24 @@
 # objname tablefile address count grouped
-ChestObject         chest_table.txt             chest_pointers.txt
-AncientChest2Object ancient_chest_table.txt     8ffdc   9
-BlueChestObject     blue_chest_table.txt        30d880  42
-AncientChest1Object ancient_chest_table.txt     a713d   31
-SpellObject         spell_table.txt             spell_pointers.frue.txt
+ChestObject         struct_chest.txt            pointers_chest.txt
+AncientChest2Object struct_ancient_chest.txt    8ffdc   9
+BlueChestObject     struct_blue_chest.txt       30d880  42
+AncientChest1Object struct_ancient_chest.txt    a713d   31
+SpellObject         struct_spell.txt            pointers_spell.frue.txt
 # kureji has 7 extra monsters, but we're ignoring bosses
-MonsterObject       monster_table.txt           282000  188     point1  282000 2
-ItemObject          item_table.txt              b4f69   467     point1  b4f69 2
-CharGrowthObject    char_growth_table.txt       char_growth_pointers.txt
-CharacterObject     character_table.txt         bb93c   7
-CapPaletteObject    cap_palette_table.txt       bd258   35
-CapsuleObject       capsule_table.txt           bdcb8   35      point1  bdcb8 2
+MonsterObject       struct_monster.txt          282000  188     point1  282000 2
+ItemObject          struct_item.txt             b4f69   467     point1  b4f69 2
+CharGrowthObject    struct_char_growth.txt      pointers_char_growth.txt
+CharacterObject     struct_character.txt        bb93c   7
+CapPaletteObject    struct_cap_palette.txt      bd258   35
+CapsuleObject       struct_capsule.txt          bdcb8   35      point1  bdcb8 2
 # kureji needs special shop pointers
-ShopObject          shop_table.txt              shop_pointers.kureji.txt
-ItemNameObject      item_name_table.txt         f47e8   467
-CapSpritePTRObject  cap_sprite_ptr_table.txt    1384bc  35
-MonsterMoveObject   monster_move_table.txt      27f6b5  112
-$airship_code       3bd88
+ShopObject          struct_shop.txt             pointers_shop.kureji.txt
+ItemNameObject      struct_item_name.txt        f47e8   467
+CapSpritePTRObject  struct_cap_sprite_ptr.txt   1384bc  35
+MonsterMoveObject   struct_monster_move.txt     27f6b5  112
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
-.patch.no_verify    skip_tutorial.txt
-.patch              clear_initial_spells.txt
-.option             ac_music_hack.txt
+.patch.no_verify    patch_skip_tutorial.txt
+.patch              patch_clear_initial_spells.txt
+.option             patch_ac_music_hack.txt

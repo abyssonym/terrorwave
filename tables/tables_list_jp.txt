@@ -1,23 +1,22 @@
 # objname tablefile address count grouped
-ChestObject         chest_table.txt             chest_pointers_jp.txt
-AncientChest2Object ancient_chest_table.txt     b7139   9
-BlueChestObject     blue_chest_table.txt        b6e4c   41
-AncientChest1Object ancient_chest_table.txt     b70e9   31
-SpellObject         spell_table_jp.txt          spell_pointers_jp.txt
-MonsterObject       monster_table_jp.txt        monster_pointers_jp.txt
-ItemObject          item_table_jp.txt           93ce6   467     point1  93ce6 2
-CharGrowthObject    char_growth_table.txt       char_growth_pointers_jp.txt
-CharacterObject     character_table.txt         8d31f   7
-CapPaletteObject    cap_palette_table.txt       f97f4   35
-CapsuleObject       capsule_table_jp.txt        8e447   35      point1  8e447 2
-ShopObject          shop_table.txt              shop_pointers_jp.txt
-CapSpritePTRObject  cap_sprite_ptr_table.txt    1384bc  35
-MonsterMoveObject   monster_move_table.txt      27f6b5  112
-$airship_code       33dc3
+ChestObject         struct_chest.txt            pointers_chest_jp.txt
+AncientChest2Object struct_ancient_chest.txt    b7139   9
+BlueChestObject     struct_blue_chest.txt       b6e4c   41
+AncientChest1Object struct_ancient_chest.txt    b70e9   31
+SpellObject         struct_spell_jp.txt         pointers_spell_jp.txt
+MonsterObject       struct_monster_jp.txt       pointers_monster_jp.txt
+ItemObject          struct_item_jp.txt          93ce6   467     point1  93ce6 2
+CharGrowthObject    struct_char_growth.txt      pointers_char_growth_jp.txt
+CharacterObject     struct_character.txt        8d31f   7
+CapPaletteObject    struct_cap_palette.txt      f97f4   35
+CapsuleObject       struct_capsule_jp.txt       8e447   35      point1  8e447 2
+ShopObject          struct_shop.txt             pointers_shop_jp.txt
+CapSpritePTRObject  struct_cap_sprite_ptr.txt   1384bc  35
+MonsterMoveObject   struct_monster_move.txt     27f6b5  112
 $capsule_end        8f5f6
 $rng1               63
 $rng2               2f4
-.patch              unlock_gift_mode_jp.txt
-.patch.no_verify    skip_tutorial_jp.txt
-.patch              fix_ac_items.txt
-.patch              clear_initial_spells_jp.txt
+.patch              patch_unlock_gift_mode_jp.txt
+.patch.no_verify    patch_skip_tutorial_jp.txt
+.patch              patch_fix_ac_items.txt
+.patch              patch_clear_initial_spells_jp.txt

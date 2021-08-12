@@ -1,6 +1,6 @@
 from randomtools.tablereader import (
     TableObject, get_global_label, tblpath, addresses, get_random_degree,
-    mutate_normal, shuffle_normal, get_open_file)
+    mutate_normal, shuffle_normal, get_open_file, write_patch)
 from randomtools.utils import (
     classproperty, utilrandom as random)
 from randomtools.interface import (
@@ -682,6 +682,11 @@ class MonsterObject(TableObject):
                 if getattr(self, attr) < self.old_data[attr]:
                     setattr(self, attr, self.old_data[attr])
 
+        if 'easymodo' in get_activated_codes():
+            for attr in ['hp', 'attack', 'defense', 'agility', 'intelligence',
+                         'guts', 'magic_resistance']:
+                setattr(self, attr, 1)
+
 
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'i'
@@ -1233,7 +1238,8 @@ if __name__ == '__main__':
             'anywhere': ['anywhere'],
             #'everywhere': ['everywhere'],
             'personnel': ['nothingpersonnelkid', 'nothing.personnel.kid',
-                          'nothing personnel kid', 'nothing_personnel_kid']
+                          'nothing personnel kid', 'nothing_personnel_kid'],
+            'easymodo': ['easymodo'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         hexify = lambda x: '{0:0>2}'.format('%x' % x)
@@ -1242,10 +1248,10 @@ if __name__ == '__main__':
 
         if 'airship' in get_activated_codes():
             print('AIRSHIP CODE ACTIVATED')
-            f = get_open_file(get_outfile())
-            f.seek(addresses.airship_code)
-            s = '\x23\x00\x26\x7c\x02\x7e\x00\x7f\xff\x00'
-            f.write(s)
+            if '_JP' in get_global_label():
+                write_patch(get_outfile(), 'patch_start_airship_jp.txt')
+            else:
+                write_patch(get_outfile(), 'patch_start_airship.txt')
 
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')
