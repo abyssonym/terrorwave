@@ -1,0 +1,256 @@
+Maxim
+Selan
+Guy
+Arty
+Tia
+Dekar
+Lex
+Maxim2
+Maxim3
+Maxim4
+Red Boy
+Green Girl
+Blue Man
+Yellow Woman
+Yellow Middle Man
+Green Middle Woman
+Bald Old Man
+Gray Old Woman
+King
+Queen
+Prince
+Princess
+Knight
+Maid
+Armored Knight
+Red Man
+Sailor
+Bandana Sailor
+Brown Woman
+Maxim Lifting
+Maxim Pushing
+Maxim Falling
+Selan Lifting
+Selan Pushing
+Selan Falling
+Guy Lifting
+Guy Pushing
+Guy Falling
+Arty Pushing
+Chest
+Chest
+Dekar Lifting
+Dekar Pushing
+Dekar Falling
+Chest
+Chest
+Chest
+Tia Lifting
+Tia Pushing
+Tia Falling
+Priest
+Maxim5
+Elf Man
+Elf Woman
+Elf Boy
+Elf Girl
+Erim
+Blue Dude
+Spikey Dude
+Blonde Woman
+Apron Dude
+Ribbon Girl
+Kerchief Boy
+Basket Woman
+Lab Assistant
+Pale Mermaid
+Blue Mermaid
+Merman
+Toga Maiden
+Green Dress Girl
+Fallen Man
+Phantom Fish
+Crown
+Big Boat
+Sword
+Bomb
+Caped Sinister Man
+Shadow
+Big Shadow
+Wedding Attire Maxim
+Wedding Attire Selan
+Unconscious Woman
+Fallen Tia
+Fallen Guy
+Fallen Arty
+Fallen Blue Dude
+Fallen Hilda
+Shocked Dekar
+Formal Blue Dude
+Dazed Stars
+Crying Ribbon Girl South
+Crying Ribbon Girl East
+Bald Cleric
+Fallen Twintails Girl
+Fallen Bald Old Man
+Swaddled Baby
+Ruby Angel
+Old Woman South
+Propeller
+Engine
+Bird
+Snake
+Blue Flower (NPC)
+Confetti
+Fallen Maxim
+Fallen Selan
+Jaw?
+Tail?
+Ruby Apple
+Iris
+Gray Lab Assistant
+Red Lab Assistant
+Nothing
+Little Boat
+Submarine
+Airship
+Idura
+Spikey Armored Guy
+Lizardman
+Blue Clown
+Red Clown
+Amon
+Gades
+Daos
+Erim (Large)
+Broken Ruby Apple
+Blue Diamond
+Green Lump
+Octopus
+Snail
+Ninja
+Lizard
+Bull
+Horse
+Beetle
+Crab
+Eyeball
+Spider
+Dog
+Scorpion
+Mushroom
+Chickenhead
+Tree
+Bat
+Sword
+Will-o-Wisp
+Fly
+Butterfly
+Jelly
+Core
+Orange Flower
+Blue Flower
+Hornet
+Dullahan
+Flytrap
+Bugbear
+Medusa
+Goblin
+Lizardman 2
+Vampire
+Skeleton
+Stone Golem
+Wood Golem
+Mud Golem
+Mimic
+Hobgoblin
+Kobold
+Zombie
+Mummy
+Troll
+Minotaur
+Necromancer
+Imp
+Lich
+Lamia
+Pumpkin Head
+Samurai
+Fairy Thing
+Shade
+Snake (Enemy)
+Eagle
+Flaming Skull
+Stegosaurus
+Lion
+Tartona
+Cyclops
+Skeleton Chariot
+Giant Squid
+Giant Plant
+Fiend
+Frog
+Hydra
+Dragon
+Dragonian
+Whale
+Wyvern
+Gargoyle
+Catfish
+Giant Spider
+Monster Tank
+Ghost Ship
+Jelze
+Flash
+Gusto
+Zeppy
+Darbi
+Sully
+Blaze
+Big Phantom
+Another Ship
+Quetzalcotl
+T-Rex
+Tengu
+Red Dullahan
+Blue Lizard
+Red Beetle
+Blue Crab
+Green Spider
+Orange Spider
+Blue Mushroom
+Red Butterfly
+Blue Jelly
+Green Jelly
+Yellow Flower
+Purple Flytrap
+Blue Zombie
+Gold Golem
+Copper Golem
+Small Gold Golem
+Silver Golem
+Green Mud Golem
+Red Lich
+Blue Eagle
+Red Snake
+Blue Snake
+Green Tartona
+Red Giant Plant
+Yellow Tengu
+Blue Dragonian
+Green Dragonian
+Blue Chest
+Sword
+Shield
+Helm
+Armor
+Ring
+Gemstone
+Rod
+Vase
+Circlet
+Glider
+GAME CRASH
+Glitched Graphics
+GAME CRASH
+Invisible (Wide)
+Invisible

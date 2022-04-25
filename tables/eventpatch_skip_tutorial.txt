@@ -1,0 +1,98 @@
+# Start Sundletan quest immediately
+EVENT 03-D-01  # $3b430:3b61d
+0000. 6A(01-@1E1)                    # Branch on Not Flag
+0004. 15(96-@1E1)                    # Branch on Flag?
+0008. 30(53-01)                      # Teleport Character
+000B. 33(0B-00)                      # Move Character to Location
+000E. 70()                           # Silence
+000F. 71()
+0010. 33(03-53)                      # Move Character to Location
+0013. 13: <VOICE 53>Bad news, everyone!<END MESSAGE>
+0020. 37(05)                         # Pause
+0022. 86(53-64)                      # Character Movement?
+0025. 89(53)
+0027. 86(53-64)                      # Character Movement?
+002A. 89(53)
+002C. 6F(17)                         # Change Music
+002E. 33(04-13)                      # Move Character to Location
+0031. 33(05-50)                      # Move Character to Location
+0034. 33(06-11)                      # Move Character to Location
+0037. 33(0A-57)                      # Move Character to Location
+003A. 79()
+003B. 13: <VOICE 13>What is it?<END MESSAGE>
+0045. 13: <VOICE 53>A horde of monsters
+          appeared in the cave
+          on the way to Sundletan!<END MESSAGE>
+0069. 13: <VOICE 50>Are you sure about that!?<END MESSAGE>
+007C. 31(50-04)                      # Change Facing
+007F. 37(14)                         # Pause
+0081. 31(13-03)                      # Change Facing
+0084. 37(14)                         # Pause
+0086. 13: <VOICE 13>That's horrible.<END MESSAGE>
+0092. 31(57-03)                      # Change Facing
+0095. 37(14)                         # Pause
+0097. 31(13-04)                      # Change Facing
+009A. 37(14)                         # Pause
+009C. 13: <VOICE 57>Daisy, will monsters
+          come to this city, too?<END MESSAGE>
+00B8. 37(0A)                         # Pause
+00BA. 31(13-02)                      # Change Facing
+00BD. 37(14)                         # Pause
+00BF. 13: <VOICE 13>Well, I don't think
+          they will, but...<END MESSAGE>
+00D7. 13: <VOICE 53>Unfortunately, that's
+          not the only problem
+          we've got on our hands.<END MESSAGE>
+0102. 31(50-02)                      # Change Facing
+0105. 37(0A)                         # Pause
+0107. 31(13-02)                      # Change Facing
+010A. 31(57-02)                      # Change Facing
+010D. 37(14)                         # Pause
+010F. 13: <VOICE 50>What do you mean?<END MESSAGE>
+011D. 13: <VOICE 53>The monsters have closed
+          the door at the back of
+          the cave. We can't get to
+          Sundletan without the key.<END MESSAGE>
+0159. 13: <VOICE 50>That's not good...<END MESSAGE>
+0166. 31(50-04)                      # Change Facing
+0169. 37(14)                         # Pause
+016B. 31(13-03)                      # Change Facing
+016E. 37(14)                         # Pause
+0170. 31(57-03)                      # Change Facing
+0173. 37(0A)                         # Pause
+0175. 31(50-02)                      # Change Facing
+0178. 37(14)                         # Pause
+017A. 31(13-04)                      # Change Facing
+017D. 37(0A)                         # Pause
+017F. 31(13-02)                      # Change Facing
+0182. 31(57-02)                      # Change Facing
+0185. 37(14)                         # Pause
+0187. 13: <VOICE 11>So, does anyone have
+          any ideas about what
+          we should do?<END MESSAGE>
+01AB. 31(53-02)                      # Change Facing
+01AE. 37(0A)                         # Pause
+01B0. 33(0C-53)                      # Move Character to Location
+01B3. 31(53-03)                      # Change Facing
+01B6. 31(11-04)                      # Change Facing
+01B9. 37(0A)                         # Pause
+01BB. 13: <VOICE 53>Well... No, I don't...<END MESSAGE>
+01CB. 70()                           # Silence
+01CC. 71()
+01CD. 6F(02)                         # Change Music
+01CF. 32(50-05)                      # Character Stands Still?
+01D2. 32(57-05)                      # Character Stands Still?
+01D5. 32(13-05)                      # Character Stands Still?
+01D8. 32(11-07)                      # Character Stands Still?
+01DB. 32(53-08)                      # Character Stands Still?
+01DE. 1A(96)                         # Set Event Flag
+01E0. 00()                           # End Event
+# LABEL @1E1 $3b7fe
+01E1. 00()                           # End Event
+
+# Skip tutorial and learn Reset at Elcid
+EVENT 03-D-02  # $3b430:3bd88
+0000. 23(00-26)                      # Learn Spell
+0003. 35(11-05-01)
+0007. 1A(77)                         # Set Event Flag
+0009. 00()                           # End Event

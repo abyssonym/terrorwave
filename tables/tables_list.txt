@@ -1,5 +1,7 @@
 # objname tablefile address count grouped
+MapEventObject      struct_map_event.txt        38010   241
 ChestObject         struct_chest.txt            pointers_chest.txt
+WordObject          struct_word.txt             76a00   640
 AncientChest2Object struct_ancient_chest.txt    8ffdc   9
 BlueChestObject     struct_blue_chest.txt       a6ea0   41
 AncientChest1Object struct_ancient_chest.txt    a713d   31
@@ -14,11 +16,12 @@ ShopObject          struct_shop.txt             pointers_shop.txt
 ItemNameObject      struct_item_name.txt        f47e8   467
 CapSpritePTRObject  struct_cap_sprite_ptr.txt   1384bc  35
 MonsterMoveObject   struct_monster_move.txt     27f6b5  112
+MapMetaObject       struct_3pointer.txt         27fcbc  242
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
+$sprites            names_sprites.txt
 .patch              patch_unlock_gift_mode.txt
-.patch.no_verify    patch_skip_tutorial.txt
 .patch              patch_fix_ac_items.txt
 .patch              patch_clear_initial_spells.txt
 .option             patch_ac_music_hack.txt

@@ -1,0 +1,173 @@
+00  0           End Event
+01  0           Button Press?
+02  0           BRK?
+03  0
+04  2
+05  1           ERROR?
+06  1
+07  1           UNVERIFIED
+08  text
+0c  0           NOP?
+0d  0           NOP?
+10  pointers    Set Up Branching Event
+11  0           ERROR?
+12  1,pointers  Branch on Flag?
+13  text    
+14  variable    Branch on Game State (inventory, stats, etc.)
+15  1,addr      Branch on Flag?
+16  1,1,1       Warp to Map & Event
+17  1           Call Inn at Price
+18  1           Call Shop
+19  0           Call Church
+1a  1           Set Event Flag
+1b  1           Clear Event Flag
+1c  addr        Jump
+1d  2
+1e  2
+20  1,1         Get Item 0XX
+21  1,1         Get Item 1XX
+22  2           Get Gold
+23  1,1         Learn Spell
+25  1,1         Remove Item
+28  0
+29  1,1,1       Increase party member stats
+2b  1           Character Joins Party
+2c  1           Character Leaves party
+2d  1           Character Appears
+2e  1           Character Disappears
+30  1,1         Teleport Character
+31  1,1         Change Facing
+32  1,1         Character Stands Still?
+33  1,1         Move Character to Location
+34  1,1         Change Character Sprite
+35  1,1,1
+37  1           Pause
+38  1           Pause (Longer)
+39  0
+3b  1           Move Camera
+3c  0           Gather Behind Maxim
+3d  1           Hide Behind Maxim
+40  0
+41  1,1
+43  1,1         ERROR?
+45  1,1,1
+47  1           Thinking On/Off
+48  1,1
+49  1
+4a  1
+4b  1           Preload Music
+4c  1           Play Sound
+4d  1
+4f  1
+50  0
+51  0
+53  1           Invoke Battle
+54  1
+55  1
+56  0           Stop Earthquake
+57  0
+58  1           Fadeout
+59  1           Luminosity
+5a  1,1,1       Start Earthquake
+5b  1,1
+5e  1
+60  1,1
+61  text        Maxim Speaks
+62  text        Selan Speaks
+63  text        Guy Speaks
+64  text        Artea Speaks
+65  text        Dekar Speaks
+66  text        Tia Speaks
+67  text        Lexis Speaks
+68  1,1         Load NPC
+69  1
+6a  1,addr      Branch on Not Flag
+6b  0
+6c  1,1,1       Move Character by Distance
+6d  text        Credits Text
+6e  text        Credits Text
+6f  1           Change Music
+70  0           Silence
+71  0
+72  0
+73  1,1         Play Animation
+74  1           Set Battle BG
+75  0
+76  0
+78  0
+79  0
+7b  1,1         Load Monster NPC
+7c  1           Change Ship Type
+7d  1           Relocate Ship
+7e  1           Set Ship Exists/Unexists
+7f  1           Set Party On/Off Ship
+80  1           Set Ship Sprite
+81  1           Capsule Monster Joins & Renames
+82  0
+83  1
+85  1,1
+86  1,1         Character Movement?
+87  1,1         ERROR?
+88  0
+89  1
+8a  0
+8b  1,1,1
+8c  1,1,1       (related to item acquisition sprite)
+8d  1,1,1,1,1,1 Play Wave-Warping Animation
+8e  1,1,1
+8f  1,1,1
+90  1,1,1
+91  1,1
+92  1
+94  1,1,1
+95  1,1,1
+97  0
+98  1,1         Thunder Warp
+99  1
+9a  1
+9c  1,1,1
+9d  1
+9e  text
+9f  1,1,1
+a0  1,1,1,1,1,1
+a1  1,1
+a2  1
+a3  1,1         Move Character?
+a4  0           Screen Mosaic
+a5  0           Call Game Load Screen
+a6  0
+a7  1
+a8  1           Ancient Cave Item Management
+a9  1,1
+aa  0
+ab  1           Check Dragon Eggs Obtained
+ad  1
+ae  1
+af  1,1         Character Flicker
+b0  1
+b1  1,1         Character ???
+b3  1           Party Members Change Facing
+b4  1,1,1
+b5  0
+b6  1,1
+b7  1
+b8  0
+b9  1           Fill IP Bar
+ba  1
+bb  0           Call game report
+bc  0
+bd  1,1
+be  1
+bf  1,1,1
+c0  1,1,1
+c1  1,1
+c2  1,1,1,1,1,1
+c3  1,1,1,1,1,1
+c4  1,1         Scroll Screen
+c5  0
+c6  1,1         Play Sprite Animation
+c7  0
+c9  1,1,1,1,1,1,1
+ca  1,1,1
+cb  1
+cc  0

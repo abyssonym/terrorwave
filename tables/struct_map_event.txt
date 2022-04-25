@@ -1,0 +1,5 @@
+eventlist_lowbytes,2
+eventlist_highbyte,1
+npc_lowbytes,2
+npc_highbyte,1
+map_name_pointer,2
