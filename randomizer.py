@@ -10,7 +10,7 @@ from randomtools.interface import (
     get_outfile, get_flags, get_activated_codes,
     run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from copy import deepcopy
 from os import path
 import re
@@ -230,7 +230,7 @@ class CapsuleObject(ReadExtraMixin, TableObject):
 
     @property
     def name(self):
-        return self.name_text.strip()
+        return self.name_text.decode('utf8').strip()
 
     @property
     def rank(self):
@@ -327,6 +327,43 @@ class CapsuleObject(ReadExtraMixin, TableObject):
 
 
 class CapSpritePTRObject(TableObject): pass
+
+
+class FormationObject(TableObject):
+    @property
+    def name(self):
+        ncs = ''
+        for key in sorted(self.name_counts):
+            count = self.name_counts[key]
+            nc = '{0} x{1}'.format(key, count)
+            if ncs:
+                ncs = ', '.join([ncs, nc])
+            else:
+                ncs = nc
+            assert count > 0
+        return ncs
+
+    @cached_property
+    def name_counts(self):
+        names = [MonsterObject.get(i).name
+                 for i in self.monster_indexes if i != 0xFF]
+        return Counter(names)
+
+    def read_data(self, filename=None, pointer=None):
+        super().read_data(filename, pointer)
+
+        base_pointer = self.specs.pointer
+        assert base_pointer == 0xbc53d
+        formation_pointer = base_pointer + self.reference_pointer
+        f = get_open_file(get_outfile())
+        f.seek(formation_pointer)
+        self.monster_indexes = [int(c) for c in f.read(6)]
+        self.monster_coordinates = []
+        for _ in range(6):
+            x = ord(f.read(1))
+            y = ord(f.read(1))
+            self.monster_coordinates.append((x, y))
+        self.unknown = f.read(12)
 
 
 class CapPaletteObject(TableObject):
@@ -439,7 +476,7 @@ class SpellObject(PriceMixin, TableObject):
 
     @property
     def name(self):
-        return self.name_text.strip()
+        return self.name_text.decode('utf8').strip()
 
     @classproperty
     def after_order(self):
@@ -623,7 +660,7 @@ class MonsterObject(TableObject):
 
     @property
     def name(self):
-        return self.name_text.strip()
+        return self.name_text.decode('utf8').strip()
 
     @property
     def has_drop(self):
@@ -723,7 +760,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
     @property
     def name(self):
-        return ItemNameObject.get(self.index).name_text.strip()
+        return ItemNameObject.get(self.index).name_text.decode('utf8').strip()
 
     @property
     def is_coin_set(self):
@@ -1407,8 +1444,8 @@ class MapEventObject(TableObject):
     REVERSE_CHARACTER_MAP = {v: k for k, v in CHARACTER_MAP.items()}
     TAG_MATCHER = re.compile('<([^>]*) ([^> ]*)>')
 
-    END_NPC_POINTER = 0x3ae3e
-    END_EVENT_POINTER = 0x725fa
+    END_NPC_POINTER = 0x3af4c
+    END_EVENT_POINTER = 0x7289e
     FREE_SPACE = []
 
     class EventList:
@@ -1696,10 +1733,13 @@ class MapEventObject(TableObject):
                             params.append(s)
                         paramstr = '-'.join(params)
                     line = '{0:0>2X}({1})'.format(opcode, paramstr)
+
+                    # determine custom comments
                     if opcode in self.COMMENTS:
                         comment = self.COMMENTS[opcode]
                     else:
                         comment = ''
+
                     if opcode in [0x68, 0x7b]:
                         npc_index, sprite_index = parameters
                         if self.map_meta:
@@ -1719,6 +1759,23 @@ class MapEventObject(TableObject):
                         if position and position.is_mobile:
                             comment += ' [{0}]'.format(position)
                         comment += '\n'
+                    elif opcode == 0x53:
+                        (formation_index,) = parameters
+                        f = FormationObject.get(formation_index)
+                        comment = '{0} ({1})'.format(comment, f.name)
+                    elif opcode in {0x20, 0x21}:
+                        item_index, quantity = parameters
+                        item_index |= (0x100 * (opcode-0x20))
+                        item = ItemObject.get(item_index)
+                        comment = '{0} ({1} x{2})'.format(
+                            comment, item.name, quantity)
+                    elif opcode == 0x23:
+                        character_index, spell_index = parameters
+                        character = CharacterObject.get(character_index)
+                        spell = SpellObject.get(spell_index)
+                        comment = '{0} ({1}: {2})'.format(
+                            comment, character.name, spell.name)
+
                     if comment.strip():
                         line = '{0:0>4X}. {1:30} # {2}'.format(line_number,
                                                                line, comment)
@@ -2525,6 +2582,9 @@ def patch_events(filenames=None, **kwargs):
             filename = path.join(tblpath, 'eventpatch_{0}.txt'.format(label))
             filenames.append(filename)
 
+    if not filenames:
+        return
+
     if not isinstance(filenames, list):
         filenames = [filenames]
 
@@ -2598,9 +2658,9 @@ if __name__ == '__main__':
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')
 
+        dump_events('_l2r_event_dump.txt')
         patch_events()
         clean_and_write(ALL_OBJECTS)
-        dump_events('_l2r_event_dump.txt')
 
         rewrite_snes_meta('L2-R', int(VERSION[0]), lorom=True)
         finish_interface()
