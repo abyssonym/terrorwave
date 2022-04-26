@@ -1955,6 +1955,10 @@ class MapEventObject(TableObject):
 
         def import_script(self, template, **kwargs):
             assert not self.frozen
+            if hasattr(self, '_imported') and self._imported:
+                print('WARNING: Script {0:x} double imported.'.format(
+                    self.script_pointer))
+            self._imported = True
             text = template
             for key, value in sorted(kwargs.items()):
                 to_replace = '{%s}' % key
@@ -2658,9 +2662,9 @@ if __name__ == '__main__':
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')
 
-        dump_events('_l2r_event_dump.txt')
         patch_events()
         clean_and_write(ALL_OBJECTS)
+        dump_events('_l2r_event_dump.txt')
 
         rewrite_snes_meta('L2-R', int(VERSION[0]), lorom=True)
         finish_interface()
