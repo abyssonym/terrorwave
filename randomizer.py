@@ -1444,7 +1444,7 @@ class MapEventObject(TableObject):
     REVERSE_CHARACTER_MAP = {v: k for k, v in CHARACTER_MAP.items()}
     TAG_MATCHER = re.compile('<([^>]*) ([^> ]*)>')
 
-    END_NPC_POINTER = 0x3af4c
+    END_NPC_POINTER = 0x3ae4d
     END_EVENT_POINTER = 0x7289e
     FREE_SPACE = []
 
