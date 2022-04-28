@@ -1446,7 +1446,7 @@ class MapEventObject(TableObject):
 
     END_NPC_POINTER = 0x3ae4d
     END_EVENT_POINTER = 0x7289e
-    FREE_SPACE = []
+    FREE_SPACE = [(0x3aed8, 0x3af4c)]
 
     class EventList:
         def __init__(self, pointer, meo):
