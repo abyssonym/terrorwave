@@ -1353,6 +1353,9 @@ class MapMetaObject(TableObject):
             npc_position_data = npc_position_data[8:]
             self.npc_positions.append(npc_position)
 
+    def write_data(self, filename=None, pointer=None):
+        super().write_data(filename, pointer)
+
 
 class WordObject(TableObject):
     BASE_POINTER = 0x76a00
@@ -1696,6 +1699,20 @@ class MapEventObject(TableObject):
             f.seek(pointer)
             return f.read(0x1000)
 
+        @classmethod
+        def get_pretty_variable(self, variable):
+            vname = 'Variable {0:0>2X} (${1:0>4x})'.format(
+                variable, variable + 0x079e)
+            return vname
+
+        @classmethod
+        def get_pretty_flag(self, flag):
+            address = 0x77e + (flag // 8)
+            bit = 1 << (flag % 8)
+            fname = 'Flag {0:0>2X} (${1:0>4x}:{2:0>2x})'.format(
+                flag, address, bit)
+            return fname
+
         def prettify_script(self, script):
             pretty = ''
             for line_number, opcode, parameters in script:
@@ -1718,8 +1735,17 @@ class MapEventObject(TableObject):
                         params = []
                         parameter_types = list(
                             self.FULL_PARAMETERS[opcode])
+                        if ('variable' in parameter_types
+                                and parameters[0] in {0xc0, 0xc2}):
+                            assert len(parameter_types) == 1
+                            parameter_types += [2, 2]
                         while len(parameter_types) < len(parameters):
-                            parameter_types.append(parameter_types[-1])
+                            if isinstance(parameter_types[-1], int):
+                                assert 'variable' in parameter_types
+                                parameter_types.append(1)
+                            else:
+                                parameter_types.append(parameter_types[-1])
+
                         for pt, p in zip(parameter_types, parameters):
                             if isinstance(p, int):
                                 if pt in ['pointers', 'variable']:
@@ -1775,6 +1801,69 @@ class MapEventObject(TableObject):
                         spell = SpellObject.get(spell_index)
                         comment = '{0} ({1}: {2})'.format(
                             comment, character.name, spell.name)
+                    elif opcode == 0x14:
+                        assert parameters[-3] in {0x20, 0x30}
+                        assert isinstance(parameters[-2], self.Address)
+                        assert parameters[-1] == 0xFF
+                        conditions = parameters[:-3]
+                        s = 'If'
+                        while conditions:
+                            c = conditions.pop(0)
+                            if c == 0xf0:
+                                s += ' NPC ???'
+                                conditions.pop(0)
+                                conditions.pop(0)
+                            elif c == 0xf8:
+                                npc_index = conditions.pop(0)
+                                s += ' NPC {0:0>2X} ???'.format(npc_index)
+                                conditions.pop(0)
+                            elif c in {0xc0, 0xc2}:
+                                item_index = conditions.pop(0)
+                                item_name = ItemObject.get(item_index).name
+                                quantity = conditions.pop(0)
+                                if c == 0xc0:
+                                    s += ' exactly {0} x{1} owned'.format(
+                                        item_name, quantity)
+                                elif c == 0xc2:
+                                    s += ' at least {0} x{1} owned'.format(
+                                        item_name, quantity)
+                            elif c in {0x10, 0x12}:
+                                variable = conditions.pop(0)
+                                value = conditions.pop(0)
+                                vname = self.get_pretty_variable(variable)
+                                if c == 0x10:
+                                    s += ' {0} == {1}'.format(vname, value)
+                                elif c == 0x12:
+                                    s += ' {0} >= {1}'.format(vname, value)
+                            else:
+                                assert c in {0x00, 0x40, 0x80,
+                                             0x01, 0x41, 0x81}
+                                if c & 0x40:
+                                    s += ' OR'
+                                elif c & 0x80:
+                                    s += ' AND'
+                                flag = conditions.pop(0)
+                                s += ' ' + self.get_pretty_flag(flag)
+                                if c & 1:
+                                    s += ' NOT'
+                                s += ' set'
+                        if parameters[-3] == 0x30:
+                            s += " then DON'T jump to {0}".format(
+                                parameters[-2])
+                        elif parameters[-3] == 0x20:
+                            s += " then jump to {0}".format(parameters[-2])
+                        comment = s.strip()
+                        assert '  ' not in comment
+
+                    if comment.endswith('Flag'):
+                        flag = parameters[0]
+                        comment = comment.replace(
+                            'Flag', self.get_pretty_flag(flag))
+
+                    if comment.endswith('Variable'):
+                        variable = parameters[0]
+                        comment = comment.replace(
+                            'Variable', self.get_pretty_variable(variable))
 
                     if comment.strip():
                         line = '{0:0>4X}. {1:30} # {2}'.format(line_number,
@@ -1907,21 +1996,50 @@ class MapEventObject(TableObject):
                                 parameters.append(c)
                                 if c == 0xff:
                                     break
-                                elif c & 0xc0 == 0xc0:
+                                elif c & 0xf0 == 0xf0:
+                                    assert len(parameters) == 1
+                                    assert c in {0xf0, 0xf8}
+                                    # 0xf0 Monster on button
+                                    # 0xf8 if NPC state
+                                    parameters.append(data[0])
+                                    parameters.append(data[1])
+                                    data = data[2:]
+                                elif c & 0xf0 == 0xc0:
                                     # ???
+                                    assert len(parameters) == 1
+                                    assert c in {0xc0, 0xc2}
+                                    # 0xc0 Check item possessed exactly number
+                                    # 0xc2 Check item possessed GTE
+                                    item_index, data = data[:2], data[2:]
+                                    item_number, data = data[:2], data[2:]
+                                    item_index = int.from_bytes(
+                                        item_index, byteorder='little')
+                                    item_number = int.from_bytes(
+                                        item_number, byteorder='little')
+                                    parameters.append(item_index)
+                                    parameters.append(item_number)
+                                elif c & 0xf0 == 0x10:
+                                    assert len(parameters) == 1
+                                    assert c in {0x10, 0x12}
+                                    # 0x10 Equals
+                                    # 0x12 GTE
                                     parameters.append(data[0])
                                     parameters.append(data[1])
                                     data = data[2:]
-                                elif c & 0x30 == 0x10:
-                                    # tests event flags (full byte equality)?
-                                    parameters.append(data[0])
-                                    parameters.append(data[1])
-                                    data = data[2:]
-                                elif c & 0x30:
+                                elif c & 0xe0 == 0x20:
+                                    assert c in {0x20, 0x30}
+                                    # 0x20 Branch if True
+                                    # 0x30 Branch if False
                                     pointer = self.make_pointer(data[:2])
                                     data = data[2:]
                                     parameters.append(pointer)
                                 else:
+                                    assert c in {0x00, 0x01,
+                                                 0x40, 0x41,
+                                                 0x80, 0x81}
+                                    # 0x01 NOT
+                                    # 0x40 OR
+                                    # 0x80 AND
                                     flag, data = data[0], data[1:]
                                     parameters.append(flag)
                         elif pt == 'addr':
@@ -1981,50 +2099,57 @@ class MapEventObject(TableObject):
                     prevno, prevline = lines[-1]
                 if match:
                     line_number = int(match.group(1), 0x10)
-                    if prevno is not None:
-                        assert line_number > prevno
+                    if prevno is not None and prevno >= line_number:
+                        raise Exception(
+                            'SCRIPT {0:x} ERROR: Lines out of order.'.format(
+                                self.script_pointer))
                     lines.append((line_number, match.group(2)))
                     seen_line_numbers.add(line_number)
                 else:
                     lines[-1] = (prevno, '\n'.join([prevline, line.strip()]))
 
             script = []
-            for line_number, line in lines:
-                assert line[2] in '(:'
-                opcode = int(line[:2], 0x10)
-                if line[2] == '(':
-                    assert line[-1] == ')'
-                    parameters = line[3:-1]
-                    assert '(' not in parameters and ')' not in parameters
-                    if parameters:
-                        parameters = parameters.split('-')
-                    else:
-                        parameters = []
-                    params = []
-                    for p in parameters:
-                        if p.startswith('@'):
-                            offset = int(p[1:], 0x10)
-                            is_local = offset in seen_line_numbers
-                            assert is_local
-                            addr = self.Address(address=offset,
-                                                is_local=is_local)
-                            params.append(addr)
+            try:
+                for line_number, line in lines:
+                    assert line[2] in '(:'
+                    opcode = int(line[:2], 0x10)
+                    if line[2] == '(':
+                        assert line[-1] == ')'
+                        parameters = line[3:-1]
+                        assert '(' not in parameters and ')' not in parameters
+                        if parameters:
+                            parameters = parameters.split('-')
                         else:
-                            params.append(int(p, 0x10))
-                    script.append((line_number, opcode, params))
-                elif line[2] == ':':
-                    linetext = line[3:].strip()
-                    compress = opcode not in {0x6d, 0x6e}
-                    newtext = MapEventObject.reverse_prettify_text(
-                        linetext, compress=compress)
-                    newscript = self.parse(bytes([opcode]) + newtext)
-                    newpretty = self.prettify_script(newscript)
-                    for linetextline in linetext.split('\n'):
-                        assert linetextline in newpretty
-                    assert len(newscript) == 1
-                    new_number, new_op, new_params = newscript[0]
-                    assert new_op == opcode
-                    script.append((line_number, opcode, new_params))
+                            parameters = []
+                        params = []
+                        for p in parameters:
+                            if p.startswith('@'):
+                                offset = int(p[1:], 0x10)
+                                is_local = offset in seen_line_numbers
+                                assert is_local
+                                addr = self.Address(address=offset,
+                                                    is_local=is_local)
+                                params.append(addr)
+                            else:
+                                params.append(int(p, 0x10))
+                        script.append((line_number, opcode, params))
+                    elif line[2] == ':':
+                        linetext = line[3:].strip()
+                        compress = opcode not in {0x6d, 0x6e}
+                        newtext = MapEventObject.reverse_prettify_text(
+                            linetext, compress=compress)
+                        newscript = self.parse(bytes([opcode]) + newtext)
+                        newpretty = self.prettify_script(newscript)
+                        for linetextline in linetext.split('\n'):
+                            assert linetextline in newpretty
+                        assert len(newscript) == 1
+                        new_number, new_op, new_params = newscript[0]
+                        assert new_op == opcode
+                        script.append((line_number, opcode, new_params))
+            except:
+                raise Exception(
+                    'SCRIPT {0:x} ERROR: {1}. {2}'.format(
+                        self.script_pointer, line_number, line))
 
             self.script = script
             return script
@@ -2092,10 +2217,18 @@ class MapEventObject(TableObject):
                 previous_line_number = line_number
 
                 parameter_types = list(self.FULL_PARAMETERS[opcode])
+                if ('variable' in parameter_types
+                        and parameters[0] in {0xc0, 0xc2}):
+                    assert len(parameter_types) == 1
+                    parameter_types += [2, 2]
                 while len(parameter_types) < len(parameters):
-                    parameter_types.append(parameter_types[-1])
-
+                    if isinstance(parameter_types[-1], int):
+                        assert 'variable' in parameter_types
+                        parameter_types.append(1)
+                    else:
+                        parameter_types.append(parameter_types[-1])
                 assert len(parameter_types) == len(parameters)
+
                 line = []
                 def append_data(to_append):
                     if not isinstance(to_append, list):

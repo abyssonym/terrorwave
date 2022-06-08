@@ -3,7 +3,7 @@
 02  0           BRK?
 03  0
 04  2
-05  1           ERROR?
+05  1
 06  1
 07  1           UNVERIFIED
 08  text
@@ -11,10 +11,10 @@
 0d  0           NOP?
 10  pointers    Set Up Branching Event
 11  0           ERROR?
-12  1,pointers  Branch on Flag?
+12  1,pointers  Branch on Variable
 13  text    
 14  variable    Branch on Game State (inventory, stats, etc.)
-15  1,addr      Branch on Flag?
+15  1,addr      Branch on Flag
 16  1,1,1       Warp to Map & Event
 17  1           Call Inn at Price
 18  1           Call Shop
@@ -22,8 +22,8 @@
 1a  1           Set Event Flag
 1b  1           Clear Event Flag
 1c  addr        Jump
-1d  2
-1e  2
+1d  1,1         Set Variable
+1e  1,1         Add Value to Variable
 20  1,1         Get Item 0XX
 21  1,1         Get Item 1XX
 22  2           Get Gold
@@ -49,7 +49,7 @@
 3d  1           Hide Behind Maxim
 40  0
 41  1,1
-43  1,1         ERROR?
+43  1,1
 45  1,1,1
 47  1           Thinking On/Off
 48  1,1
@@ -81,7 +81,7 @@
 67  text        Lexis Speaks
 68  1,1         Load NPC
 69  1
-6a  1,addr      Branch on Not Flag
+6a  1,addr      Branch on NOT Flag
 6b  0
 6c  1,1,1       Move Character by Distance
 6d  text        Credits Text
@@ -107,7 +107,7 @@
 83  1
 85  1,1
 86  1,1         Character Movement?
-87  1,1         ERROR?
+87  1,1
 88  0
 89  1
 8a  0
@@ -141,7 +141,7 @@ a8  1           Ancient Cave Item Management
 a9  1,1
 aa  0
 ab  1           Check Dragon Eggs Obtained
-ad  1
+ad  1           Locked Door?
 ae  1
 af  1,1         Character Flicker
 b0  1
