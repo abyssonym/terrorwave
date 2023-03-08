@@ -36,8 +36,8 @@ Selan Falling
 Guy Lifting
 Guy Pushing
 Guy Falling
-Arty Pushing
 Chest
+Arty Pushing
 Chest
 Dekar Lifting
 Dekar Pushing
@@ -55,8 +55,8 @@ Elf Woman
 Elf Boy
 Elf Girl
 Erim
-Blue Dude
-Spikey Dude
+Berty
+Bart
 Blonde Woman
 Apron Dude
 Ribbon Girl

@@ -1,0 +1,4 @@
+extra_index,1
+sprite_index,1
+map_index,1
+map_npc_index,1

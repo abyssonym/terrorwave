@@ -95,4 +95,5 @@ EVENT 03-D-02  # $3b430:3bd88
 0000. 23(00-26)                      # Learn Spell
 0003. 35(11-05-01)
 0007. 1A(77)                         # Set Event Flag
+0008. 1A(AC)                         # Set Event Flag
 0009. 00()                           # End Event

@@ -1,0 +1,62 @@
+.def breakable bomb|hammer
+.def useless_keys door_key&shrine_key&ancient_key
+.def all_keys sky_key&lake_key&ruby_key&wind_key&cloud_key&light_key&sword_key&tree_key&flower_key&magma_key&heart_key&ghost_key&trial_key&dankirk_key&basement_key&narcysus_key&truth_key&mermaid_jade
+.def all_tools bomb&hook&hammer&fire_arrow
+.def all_tools_or_keys all_tools|all_keys
+.def all_boys guy&dekar&lexis&arty
+.def some_boys guy|dekar|lexis|arty
+.def all_girls tia&selan
+.def some_girls tia|selan
+.def party1 some_boys|some_girls
+.def party2a some_boys&some_girls
+.def party2b all_boys|all_girls
+.def party2 party2a|party2b
+.def party3a some_boys&all_girls
+.def party3b all_boys&some_girls
+.def party3 party3a|party3b
+.def party4 all_boys&all_girls
+.def submarine mermaid_jade
+
+starting1           *
+starting2           *
+starting_party      *
+sundletan_cave      *
+catfish_cave        lake_key
+alunze_cave         breakable
+alunze_basement     breakable
+tanbel_tower1       bomb&hook&sky_key&party1
+tanbel_tower2       bomb&hook&sky_key&party1
+ruby_cave           ruby_key&party1
+tsword_shrine1      bomb&sword_key&party2
+tsword_shrine2      bomb&sword_key&party2
+gordovan_tower1     hook&bomb&wind_key&party2
+gordovan_tower2     hook&bomb&wind_key&party2
+cave_bridge         breakable&hook&party1
+north_dungeon       hook&bomb&party2
+ancient_tower1      hook&bomb&cloud_key&party2
+ancient_tower2      hook&bomb&cloud_key&party2
+lighthouse          breakable&light_key&party2
+phantom_mountain    hook&bomb&fire_arrow&tree_key&party3
+sacrifice_tower1    hook&bomb&narcysus_key&party3
+sacrifice_tower2    hook&bomb&narcysus_key&party3
+karlloon_shrine1    hook&bomb&party3
+karlloon_shrine2    hook&bomb&party3
+flower_mountain     hammer&flower_key&party3
+dankirk_dungeon     hook&breakable&dankirk_key&party3
+northeast_tower1    hook&hammer&trial_key&party3
+northeast_tower2    hook&hammer&trial_key&party3
+no_return_mountain  party3
+divine_shrine1      hook&hammer&heart_key&party3
+divine_shrine2      hook&hammer&heart_key&party3
+vengeance_shrine1   submarine&bomb&hammer&ghost_key&party3
+vengeance_shrine2   submarine&bomb&hammer&ghost_key&party3
+truth_tower1        bomb&hook&truth_key&party3
+truth_tower2        bomb&hook&truth_key&party3
+dragon_mountain     hook&hammer&fire_arrow&magma_key&party3
+underwater_shrine   submarine&mermaid_jade&party3
+gratze_basement     submarine&breakable&hook&basement_key&party3
+shuman              airship&all_tools_or_keys&party3
+stradha             airship&all_tools_or_keys&party3
+kamirno             airship&all_tools&all_keys&party3
+daos_shrine         lisa&marie&clare&dual_blade&all_tools&all_keys&useless_keys&party4
+#ancient_cave        *

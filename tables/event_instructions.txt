@@ -120,7 +120,7 @@
 91  1,1
 92  1
 94  1,1,1
-95  1,1,1
+95  1,1,1       Screen tint animation
 97  0
 98  1,1         Thunder Warp
 99  1
@@ -132,7 +132,7 @@
 a0  1,1,1,1,1,1
 a1  1,1
 a2  1
-a3  1,1         Move Character?
+a3  1,1         Play NPC focused animation
 a4  0           Screen Mosaic
 a5  0           Call Game Load Screen
 a6  0

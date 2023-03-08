@@ -1,0 +1,21 @@
+# Old tutorial skip
+EVENT 03-D-02  # $3b430:3bd88
+0D65. 00()
+
+# Opening event
+EVENT 03-B-02
+0000. 15(0a-@7fff)
+0100. 1a(0a)
+0140. 59(11)
+0160. 3B(02)
+0180. 30(00-02)
+0202. 23(00-26)                      # Learn Spell
+#0303. a3(57-85)
+#0304. 37(30)
+#0314. 34(57-f0)
+#0315. a3(57-86)
+#0316. 37(30)
+0D5D. 7C(02)                         # Change Ship Type
+0D5F. 7E(00)                         # Set Ship Exists/Unexists
+0D61. 7D(c8)                         # Relocate Ship
+7fff. 00()

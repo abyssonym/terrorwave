@@ -9,6 +9,7 @@ from randomtools.utils import (
 from randomtools.interface import (
     get_outfile, get_flags, get_activated_codes,
     run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
+from randomtools.itemrouter import ItemRouter, ItemRouterException
 
 from collections import defaultdict, Counter
 from copy import deepcopy
@@ -1295,7 +1296,7 @@ class MapMetaObject(TableObject):
 
         def __repr__(self):
             if self.is_mobile:
-                s = ('X:{0:0>2x}<={1:0>2x}<={2:0>2x}, '
+                s = ('X:{0:0>2x}<={1:0>2x}<={2:0>2x} '
                      'Y:{3:0>2x}<={4:0>2x}<={5:0>2x}')
                 s = s.format(
                     self.boundary_west, self.x, self.boundary_east-1,
@@ -1311,9 +1312,23 @@ class MapMetaObject(TableObject):
 
     @property
     def pretty_positions(self):
-        return '\n'.join([
-            '{0:0>2X} ({1:0>2X}) {2}'.format(npcp.index, npcp.misc, npcp)
-            for npcp in self.npc_positions])
+        s = ''
+        for npcp in self.npc_positions:
+            extra_matches = [exnpc for exnpc in self.extra_npcs
+                             if exnpc.map_npc_index == npcp.index]
+            s += '{0:0>2X} ({1:0>2X}) {2}'.format(npcp.index, npcp.misc, npcp)
+            if extra_matches:
+                assert len(extra_matches) == 1
+                sprite_index = extra_matches[0].sprite_index
+                s += ' (EXTRA: {0:0>2x} {1})'.format(
+                    sprite_index, names.sprites[sprite_index])
+            s += '\n'
+        return s.strip()
+
+    @property
+    def extra_npcs(self):
+        return [exnpc for exnpc in ExtraNPCObject.every
+                if exnpc.map_index == self.index]
 
     def get_npc_position_by_index(self, index):
         npcps = [npcp for npcp in self.npc_positions if npcp.index == index]
@@ -1421,6 +1436,8 @@ class WordObject(TableObject):
         return message
 
 
+class ExtraNPCObject(TableObject): pass
+
 class MapEventObject(TableObject):
     TEXT_PARAMETERS = {
         0x04: 1,
@@ -1474,14 +1491,7 @@ class MapEventObject(TableObject):
         def __repr__(self):
             s = ''
             for script in self.scripts:
-                si = script.index
-                si = '{0:0>2X}'.format(si) if si is not None else 'XX'
-                header = 'EVENT {0:0>2X}-{1}-{2}  # ${3:x}:{4:x}'.format(
-                    self.meo.index, self.index, si,
-                    self.pointer, script.script_pointer)
-                scrstr = '{0}\n{1}'.format(header, script)
-                scrstr = scrstr.replace('\n', '\n  ')
-                s += '\n' + scrstr + '\n'
+                s += '\n' + script.pretty_with_header + '\n'
             return s.strip()
 
         @cached_property
@@ -1653,7 +1663,7 @@ class MapEventObject(TableObject):
             self.old_pretty = self.pretty
 
         def __repr__(self):
-            return self.pretty
+            return self.pretty_with_header
 
         @property
         def eventlists_pointer(self):
@@ -1664,12 +1674,12 @@ class MapEventObject(TableObject):
             return self.event_list.map_meta
 
         @property
-        def is_npc(self):
+        def is_npc_load_event(self):
             return self.script_pointer < MapEventObject.MIN_EVENT_LIST
 
         @property
         def base_pointer(self):
-            if not self.is_npc:
+            if not self.is_npc_load_event:
                 return self.eventlists_pointer
             else:
                 return self.script_pointer & 0xff8000
@@ -1690,6 +1700,28 @@ class MapEventObject(TableObject):
                     offset, self.script_pointer+offset, linecode)
                 pretty = pretty.replace(linecode, replacement)
             return pretty.rstrip()
+
+        @property
+        def header(self):
+            if self.index is not None:
+                si = '{0:0>2X}'.format(self.index)
+            else:
+                si = 'XX'
+            header = 'EVENT {0:0>2X}-{1}-{2}  # ${3:x}:{4:x}'.format(
+                self.event_list.meo.index, self.event_list.index, si,
+                self.event_list.pointer, self.script_pointer)
+            return header
+
+        @property
+        def pretty_with_header(self):
+            s = '{0}\n{1}'.format(self.header, self.pretty)
+            s = s.replace('\n', '\n  ')
+            return s.strip()
+
+        @property
+        def opcount(self):
+            return Counter(
+                [opcode for line_number, opcode, parameters in self.script])
 
         @cached_property
         def pre_data(self):
@@ -2190,6 +2222,29 @@ class MapEventObject(TableObject):
             return_text = self.compression_buffer[-return_length:]
             assert len(return_text) == return_length
             return return_text
+
+        def realign_addresses(self):
+            # TODO: Unused method?
+            line_numbers = [ln for (ln, _, _) in self.script]
+            new_script = []
+            for i, (line_number, opcode, parameters) in enumerate(self.script):
+                try:
+                    next_line_number = self.script[i+1][0]
+                except IndexError:
+                    next_line_number = None
+                addrs = [p for p in parameters if isinstance(p, self.Address)]
+                for p in addrs:
+                    addr = p.address
+                    if addr not in line_numbers:
+                        addr = min([ln for ln in line_numbers
+                                    if ln >= addr])
+                        p.address = addr
+                if len(addrs) == 1:
+                    addr = addrs[0]
+                    if addr.address == next_line_number:
+                        continue
+                new_script.append((line_number, opcode, parameters))
+            self.script = new_script
 
         def compile(self, script=None, optimize=False, ignore_pointers=False):
             if self.frozen:
@@ -2716,14 +2771,17 @@ def patch_events(filenames=None, **kwargs):
     if filenames is None:
         filenames = []
         for label in EVENT_PATCHES:
+            filenames.append(label)
             filename = path.join(tblpath, 'eventpatch_{0}.txt'.format(label))
-            filenames.append(filename)
 
     if not filenames:
         return
 
     if not isinstance(filenames, list):
         filenames = [filenames]
+    filenames = [fn if fn.endswith('.txt') else
+                 path.join(tblpath, 'eventpatch_{0}.txt'.format(fn))
+                 for fn in filenames]
 
     to_import = {}
     identifier = None
@@ -2750,6 +2808,17 @@ def patch_events(filenames=None, **kwargs):
         el = meo.get_eventlist_by_index(el_index)
         script = el.get_script_by_index(script_index)
         script.import_script(script_text, **kwargs)
+
+
+def route_items():
+    ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
+                    path.join(tblpath, 'restrictions.txt'))
+    while True:
+        unassigned = {x for xs in ir.unassigned_items for x in xs}
+        ir.assign_everything()
+        print(ir.report)
+        ir.clear_assignments()
+        break
 
 
 def dump_events(filename):
@@ -2796,6 +2865,12 @@ if __name__ == '__main__':
             print('NOTHING PERSONNEL KID.')
 
         patch_events()
+
+        route_items()
+        patch_events('max_world_clock')
+        patch_events('max_world_clock_manual')
+        patch_events('open_world_base')
+
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
 
