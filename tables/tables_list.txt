@@ -1,5 +1,5 @@
 # objname tablefile address count grouped
-ExtraNPCObject      struct_extra_npc.txt        3ae4e   34
+RoamingNPCObject    struct_roaming_npc.txt      3ae4e   34
 MapEventObject      struct_map_event.txt        38010   242
 ChestObject         struct_chest.txt            pointers_chest.txt
 WordObject          struct_word.txt             76a00   640

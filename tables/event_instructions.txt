@@ -40,7 +40,7 @@
 32  1,1         Character Stands Still?
 33  1,1         Move Character to Location
 34  1,1         Change Character Sprite
-35  1,1,1
+35  1,1,1       Move roaming NPC
 37  1           Pause
 38  1           Pause (Longer)
 39  0

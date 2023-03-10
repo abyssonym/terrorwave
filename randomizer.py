@@ -1274,6 +1274,9 @@ class MonsterMoveObject(TableObject):
 
 
 class MapMetaObject(TableObject):
+    #FREE_SPACE = [(0x8a807, 0xa713d), (0x280000, 0x2a0000)]
+    FREE_SPACE = [(0x280000, 0x2a0000)]
+
     class NPCPosition:
         def __init__(self, data):
             assert len(data) == 8
@@ -1310,25 +1313,120 @@ class MapMetaObject(TableObject):
             return (self.boundary_east - self.boundary_west > 1 or
                     self.boundary_south - self.boundary_north > 1)
 
+        @property
+        def bytecode(self):
+            s = []
+            for attr in ['index', 'x', 'y', 'boundary_west', 'boundary_north',
+                         'boundary_east', 'boundary_south', 'misc']:
+                value = getattr(self, attr)
+                s.append(value)
+            return bytes(s)
+
     @property
     def pretty_positions(self):
+        self.set_event_signatures()
         s = ''
         for npcp in self.npc_positions:
-            extra_matches = [exnpc for exnpc in self.extra_npcs
-                             if exnpc.map_npc_index == npcp.index]
-            s += '{0:0>2X} ({1:0>2X}) {2}'.format(npcp.index, npcp.misc, npcp)
-            if extra_matches:
-                assert len(extra_matches) == 1
-                sprite_index = extra_matches[0].sprite_index
-                s += ' (EXTRA: {0:0>2x} {1})'.format(
-                    sprite_index, names.sprites[sprite_index])
+            event_signature = '{0:0>2X}-C-{1:0>2X}'.format(
+                self.index, npcp.index + 0x4f)
+            s += '{0:0>2X} ({1:0>2X}) {2} [{3}]'.format(
+                npcp.index, npcp.misc, npcp, event_signature)
+            if npcp.extra_event_signature:
+                s += ' [{0}]'.format(npcp.extra_event_signature)
+            if npcp.sprite is not None:
+                s += ' ROAMING {0}'.format(npcp.sprite)
             s += '\n'
         return s.strip()
 
     @property
-    def extra_npcs(self):
-        return [exnpc for exnpc in ExtraNPCObject.every
+    def roaming_npcs(self):
+        return [exnpc for exnpc in RoamingNPCObject.every
                 if exnpc.map_index == self.index]
+
+    @property
+    def npc_position_offset_length(self):
+        data = self.old_data
+        blocksize = len(data)
+        offsets = []
+        for i in range(1, 22):
+            i *= 2
+            offset = int.from_bytes(data[i:i+2], byteorder='little')
+            offsets.append(offset)
+        assert data[i+2] == 0xff
+        offset_order = sorted(set(offsets) | {blocksize})
+
+        npc_position_offset = offsets[7]
+        assert npc_position_offset in offset_order
+        index = offset_order.index(npc_position_offset)
+        npc_position_length = offset_order[index+1] - npc_position_offset
+        assert npc_position_length % 8 == 1
+        return npc_position_offset, npc_position_length
+
+    @property
+    def bytecode(self):
+        npcpo, npcpl = self.npc_position_offset_length
+        assert npcpl >= 1
+        header_data = self.old_data[:npcpo]
+        footer_data = self.old_data[npcpo+npcpl:]
+        old_npc_position_data = self.old_data[npcpo:npcpo+npcpl]
+
+        npc_position_data = b''
+        for npc_position in self.npc_positions:
+            npc_position_data += npc_position.bytecode
+        npc_position_data += b'\xff'
+        new_npcpl = len(npc_position_data)
+        npcpl_difference = new_npcpl - npcpl
+
+        offsets = []
+        for i in range(1, 22):
+            i *= 2
+            offset = int.from_bytes(header_data[i:i+2], byteorder='little')
+            offsets.append(offset)
+
+        assert offsets[7] == npcpo
+        if len(self.npc_positions) > self.old_num_npcs:
+            offsets[7] = len(self.old_data)
+            footer_data += npc_position_data
+            npc_position_data = old_npc_position_data
+        else:
+            while len(npc_position_data) < len(old_npc_position_data):
+                npc_position_data += b'\xff'
+
+        if self.npc_positions:
+            assert offsets[7] > 0x2c
+        else:
+            assert offsets[7] == 0x2c
+        assert all(o >= 0x2c for o in offsets)
+
+        offset_str = b''.join([int.to_bytes(o, byteorder='little', length=2)
+                               for o in offsets])
+        blocksize = int.to_bytes(
+            len(header_data + npc_position_data + footer_data),
+            length=2, byteorder='little')
+        header_data = (
+            blocksize + offset_str + header_data[2+len(offset_str):])
+        bytecode = header_data + npc_position_data + footer_data
+        assert bytecode[0x2c] == 0xff
+        return bytecode
+
+    def set_event_signatures(self):
+        for npcp in self.npc_positions:
+            extra_matches = [exnpc for exnpc in self.roaming_npcs
+                             if exnpc.map_npc_index == npcp.index]
+            if extra_matches:
+                assert len(extra_matches) == 1
+                extra = extra_matches[0]
+                sprite_index = extra.sprite_index
+                map_npc_event_index = extra.map_npc_event_index
+                event_signature = '{0:0>2X}-C-{1:0>2X}'.format(
+                    self.index, map_npc_event_index)
+                sprite = '{0:0>2x} {1}'.format(
+                    extra.map_npc_event_index, names.sprites[sprite_index])
+                npcp.extra_event_signature = event_signature
+                npcp.sprite = sprite
+            else:
+                npcp.extra_event_signature = None
+                npcp.sprite = None
 
     def get_npc_position_by_index(self, index):
         npcps = [npcp for npcp in self.npc_positions if npcp.index == index]
@@ -1345,21 +1443,11 @@ class MapMetaObject(TableObject):
         blocksize = int.from_bytes(f.read(2), byteorder='little')
         f.seek(pointer)
         data = f.read(blocksize)
-        offsets = []
-        for i in range(1, 22):
-            i *= 2
-            offset = int.from_bytes(data[i:i+2], byteorder='little')
-            offsets.append(offset)
-        assert data[i+2] == 0xff
-        offset_order = sorted(set(offsets) | {blocksize})
+        self.old_data = data
 
-        npc_position_offset = offsets[7]
-        assert npc_position_offset in offset_order
-        index = offset_order.index(npc_position_offset)
-        npc_position_length = offset_order[index+1] - npc_position_offset
-        assert npc_position_length % 8 == 1
-        npc_position_data = data[
-            npc_position_offset:npc_position_offset+npc_position_length]
+        npcpo, npcpl = self.npc_position_offset_length
+        npc_position_data = data[npcpo:npcpo+npcpl]
+
         assert npc_position_data[-1] == 0xff
         npc_position_data = npc_position_data[:-1]
         self.npc_positions = []
@@ -1367,8 +1455,21 @@ class MapMetaObject(TableObject):
             npc_position = self.NPCPosition(npc_position_data[:8])
             npc_position_data = npc_position_data[8:]
             self.npc_positions.append(npc_position)
+        self.old_num_npcs = len(self.npc_positions)
+        assert self.old_data == self.bytecode
 
     def write_data(self, filename=None, pointer=None):
+        blocksize = len(self.bytecode)
+        candidates = sorted([(a, b) for (a, b) in MapMetaObject.FREE_SPACE
+                             if b-a >= blocksize], key=lambda x: x[1]-x[0])
+        lower, upper = candidates[0]
+        MapMetaObject.FREE_SPACE.remove((lower, upper))
+        assert lower+blocksize <= upper
+        MapMetaObject.FREE_SPACE.append((lower+blocksize, upper))
+        f = get_open_file(get_outfile())
+        f.seek(lower)
+        f.write(self.bytecode)
+        self.reference_pointer = map_to_lorom(lower)
         super().write_data(filename, pointer)
 
 
@@ -1436,7 +1537,10 @@ class WordObject(TableObject):
         return message
 
 
-class ExtraNPCObject(TableObject): pass
+class RoamingNPCObject(TableObject):
+    @property
+    def sprite_name(self):
+        return names.sprites[self.sprite_index]
 
 class MapEventObject(TableObject):
     TEXT_PARAMETERS = {
@@ -1467,6 +1571,8 @@ class MapEventObject(TableObject):
     END_NPC_POINTER = 0x3ae4d
     END_EVENT_POINTER = 0x7289e
     FREE_SPACE = [(0x3aed8, 0x3af4c)]
+
+    roaming_comments = set()
 
     class EventList:
         def __init__(self, pointer, meo):
@@ -1548,13 +1654,14 @@ class MapEventObject(TableObject):
                 assert script.event_list is self
             f = get_open_file(get_outfile())
 
-            npc = (self.index == 'X')
-            if npc:
+            npc_loader = (self.index == 'X')
+            if npc_loader:
                 assert len(self.scripts) == 1
                 script = self.scripts[0]
                 data = script.compile(optimize=True)
                 assert data[-1] == 0
-                self.pointer = MapEventObject.allocate(len(data), npc=npc)
+                self.pointer = MapEventObject.allocate(
+                    len(data), npc_loader=npc_loader)
                 script.script_pointer = self.pointer
                 script.data = script.compile(optimize=True)
                 f.seek(script.script_pointer)
@@ -1583,15 +1690,17 @@ class MapEventObject(TableObject):
                     script.script_pointer = self.meo.assigned_zero
                 else:
                     script.script_pointer = MapEventObject.allocate(
-                        len(data), npc=npc, find_best_fit_dry=True,
+                        len(data), npc_loader=npc_loader,
+                        find_best_fit_dry=True,
                         near=[self.meo.eventlists_pointer, self.pointer],
                         )
                     assert 0 <= script.script_pointer - self.meo.eventlists_pointer <= 0xffff
                     assert 0 <= script.script_pointer - self.pointer <= 0xffff
                     script.data = script.compile(optimize=True)
                     #assert len(script.data) == len(data)
-                    MapEventObject.allocate(len(script.data), npc=npc,
-                                            forced=script.script_pointer)
+                    MapEventObject.allocate(
+                        len(script.data), npc_loader=npc_loader,
+                        forced=script.script_pointer)
                     f.seek(script.script_pointer)
                     f.write(script.data)
                 script_pointer = script.script_pointer
@@ -1703,14 +1812,18 @@ class MapEventObject(TableObject):
 
         @property
         def header(self):
+            header = 'EVENT {0}  # ${1:x}:{2:x}'.format(
+                self.signature, self.event_list.pointer, self.script_pointer)
+            return header
+
+        @property
+        def signature(self):
             if self.index is not None:
                 si = '{0:0>2X}'.format(self.index)
             else:
                 si = 'XX'
-            header = 'EVENT {0:0>2X}-{1}-{2}  # ${3:x}:{4:x}'.format(
-                self.event_list.meo.index, self.event_list.index, si,
-                self.event_list.pointer, self.script_pointer)
-            return header
+            return '{0:0>2X}-{1}-{2}'.format(
+                self.event_list.meo.index, self.event_list.index, si)
 
         @property
         def pretty_with_header(self):
@@ -1814,8 +1927,6 @@ class MapEventObject(TableObject):
                             x, y = '??', '??'
                         comment += ' ({0},{1}) {2:0>2x}: {3:0>2x} {4}'.format(
                             x, y, npc_index, sprite_index, name)
-                        if position and position.is_mobile:
-                            comment += ' [{0}]'.format(position)
                         comment += '\n'
                     elif opcode == 0x53:
                         (formation_index,) = parameters
@@ -1833,6 +1944,24 @@ class MapEventObject(TableObject):
                         spell = SpellObject.get(spell_index)
                         comment = '{0} ({1}: {2})'.format(
                             comment, character.name, spell.name)
+                    elif opcode == 0x16:
+                        event = '{0:0>2X}-B-{1:0>2X} ({2:0>2X})'.format(
+                            *parameters)
+                        comment = '{0} {1}'.format(comment, event)
+                    elif opcode == 0x35:
+                        assert parameters[0] >= 0x10
+                        xnpc = RoamingNPCObject.get(parameters[0] - 0x10)
+                        npc_signature = '({0:0>2X} {1})'.format(
+                            parameters[0], xnpc.sprite_name)
+                        loc_signature = '(map {0:0>2X}, NPC {1:0>2X})'.format(
+                            parameters[1], parameters[2])
+                        comment = 'Move roaming NPC {0} to {1}'.format(
+                            npc_signature, loc_signature)
+                        comment += ' [{0:0>2X}-C-{1:0>2X}]'.format(
+                            parameters[1], parameters[0])
+                        roaming_comment = '[{0}] {1}'.format(
+                            self.signature, comment)
+                        MapEventObject.roaming_comments.add(roaming_comment)
                     elif opcode == 0x14:
                         assert parameters[-3] in {0x20, 0x30}
                         assert isinstance(parameters[-2], self.Address)
@@ -1847,7 +1976,8 @@ class MapEventObject(TableObject):
                                 conditions.pop(0)
                             elif c == 0xf8:
                                 npc_index = conditions.pop(0)
-                                s += ' NPC {0:0>2X} ???'.format(npc_index)
+                                assert npc_index >= 1
+                                s += ' NPC {0:0>2X} ???'.format(npc_index-1)
                                 conditions.pop(0)
                             elif c in {0xc0, 0xc2}:
                                 item_index = conditions.pop(0)
@@ -2404,16 +2534,57 @@ class MapEventObject(TableObject):
 
     # MapEventObject methods
     def __repr__(self):
-        s = '# MAP {0:0>2X}-{1:0>5x} ({2})'.format(
+        s1 = '# MAP {0:0>2X}-{1:0>5x} ({2})\n'.format(
             self.index, self.pointer, self.name)
+        check = '[{0:0>2X}'.format(self.index)
+        roamings = [c for c in self.roaming_comments if check in c]
+        outroamings = [c for c in roamings if c.startswith(check)]
+        inroamings = [c for c in roamings if c not in outroamings]
+        s2, s3 = '', ''
+        for c in sorted(inroamings):
+            s1 += '# ' + c + '\n'
+        for c in sorted(outroamings):
+            s3 += '# ' + c + '\n'
         if self.map_meta.npc_positions:
-            s += '\n' + self.map_meta.pretty_positions
-            s = s.replace('\n', '\n# NPC ') + '\n'
+            s2 += '\n' + self.map_meta.pretty_positions
+            s2 = s2.replace('\n', '\n# NPC ') + '\n'
+        assert self.event_lists[0].index == 'X'
+        npc_preload_matcher = re.compile(
+            '.*([0-9a-fA-F]{2}): (.*)$')
+        preload_npcs = {}
+        for line in str(self.event_lists[0]).split('\n'):
+            if not ('. 68(' in line or '. 7B(' in line.upper()):
+                continue
+            match = npc_preload_matcher.match(line)
+            if not match:
+                continue
+            npc_index, sprite = match.groups()
+            npc_index = '{0:0>2X}'.format(int(npc_index, 0x10) - 0x4f)
+            if npc_index in preload_npcs and preload_npcs[npc_index] != sprite:
+                preload_npcs[npc_index] = 'VARIOUS'
+            else:
+                preload_npcs[npc_index] = sprite
+        for npc_index, sprite in sorted(preload_npcs.items()):
+            check = 'NPC %s' % npc_index
+            index = s2.index(check)
+            eol = s2[index:].index('\n') + index
+            s2 = s2[:eol] + ' PRELOAD %s' % sprite + s2[eol:]
+            assert index > 0
+        s = '{0}\n{1}\n{2}\n'.format(s1.strip(), s2.strip(), s3.strip())
+        s = s.strip()
+        if '\n' in s:
+            s += '\n'
         for el in self.event_lists:
             elstr = str(el).rstrip()
             if not elstr:
                 continue
             s += '\n' + elstr + '\n'
+        matcher = re.compile('\[{0:0>2X}-.-..\]'.format(self.index))
+        matches = matcher.findall(s)
+        for match in matches:
+            checkstr = 'EVENT %s' % match[1:-1]
+            if checkstr not in s:
+                s = s.replace(' %s' % match, '')
         s = s.replace('\n', '\n  ')
         while '\n\n\n' in s:
             s = s.replace('\n\n\n', '\n\n')
@@ -2516,9 +2687,9 @@ class MapEventObject(TableObject):
         self.FREE_SPACE = sorted(temp)
 
     @classmethod
-    def allocate(self, length, npc=False, near=None, find_best_fit_dry=False,
-                 forced=None):
-        if npc:
+    def allocate(self, length, npc_loader=False, near=None,
+                 find_best_fit_dry=False, forced=None):
+        if npc_loader:
             candidates = [(a, b) for (a, b) in self.FREE_SPACE
                           if a < self.MIN_EVENT_LIST and (b-a) >= length]
         else:
@@ -2730,7 +2901,7 @@ class MapEventObject(TableObject):
 
     def write_data(self, filename=None, pointer=None):
         f = get_open_file(get_outfile())
-        self.set_eventlists_pointer(self.allocate(14, npc=False))
+        self.set_eventlists_pointer(self.allocate(14, npc_loader=False))
         f.seek(self.eventlists_pointer)
         f.write(self.unknown.to_bytes(2, byteorder='little'))
 
@@ -2870,6 +3041,7 @@ if __name__ == '__main__':
         patch_events('max_world_clock')
         patch_events('max_world_clock_manual')
         patch_events('open_world_base')
+        MapEventObject.roaming_comments = set()
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
