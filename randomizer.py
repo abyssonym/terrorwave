@@ -1833,6 +1833,8 @@ class MapEventObject(TableObject):
             self.old_script_pointer = self.script_pointer
             self.old_base_pointer = self.base_pointer
             self.old_data = self.data
+            if self.script_pointer is None:
+                self.script_pointer = self.base_pointer
 
             self.script = self.parse()
             self.old_script = deepcopy(self.script)
@@ -2300,18 +2302,12 @@ class MapEventObject(TableObject):
                     script.append((len(full_data), 0, []))
             return script
 
-        def import_script(self, template, **kwargs):
+        def import_script(self, text):
             assert not self.frozen
             if hasattr(self, '_imported') and self._imported:
                 print('WARNING: Script {0:x} double imported.'.format(
                     self.script_pointer))
             self._imported = True
-            text = template
-            for key, value in sorted(kwargs.items()):
-                to_replace = '{%s}' % key
-                if isinstance(value, int):
-                    value = '{0:X}'.format(value)
-                text = text.replace(to_replace, value)
 
             line_matcher = re.compile('^ *([0-9A-Fa-f]+)\. (.*)$')
             lines = []
@@ -3008,7 +3004,93 @@ def randomize_rng():
     f.write(chr(b))
 
 
-def patch_events(filenames=None, **kwargs):
+def patch_game_script(patch_script_text):
+    to_import = {}
+    identifier = None
+    script_text = None
+    for line in patch_script_text.split('\n'):
+        if '#' in line:
+            index = line.index('#')
+            line = line[:index]
+        line = line.lstrip()
+        if not line:
+            continue
+        if line.startswith('!'):
+            if line.lower().startswith('!npc'):
+                (command, map_index, npc_index,
+                    misc, a, b) = line.upper().split()
+                map_index = int(map_index, 0x10)
+                if npc_index == '+1':
+                    npc_index = None
+                else:
+                    npc_index = int(npc_index, 0x10)
+                try:
+                    assert misc.startswith('(')
+                    assert misc.endswith(')')
+                except:
+                    raise Exception('Malformed "misc" field: %s' % line)
+                misc = int(misc[1:-1], 0x10)
+                (x, y, boundary_west, boundary_east, boundary_north,
+                    boundary_south) = None, None, None, None, None, None
+                for coordinate in (a, b):
+                    assert coordinate[0] in ('X', 'Y')
+                    try:
+                        value_range = coordinate.split(':')[1]
+                        assert '>' not in value_range
+                        if '<' in value_range:
+                            left, middle, right = value_range.split('<=')
+                            left = int(left, 0x10)
+                            middle = int(middle, 0x10)
+                            right = int(right, 0x10)
+                            assert left <= middle <= right
+                            if coordinate[0] == 'X':
+                                boundary_west = left
+                                x = middle
+                                boundary_east = right
+                            else:
+                                assert coordinate[0] == 'Y'
+                                boundary_north = left
+                                y = middle
+                                boundary_south = right
+                        else:
+                            if coordinate[0] == 'X':
+                                x = int(value_range, 0x10)
+                            else:
+                                assert coordinate[0] == 'Y'
+                                y = int(value_range, 0x10)
+                    except:
+                        raise Exception('Malformed coordinates: %s' % line)
+                boundary = ((boundary_west, boundary_north),
+                            (boundary_east, boundary_south))
+                MapMetaObject.get(map_index).add_or_replace_npc(
+                    x, y, boundary, misc, npc_index)
+            else:
+                raise Exception('Unknown event patch command: %s' % line)
+            continue
+
+        if line.startswith('EVENT'):
+            if identifier is not None:
+                assert identifier not in to_import
+                to_import[identifier] = script_text
+            identifier = line.split(' ')[-1]
+            script_text = ''
+        else:
+            script_text = '\n'.join([script_text, line])
+
+    assert identifier not in to_import
+    to_import[identifier] = script_text
+    for identifier, script_text in sorted(to_import.items()):
+        map_index, el_index, script_index = identifier.split('-')
+        map_index = int(map_index, 0x10)
+        script_index = (None if script_index == 'XX'
+                        else int(script_index, 0x10))
+        meo = MapEventObject.get(map_index)
+        el = meo.get_eventlist_by_index(el_index)
+        script = el.get_or_create_script_by_index(script_index)
+        script.import_script(script_text)
+
+
+def patch_events(filenames=None):
     if filenames is None:
         filenames = []
         for label in EVENT_PATCHES:
@@ -3024,83 +3106,33 @@ def patch_events(filenames=None, **kwargs):
                  path.join(tblpath, 'eventpatch_{0}.txt'.format(fn))
                  for fn in filenames]
 
-    to_import = {}
-    identifier = None
-    script_text = None
+    patch_script_text = ''
     for filename in filenames:
         for line in read_lines_nocomment(filename):
-            line = line.lstrip()
-            if line.startswith('!'):
-                if line.lower().startswith('!npc'):
-                    (command, map_index, npc_index,
-                        misc, a, b) = line.upper().split()
-                    map_index = int(map_index, 0x10)
-                    if npc_index == '+1':
-                        npc_index = None
-                    else:
-                        npc_index = int(npc_index, 0x10)
-                    try:
-                        assert misc.startswith('(')
-                        assert misc.endswith(')')
-                    except:
-                        raise Exception('Malformed "misc" field: %s' % line)
-                    misc = int(misc[1:-1], 0x10)
-                    (x, y, boundary_west, boundary_east, boundary_north,
-                        boundary_south) = None, None, None, None, None, None
-                    for coordinate in (a, b):
-                        assert coordinate[0] in ('X', 'Y')
-                        try:
-                            value_range = coordinate.split(':')[1]
-                            assert '>' not in value_range
-                            if '<' in value_range:
-                                left, middle, right = value_range.split('<=')
-                                left = int(left, 0x10)
-                                middle = int(middle, 0x10)
-                                right = int(right, 0x10)
-                                assert left <= middle <= right
-                                if coordinate[0] == 'X':
-                                    boundary_west = left
-                                    x = middle
-                                    boundary_east = right
-                                else:
-                                    assert coordinate[0] == 'Y'
-                                    boundary_north = left
-                                    y = middle
-                                    boundary_south = right
-                            else:
-                                if coordinate[0] == 'X':
-                                    x = int(value_range, 0x10)
-                                else:
-                                    assert coordinate[0] == 'Y'
-                                    y = int(value_range, 0x10)
-                        except:
-                            raise Exception('Malformed coordinates: %s' % line)
-                    boundary = ((boundary_west, boundary_north),
-                                (boundary_east, boundary_south))
-                    MapMetaObject.get(map_index).add_or_replace_npc(
-                        x, y, boundary, misc, npc_index)
-                else:
-                    raise Exception('Unknown event patch command: %s' % line)
-                continue
-            if line.startswith('EVENT'):
-                if identifier is not None:
-                    assert identifier not in to_import
-                    to_import[identifier] = script_text
-                identifier = line.split(' ')[-1]
-                script_text = ''
-            else:
-                script_text = '\n'.join([script_text, line])
-    assert identifier not in to_import
-    to_import[identifier] = script_text
-    for identifier, script_text in sorted(to_import.items()):
-        map_index, el_index, script_index = identifier.split('-')
-        map_index = int(map_index, 0x10)
-        script_index = (None if script_index == 'XX'
-                        else int(script_index, 0x10))
-        meo = MapEventObject.get(map_index)
-        el = meo.get_eventlist_by_index(el_index)
-        script = el.get_or_create_script_by_index(script_index)
-        script.import_script(script_text, **kwargs)
+            patch_script_text += line + '\n'
+    patch_script_text = patch_script_text.strip()
+    patch_game_script(patch_script_text)
+
+
+def patch_with_template(template, parameters):
+    if '\n' not in template and '{{' not in template:
+        with open(path.join(
+                tblpath, 'template_{0}.txt'.format(template))) as f:
+            template = f.read()
+
+    text = template
+    for _ in range(1000):
+        for key in sorted(parameters):
+            text= text.replace('{{%s}}' % key, parameters[key])
+        if '{{' not in text:
+            break
+    else:
+        matcher = re.compile('{{[^}]*}}')
+        matches = sorted(set(matcher.findall(text)))
+        raise Exception('Unexpanded template tags: %s' % matches)
+
+    print(text)
+    patch_game_script(text)
 
 
 def route_items():
@@ -3164,6 +3196,23 @@ if __name__ == '__main__':
         patch_events('max_world_clock_manual')
         patch_events('open_world_base')
         MapEventObject.roaming_comments = set()
+
+        patch_with_template('boss_npc', {
+            'after_event_start': '7fff',
+            'after_event': '',
+            'boss_flag': '20',
+            'boss_formation_index': '06',
+            'map_index': '03',
+            'npc_event_index': '5F',
+            'npc_index': '10',
+            'npc_x': '1f',
+            'npc_y': '1f',
+            'old_event_start': '50',
+            'old_event': '0050. 00()',
+            'reward_event': '',
+            'sprite_index_after': 'f0',
+            'sprite_index_before': '7a',
+            })
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')

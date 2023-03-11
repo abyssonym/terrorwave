@@ -1,0 +1,26 @@
+!npc {{map_index}} {{npc_index}} (00) x:{{npc_x}} y:{{npc_y}}
+
+EVENT {{map_index}}-X-XX
+    0010. 15({{boss_flag}}-@40)
+    0020. 68({{npc_event_index}}-{{sprite_index_before}})
+    0030. 1C(@{{old_event_start}})
+    0040. 68({{npc_event_index}}-{{sprite_index_after}})
+    {{old_event}}
+
+EVENT {{map_index}}-C-{{npc_event_index}}
+    0010. 15({{boss_flag}}-@{{after_event_start}})
+    0020. 53({{boss_formation_index}})
+    0030. 6A(FF-@60)
+    0040. A5()
+    0050. 00()
+    0060. 1A({{boss_flag}})
+    0070. A4()
+    0160. A3({{npc_event_index}}-85)
+    0170. 37(30)
+    0180. 34({{npc_event_index}}-{{sprite_index_after}})
+    0190. A3({{npc_event_index}}-86)
+    0200. 37(30)
+    {{reward_event}}
+    4000. 1C(@7FFF)
+    {{after_event}}
+    7FFF. 00()
