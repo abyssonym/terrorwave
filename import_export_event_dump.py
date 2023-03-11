@@ -1,4 +1,5 @@
-from randomizer import dump_events, patch_events, ALL_OBJECTS, MapEventObject
+from randomizer import (dump_events, patch_events, ALL_OBJECTS,
+                        MapEventObject, MapMetaObject)
 from randomtools.interface import run_interface
 from os import remove, rename, path
 from sys import argv
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     if mode == 'import':
         patch_events(script_dump)
         MapEventObject.write_all(outfile)
+        MapMetaObject.write_all(outfile)
         backup_name = '{0}.backup'.format(sourcefile)
         if path.exists(backup_name):
             backup_name = '{0}.{1}'.format(backup_name, int(time()))

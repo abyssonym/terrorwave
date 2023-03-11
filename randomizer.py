@@ -1409,6 +1409,53 @@ class MapMetaObject(TableObject):
         assert bytecode[0x2c] == 0xff
         return bytecode
 
+    def get_next_index(self):
+        if self.npc_positions:
+            index = max(npcp.index for npcp in self.npc_positions) + 1
+        else:
+            index = 1
+        return index
+
+    def add_npc(self, x, y, boundary=None, misc=0, force_index=None):
+        assert x is not None
+        assert y is not None
+        if boundary:
+            ((boundary_west, boundary_north),
+                (boundary_east, boundary_south)) = boundary
+            boundary_east = x if boundary_east is None else boundary_east
+            boundary_west = x if boundary_west is None else boundary_west
+            boundary_north = y if boundary_north is None else boundary_north
+            boundary_south = y if boundary_south is None else boundary_south
+            boundary_east += 1
+            boundary_south += 1
+        else:
+            boundary_west = x
+            boundary_north = y
+            boundary_east = x + 1
+            boundary_south = y + 1
+        assert boundary_east > boundary_west
+        assert boundary_south > boundary_north
+        if force_index:
+            index = force_index
+        else:
+            index = self.get_next_index()
+        assert 1 <= index <= 0x20
+        bytestr = bytes([index, x, y, boundary_west, boundary_north,
+                         boundary_east, boundary_south, misc])
+        self.npc_positions.append(self.NPCPosition(bytestr))
+        self.npc_positions = sorted(self.npc_positions,
+                                    key=lambda npcp: npcp.index)
+
+    def add_or_replace_npc(self, x, y, boundary=None, misc=0, index=None):
+        if index is None:
+            return self.add_npc(x, y, boundary, misc)
+
+        existing = [npcp for npcp in self.npc_positions if npcp.index == index]
+        if existing:
+            assert len(existing) == 1
+            self.npc_positions.remove(existing[0])
+        return self.add_npc(x, y, boundary, misc, force_index=index)
+
     def set_event_signatures(self):
         for npcp in self.npc_positions:
             extra_matches = [exnpc for exnpc in self.roaming_npcs
@@ -1457,6 +1504,13 @@ class MapMetaObject(TableObject):
             self.npc_positions.append(npc_position)
         self.old_num_npcs = len(self.npc_positions)
         assert self.old_data == self.bytecode
+
+    def cleanup(self):
+        npcp_indexes = [npcp.index for npcp in self.npc_positions]
+        assert len(npcp_indexes) == len(set(npcp_indexes))
+        if npcp_indexes and self.bytecode != self.old_data:
+            assert min(npcp_indexes) >= 1
+            assert max(npcp_indexes) <= 0x20
 
     def write_data(self, filename=None, pointer=None):
         blocksize = len(self.bytecode)
@@ -2566,7 +2620,10 @@ class MapEventObject(TableObject):
                 preload_npcs[npc_index] = sprite
         for npc_index, sprite in sorted(preload_npcs.items()):
             check = 'NPC %s' % npc_index
-            index = s2.index(check)
+            try:
+                index = s2.index(check)
+            except ValueError:
+                continue
             eol = s2[index:].index('\n') + index
             s2 = s2[:eol] + ' PRELOAD %s' % sprite + s2[eol:]
             assert index > 0
@@ -2960,6 +3017,58 @@ def patch_events(filenames=None, **kwargs):
     for filename in filenames:
         for line in read_lines_nocomment(filename):
             line = line.lstrip()
+            if line.startswith('!'):
+                if line.lower().startswith('!npc'):
+                    (command, map_index, npc_index,
+                        misc, a, b) = line.upper().split()
+                    map_index = int(map_index, 0x10)
+                    if npc_index == '+1':
+                        npc_index = None
+                    else:
+                        npc_index = int(npc_index, 0x10)
+                    try:
+                        assert misc.startswith('(')
+                        assert misc.endswith(')')
+                    except:
+                        raise Exception('Malformed "misc" field: %s' % line)
+                    misc = int(misc[1:-1], 0x10)
+                    (x, y, boundary_west, boundary_east, boundary_north,
+                        boundary_south) = None, None, None, None, None, None
+                    for coordinate in (a, b):
+                        assert coordinate[0] in ('X', 'Y')
+                        try:
+                            value_range = coordinate.split(':')[1]
+                            assert '>' not in value_range
+                            if '<' in value_range:
+                                left, middle, right = value_range.split('<=')
+                                left = int(left, 0x10)
+                                middle = int(middle, 0x10)
+                                right = int(right, 0x10)
+                                assert left <= middle <= right
+                                if coordinate[0] == 'X':
+                                    boundary_west = left
+                                    x = middle
+                                    boundary_east = right
+                                else:
+                                    assert coordinate[0] == 'Y'
+                                    boundary_north = left
+                                    y = middle
+                                    boundary_south = right
+                            else:
+                                if coordinate[0] == 'X':
+                                    x = int(value_range, 0x10)
+                                else:
+                                    assert coordinate[0] == 'Y'
+                                    y = int(value_range, 0x10)
+                        except:
+                            raise Exception('Malformed coordinates: %s' % line)
+                    boundary = ((boundary_west, boundary_north),
+                                (boundary_east, boundary_south))
+                    MapMetaObject.get(map_index).add_or_replace_npc(
+                        x, y, boundary, misc, npc_index)
+                else:
+                    raise Exception('Unknown event patch command: %s' % line)
+                continue
             if line.startswith('EVENT'):
                 if identifier is not None:
                     assert identifier not in to_import
