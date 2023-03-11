@@ -1683,8 +1683,18 @@ class MapEventObject(TableObject):
                 return self.scripts[0]
 
             candidates = [s for s in self.scripts if s.index == index]
-            assert len(candidates) == 1
-            return candidates[0]
+            if len(candidates) == 1:
+                return candidates[0]
+            return None
+
+        def get_or_create_script_by_index(self, index):
+            script = self.get_script_by_index(index)
+            if script:
+                return script
+
+            script = MapEventObject.Script(None, 0, self, index=index)
+            self.scripts.append(script)
+            return script
 
         def read_scripts(self):
             self.scripts = []
@@ -1813,9 +1823,12 @@ class MapEventObject(TableObject):
             self.index = index
             self.frozen = False
 
-            f = get_open_file(get_outfile())
-            f.seek(self.script_pointer)
-            self.data = f.read(data_length)
+            if self.script_pointer is not None:
+                f = get_open_file(get_outfile())
+                f.seek(self.script_pointer)
+                self.data = f.read(data_length)
+            else:
+                self.data = b''
 
             self.old_script_pointer = self.script_pointer
             self.old_base_pointer = self.base_pointer
@@ -1838,7 +1851,7 @@ class MapEventObject(TableObject):
 
         @property
         def is_npc_load_event(self):
-            return self.script_pointer < MapEventObject.MIN_EVENT_LIST
+            return self.index is None
 
         @property
         def base_pointer(self):
@@ -3086,7 +3099,7 @@ def patch_events(filenames=None, **kwargs):
                         else int(script_index, 0x10))
         meo = MapEventObject.get(map_index)
         el = meo.get_eventlist_by_index(el_index)
-        script = el.get_script_by_index(script_index)
+        script = el.get_or_create_script_by_index(script_index)
         script.import_script(script_text, **kwargs)
 
 
