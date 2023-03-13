@@ -1,0 +1,10 @@
+2000. 4B(33)
+2010. 8C(00-{{item_icon_code}})
+2020. 86(00-40)
+2030. 49(C8)
+2040. 9E: <UNKNOWN 06>Gets the
+          {{item_display_name}}.<END MESSAGE>
+2050. 89(00)
+2060. 49(00)
+2070. {{item_acquire_opcode}}
+2080. 4B({{map_bgm}})

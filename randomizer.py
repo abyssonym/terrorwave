@@ -11,7 +11,7 @@ from randomtools.interface import (
     run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
 from randomtools.itemrouter import ItemRouter, ItemRouterException
 
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, namedtuple
 from copy import deepcopy
 from os import path
 import re
@@ -1442,9 +1442,10 @@ class MapMetaObject(TableObject):
         assert 1 <= index <= 0x20
         bytestr = bytes([index, x, y, boundary_west, boundary_north,
                          boundary_east, boundary_south, misc])
-        self.npc_positions.append(self.NPCPosition(bytestr))
-        self.npc_positions = sorted(self.npc_positions,
-                                    key=lambda npcp: npcp.index)
+        npcp = self.NPCPosition(bytestr)
+        self.npc_positions.append(npcp)
+        self.npc_positions = sorted(self.npc_positions, key=lambda x: x.index)
+        return npcp
 
     def add_or_replace_npc(self, x, y, boundary=None, misc=0, index=None):
         if index is None:
@@ -1797,6 +1798,8 @@ class MapEventObject(TableObject):
             if comment:
                 COMMENTS[opcode] = comment
 
+        LINE_MATCHER = re.compile('^\s*([0-9a-fA-F]{1,4})\.',
+                                  flags=re.MULTILINE)
         ADDRESS_MATCHER = re.compile('@([0-9A-Fa-f]+)[^0-9A-Fa-f]',
                                      flags=re.DOTALL)
 
@@ -3120,6 +3123,11 @@ def patch_with_template(template, parameters):
                 tblpath, 'template_{0}.txt'.format(template))) as f:
             template = f.read()
 
+    for key, value in sorted(parameters.items()):
+        if isinstance(value, int):
+            value = '{0:0>2X}'.format(value)
+            parameters[key] = value
+
     text = template
     for _ in range(1000):
         for key in sorted(parameters):
@@ -3131,8 +3139,102 @@ def patch_with_template(template, parameters):
         matches = sorted(set(matcher.findall(text)))
         raise Exception('Unexpanded template tags: %s' % matches)
 
-    print(text)
     patch_game_script(text)
+
+
+class OpenNPCGenerator:
+    BOSS_TABLE_FILENAME = path.join(tblpath, 'open_bosses.txt')
+    BOSS_LOC_TABLE_FILENAME = path.join(tblpath, 'open_boss_locations.txt')
+    REWARD_ITEM_TABLE_FILENAME = path.join(tblpath, 'open_reward_items.txt')
+
+    with open(path.join(tblpath, 'template_reward_item.txt')) as f:
+        REWARD_EVENT_ITEM = f.read()
+
+    boss_properties = {}
+    boss_location_properties = {}
+    reward_item_properties = {}
+
+    Boss = namedtuple('Boss', ['name', 'sprite_index_before',
+                               'boss_formation_index', 'battle_bgm'])
+    for line in read_lines_nocomment(BOSS_TABLE_FILENAME):
+        a = Boss(*line.split(','))
+        boss_properties[a.name] = a
+
+    BossLocation = namedtuple('BossLocation', ['name', 'map_index',
+                              'npc_x', 'npc_y', 'battle_bg'])
+    for line in read_lines_nocomment(BOSS_LOC_TABLE_FILENAME):
+        b = BossLocation(*line.split(','))
+        boss_location_properties[b.name] = b
+
+    RewardItem = namedtuple('RewardItem', ['name', 'item_display_name',
+                            'item_index', 'item_icon_code'])
+    for line in read_lines_nocomment(REWARD_ITEM_TABLE_FILENAME):
+        i = RewardItem(*line.split(','))
+        reward_item_properties[i.name] = i
+
+    available_flags = sorted(range(0x20, 0x70))
+
+    @staticmethod
+    def create_boss_npc(location, boss, reward):
+        parameters = {
+            'map_bgm': '1b',
+            }
+        parameters['boss_flag'] = OpenNPCGenerator.available_flags.pop()
+
+        boss = OpenNPCGenerator.boss_properties[boss]
+        boss_location = OpenNPCGenerator.boss_location_properties[location]
+
+        old_event_signature = '%s-X-XX' % boss_location.map_index
+        map_index = int(boss_location.map_index, 0x10)
+        npc_index = MapMetaObject.get(map_index).get_next_index()
+        parameters['npc_index'] = npc_index
+        parameters['npc_event_index'] = npc_index + 0x4f
+
+        meo = MapEventObject.get(map_index)
+        el = meo.get_eventlist_by_index('X')
+        script = el.get_script_by_index(None)
+
+        old_event_start = 0x4000
+        old_event_text = '#' + str(script)
+        assert old_event_text.startswith('#EVENT')
+
+        lines = script.LINE_MATCHER.findall(old_event_text)
+        for line in lines:
+            value = int(line, 0x10)
+            assert value < old_event_start
+            replacement = '{0:0>4X}'.format(value + old_event_start)
+            old_event_text = old_event_text.replace('%s. ' % line,
+                                                    '%s. ' % replacement)
+        lines = script.ADDRESS_MATCHER.findall(old_event_text)
+        for line in lines:
+            value = int(line, 0x10)
+            assert value < old_event_start
+            replacement = '{0:X}'.format(value + old_event_start)
+            old_event_text = old_event_text.replace('@%s' % line,
+                                                    '@%s' % replacement)
+
+        parameters['old_event_start'] = old_event_start
+        parameters['old_event'] = old_event_text
+
+        if reward in OpenNPCGenerator.reward_item_properties:
+            reward = OpenNPCGenerator.reward_item_properties[reward]
+            parameters['reward_event'] = OpenNPCGenerator.REWARD_EVENT_ITEM
+            item_index = int(reward.item_index, 0x10)
+            item_acquire_opcode = '21' if item_index >= 0x100 else '20'
+            item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
+                    item_acquire_opcode, item_index & 0xFF)
+            parameters['item_acquire_opcode'] = item_acquire_opcode
+            parameters['sprite_index_after'] = '48'
+            parameters['after_event'] = ''
+            parameters['after_event_start'] = '7FFF'
+
+        for propobj in (boss, boss_location, reward):
+            for attr in propobj._fields:
+                if attr == 'name':
+                    continue
+                assert attr not in parameters
+                parameters[attr] = getattr(propobj, attr)
+        patch_with_template('boss_npc', parameters)
 
 
 def route_items():
@@ -3197,22 +3299,8 @@ if __name__ == '__main__':
         patch_events('open_world_base')
         MapEventObject.roaming_comments = set()
 
-        patch_with_template('boss_npc', {
-            'after_event_start': '7fff',
-            'after_event': '',
-            'boss_flag': '20',
-            'boss_formation_index': '06',
-            'map_index': '03',
-            'npc_event_index': '5F',
-            'npc_index': '10',
-            'npc_x': '1f',
-            'npc_y': '1f',
-            'old_event_start': '50',
-            'old_event': '0050. 00()',
-            'reward_event': '',
-            'sprite_index_after': 'f0',
-            'sprite_index_before': '7a',
-            })
+        OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
+                                         'door_key')
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
