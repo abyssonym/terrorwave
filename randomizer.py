@@ -3146,13 +3146,18 @@ class OpenNPCGenerator:
     BOSS_TABLE_FILENAME = path.join(tblpath, 'open_bosses.txt')
     BOSS_LOC_TABLE_FILENAME = path.join(tblpath, 'open_boss_locations.txt')
     REWARD_ITEM_TABLE_FILENAME = path.join(tblpath, 'open_reward_items.txt')
+    REWARD_CHAR_TABLE_FILENAME = path.join(tblpath,
+                                           'open_reward_characters.txt')
 
     with open(path.join(tblpath, 'template_reward_item.txt')) as f:
         REWARD_EVENT_ITEM = f.read()
+    with open(path.join(tblpath, 'template_reward_character.txt')) as f:
+        REWARD_EVENT_CHARACTER = f.read()
 
     boss_properties = {}
     boss_location_properties = {}
     reward_item_properties = {}
+    reward_character_properties = {}
 
     Boss = namedtuple('Boss', ['name', 'sprite_index_before',
                                'boss_formation_index', 'battle_bgm'])
@@ -3171,6 +3176,12 @@ class OpenNPCGenerator:
     for line in read_lines_nocomment(REWARD_ITEM_TABLE_FILENAME):
         i = RewardItem(*line.split(','))
         reward_item_properties[i.name] = i
+
+    RewardCharacter = namedtuple('RewardCharacter',
+        ['name', 'character_display_name', 'character_index'])
+    for line in read_lines_nocomment(REWARD_CHAR_TABLE_FILENAME):
+        i = RewardCharacter(*line.split(','))
+        reward_character_properties[i.name] = i
 
     available_flags = sorted(range(0x20, 0x70))
 
@@ -3227,6 +3238,15 @@ class OpenNPCGenerator:
             parameters['sprite_index_after'] = '48'
             parameters['after_event'] = ''
             parameters['after_event_start'] = '7FFF'
+
+        elif reward in OpenNPCGenerator.reward_character_properties:
+            reward = OpenNPCGenerator.reward_character_properties[reward]
+            parameters['after_event'] = OpenNPCGenerator.REWARD_EVENT_CHARACTER
+            parameters['sprite_index_after'] = reward.character_index
+            character_flag = int(reward.character_index, 0x10) + 1
+            parameters['character_flag'] = character_flag
+            parameters['after_event_start'] = '6000'
+            parameters['reward_event'] = ''
 
         for propobj in (boss, boss_location, reward):
             for attr in propobj._fields:
@@ -3299,8 +3319,10 @@ if __name__ == '__main__':
         patch_events('open_world_base')
         MapEventObject.roaming_comments = set()
 
+        #OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
+        #                                 'door_key')
         OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
-                                         'door_key')
+                                         'dekar')
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')

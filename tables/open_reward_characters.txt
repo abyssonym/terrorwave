@@ -1,0 +1,8 @@
+# name, display name, character index
+maxim,$MAXIM$,00
+selan,Selan,01
+guy,Guy,02
+arty,Artea,03
+tia,Tia,04
+dekar,Dekar,05
+lexis,Lexis,06

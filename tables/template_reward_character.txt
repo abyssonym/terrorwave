@@ -1,0 +1,106 @@
+6000. 6A({{character_flag}}-@6100)
+6010. 9E: <UNKNOWN 06>{{character_display_name}} is already
+          in your party.<END MESSAGE>
+6020. 1C(@7FFF)
+6100. 14(12-0B-03-30-@6C00-FF)
+6110. 9E: <UNKNOWN 06>Your party is full.
+          Dismiss a member?<END MESSAGE>
+6120. 10(02-@7FFF-@6200)
+6130. 08: No.
+          Yes.<CHOICE>
+6140. 1C(@7FFF)
+
+6200. 6A(07-@6300)
+6210. 9E: <UNKNOWN 06>Dismiss Lexis?<END MESSAGE>
+6220. 10(02-@6300-@6250)
+6230. 08: No.
+          Yes.<CHOICE>
+6240. 1C(@6300)
+6250. 2C(06)
+6260. 1B(07)
+6270. 1D(0B-02)
+62F0. 1C(@6C00)
+
+6300. 6A(06-@6400)
+6310. 9E: <UNKNOWN 06>Dismiss Dekar?<END MESSAGE>
+6320. 10(02-@6400-@6350)
+6330. 08: No.
+          Yes.<CHOICE>
+6340. 1C(@6400)
+6350. 2C(05)
+6360. 1B(06)
+6370. 1D(0B-02)
+63F0. 1C(@6C00)
+
+6400. 6A(05-@6500)
+6410. 9E: <UNKNOWN 06>Dismiss Tia?<END MESSAGE>
+6420. 10(02-@6500-@6450)
+6430. 08: No.
+          Yes.<CHOICE>
+6440. 1C(@6500)
+6450. 2C(04)
+6460. 1B(05)
+6470. 1D(0B-02)
+64F0. 1C(@6C00)
+
+6500. 6A(04-@6600)
+6510. 9E: <UNKNOWN 06>Dismiss Artea?<END MESSAGE>
+6520. 10(02-@6600-@6550)
+6530. 08: No.
+          Yes.<CHOICE>
+6540. 1C(@6600)
+6550. 2C(03)
+6560. 1B(04)
+6570. 1D(0B-02)
+65F0. 1C(@6C00)
+
+6600. 6A(03-@6700)
+6610. 9E: <UNKNOWN 06>Dismiss Guy?<END MESSAGE>
+6620. 10(02-@6700-@6650)
+6630. 08: No.
+          Yes.<CHOICE>
+6640. 1C(@6700)
+6650. 2C(02)
+6660. 1B(03)
+6670. 1D(0B-02)
+66F0. 1C(@6C00)
+
+6700. 6A(02-@6800)
+6710. 9E: <UNKNOWN 06>Dismiss Selan?<END MESSAGE>
+6720. 10(02-@6800-@6750)
+6730. 08: No.
+          Yes.<CHOICE>
+6740. 1C(@6800)
+6750. 2C(01)
+6760. 1B(02)
+6770. 1D(0B-02)
+67F0. 1C(@6C00)
+
+6800. 6A(01-@7FFF)
+6810. 9E: <UNKNOWN 06>Dismiss $MAXIM$?<END MESSAGE>
+6820. 10(02-@7FFF-@6850)
+6830. 08: No.
+          Yes.<CHOICE>
+6840. 1C(@7FFF)
+6850. 2C(00)
+6860. 1B(01)
+6870. 1D(0B-02)
+68F0. 1C(@6C00)
+
+6C00. 9E: <UNKNOWN 06>Add {{character_display_name}}
+          to your party?<END MESSAGE>
+6C10. 10(02-@6C40-@7FFF)
+6C20. 08: Yes.
+          No.<CHOICE>
+6C30. 1C(@7FFF)
+6C40. 2B({{character_index}})
+6C50. 1A({{character_flag}})
+6C60. 1E(0B-01)
+6C70. 4B(34)
+6C80. 49(FA)
+6C90. 9E: <UNKNOWN 06>{{character_display_name}} joins
+          the party!<END MESSAGE>
+6CA0. A3({{npc_event_index}}-85)
+6CB0. 37(30)
+6CC0. 2E({{npc_event_index}})
+6CD0. 4B({{map_bgm}})
