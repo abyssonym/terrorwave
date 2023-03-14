@@ -1,18 +1,18 @@
 .def keys sky_key,lake_key,ruby_key,wind_key,cloud_key,light_key,sword_key,tree_key,flower_key,magma_key,ghost_key,dankirk_key,basement_key,narcysus_key,truth_key
 .def characters tia,guy,selan,dekar,lexis,arty
 
-starting1           keys
-starting2           keys
-starting_party      characters
-tanbel_tower2       keys
-tsword_shrine2      keys
-gordovan_tower2     keys
-ancient_tower2      keys
-sacrifice_tower2    keys
-karlloon_shrine2    keys
-northeast_tower2    keys
-divine_shrine2      keys
-vengeance_shrine2   keys
-truth_tower2        keys
+starting_character  characters
+starting_item       keys
+skill_cave          characters
+tanbel_tower1       keys
+tsword_shrine1      keys
+gordovan_tower1     keys
+ancient_tower1      keys
+sacrifice_tower1    keys
+karlloon_shrine1    keys
+northeast_tower1    keys
+divine_shrine1      keys
+vengeance_shrine1   keys
+truth_tower1        keys
 
 daos_shrine         nothing

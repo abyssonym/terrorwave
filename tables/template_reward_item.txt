@@ -1,10 +1,9 @@
-2000. 4B(33)
-2010. 8C(00-{{item_icon_code}})
-2020. 86(00-40)
-2030. 49(C8)
-2040. 9E: <UNKNOWN 06>Gets the
-          {{item_display_name}}.<END MESSAGE>
-2050. 89(00)
-2060. 49(00)
-2070. {{item_acquire_opcode}}
-2080. 4B({{map_bgm}})
+1000. 4B(33)
+1010. 8C(00-{{item{{reward_id}}_icon_code}})
+1020. 86(00-40)
+1030. 49(C8)
+1040. 9E: <UNKNOWN 06>Gets the
+          {{item{{reward_id}}_display_name}}.<END MESSAGE>
+1050. 89(00)
+1060. 49(00)
+1070. {{item{{reward_id}}_acquire_opcode}}

@@ -15,11 +15,14 @@
 .def party3b all_boys&some_girls
 .def party3 party3a|party3b
 .def party4 all_boys&all_girls
+#.def submarine engine1
+#.def airship engine1&engine2
 .def submarine mermaid_jade
+.def airship engine
 
-starting1           *
-starting2           *
-starting_party      *
+#starting_character  *
+starting_item       *
+skill_cave          *
 sundletan_cave      *
 catfish_cave        lake_key
 alunze_cave         breakable

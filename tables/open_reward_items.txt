@@ -1,2 +1,28 @@
 # name, display name, item index, icon code
-door_key,Door Key,1ad,0A-08
+door_key,Door Key,1ad,default
+shrine_key,Shrine Key,1ae,default
+sky_key,Sky Key,1af,default
+lake_key,Lake Key,1b0,default
+ruby_key,Ruby Key,1b1,default
+wind_key,Wind Key,1b2,default
+cloud_key,Cloud Key,1b3,default
+light_key,Light Key,1b4,default
+sword_key,Sword Key,1b5,default
+tree_key,Tree Key,1b6,default
+flower_key,Flower Key,1b7,default
+magma_key,Magma Key,1b8,default
+heart_key,Heart Key,1b9,default
+ghost_key,Ghost Key,1ba,default
+trial_key,Trial Key,1bb,default
+dankirk_key,Dankirk Key,1bc,default
+basement_key,Basement Key,1bd,default
+narcysus_key,Narcysus Key,1be,default
+truth_key,Truth Key,1bf,default
+mermaid_jade,Mermaid Jade,1c0,default
+ancient_key,Ancient Key,1c2,default
+vip_card,VIP Card,1c5,default
+hook,Hook,1a7,default
+bomb,Bomb,1a8,default
+arrow,Arrow,1a9,default
+fire_arrow,Fire Arrow,1aa,default
+hammer,Hammer,1ab,default

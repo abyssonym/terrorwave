@@ -1717,6 +1717,7 @@ class MapEventObject(TableObject):
         def write(self):
             for script in self.scripts:
                 assert script.event_list is self
+                script.realign_addresses()
             f = get_open_file(get_outfile())
 
             npc_loader = (self.index == 'X')
@@ -1930,6 +1931,24 @@ class MapEventObject(TableObject):
                 flag, address, bit)
             return fname
 
+        @staticmethod
+        def shift_line_numbers(script_text, offset):
+            lines = MapEventObject.Script.LINE_MATCHER.findall(script_text)
+            for line in lines:
+                value = int(line, 0x10)
+                assert value < offset
+                replacement = '{0:0>4X}'.format(value + offset)
+                script_text = script_text.replace('%s. ' % line,
+                                                  '%s. ' % replacement)
+            lines = MapEventObject.Script.ADDRESS_MATCHER.findall(script_text)
+            for line in lines:
+                value = int(line, 0x10)
+                assert value < offset
+                replacement = '{0:X}'.format(value + offset)
+                script_text = script_text.replace('@%s' % line,
+                                                  '@%s' % replacement)
+            return script_text
+
         def prettify_script(self, script):
             pretty = ''
             for line_number, opcode, parameters in script:
@@ -2034,6 +2053,11 @@ class MapEventObject(TableObject):
                         roaming_comment = '[{0}] {1}'.format(
                             self.signature, comment)
                         MapEventObject.roaming_comments.add(roaming_comment)
+                    elif opcode == 0x8C:
+                        a = 'Load animation frame {0:0>2X}-{1:0>2X}'.format(
+                            parameters[1], parameters[2])
+                        b = 'for sprite {0:0>2X}'.format(parameters[0])
+                        comment = '{0} {1}'.format(a, b)
                     elif opcode == 0x14:
                         assert parameters[-3] in {0x20, 0x30}
                         assert isinstance(parameters[-2], self.Address)
@@ -2420,7 +2444,6 @@ class MapEventObject(TableObject):
             return return_text
 
         def realign_addresses(self):
-            # TODO: Unused method?
             line_numbers = [ln for (ln, _, _) in self.script]
             new_script = []
             for i, (line_number, opcode, parameters) in enumerate(self.script):
@@ -3135,7 +3158,7 @@ def patch_with_template(template, parameters):
         if '{{' not in text:
             break
     else:
-        matcher = re.compile('{{[^}]*}}')
+        matcher = re.compile('{{[^{}]*}}')
         matches = sorted(set(matcher.findall(text)))
         raise Exception('Unexpanded template tags: %s' % matches)
 
@@ -3166,7 +3189,7 @@ class OpenNPCGenerator:
         boss_properties[a.name] = a
 
     BossLocation = namedtuple('BossLocation', ['name', 'map_index',
-                              'npc_x', 'npc_y', 'battle_bg'])
+                              'npc_x', 'npc_y', 'battle_bg', 'map_bgm'])
     for line in read_lines_nocomment(BOSS_LOC_TABLE_FILENAME):
         b = BossLocation(*line.split(','))
         boss_location_properties[b.name] = b
@@ -3186,9 +3209,13 @@ class OpenNPCGenerator:
     available_flags = sorted(range(0x20, 0x70))
 
     @staticmethod
-    def create_boss_npc(location, boss, reward):
+    def create_boss_npc(location, boss, reward1=None, reward2=None):
+        if not (reward1 and reward2):
+            reward1 = reward1 or reward2
+            reward2 = None
         parameters = {
-            'map_bgm': '1b',
+            'reward1_event': '',
+            'reward2_event': '',
             }
         parameters['boss_flag'] = OpenNPCGenerator.available_flags.pop()
 
@@ -3209,52 +3236,81 @@ class OpenNPCGenerator:
         old_event_text = '#' + str(script)
         assert old_event_text.startswith('#EVENT')
 
-        lines = script.LINE_MATCHER.findall(old_event_text)
-        for line in lines:
-            value = int(line, 0x10)
-            assert value < old_event_start
-            replacement = '{0:0>4X}'.format(value + old_event_start)
-            old_event_text = old_event_text.replace('%s. ' % line,
-                                                    '%s. ' % replacement)
-        lines = script.ADDRESS_MATCHER.findall(old_event_text)
-        for line in lines:
-            value = int(line, 0x10)
-            assert value < old_event_start
-            replacement = '{0:X}'.format(value + old_event_start)
-            old_event_text = old_event_text.replace('@%s' % line,
-                                                    '@%s' % replacement)
-
+        old_event_text = MapEventObject.Script.shift_line_numbers(
+            old_event_text, old_event_start)
         parameters['old_event_start'] = old_event_start
         parameters['old_event'] = old_event_text
 
-        if reward in OpenNPCGenerator.reward_item_properties:
-            reward = OpenNPCGenerator.reward_item_properties[reward]
-            parameters['reward_event'] = OpenNPCGenerator.REWARD_EVENT_ITEM
-            item_index = int(reward.item_index, 0x10)
-            item_acquire_opcode = '21' if item_index >= 0x100 else '20'
-            item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
-                    item_acquire_opcode, item_index & 0xFF)
-            parameters['item_acquire_opcode'] = item_acquire_opcode
-            parameters['sprite_index_after'] = '48'
-            parameters['after_event'] = ''
-            parameters['after_event_start'] = '7FFF'
+        for i in range(1, 3):
+            reward = None
+            if i == 1:
+                reward = reward1
+            if i == 2:
+                reward = reward2
 
-        elif reward in OpenNPCGenerator.reward_character_properties:
-            reward = OpenNPCGenerator.reward_character_properties[reward]
-            parameters['after_event'] = OpenNPCGenerator.REWARD_EVENT_CHARACTER
-            parameters['sprite_index_after'] = reward.character_index
-            character_flag = int(reward.character_index, 0x10) + 1
-            parameters['character_flag'] = character_flag
-            parameters['after_event_start'] = '6000'
-            parameters['reward_event'] = ''
+            if reward in OpenNPCGenerator.reward_item_properties:
+                reward = OpenNPCGenerator.reward_item_properties[reward]
+                event_text = OpenNPCGenerator.REWARD_EVENT_ITEM.replace(
+                    '{{reward_id}}', str(i))
+                if i == 2:
+                    event_text = MapEventObject.Script.shift_line_numbers(
+                        event_text, 0x2000)
+                assert not parameters['reward%s_event' % i]
+                parameters['reward%s_event' % i] = event_text
+                item_index = int(reward.item_index, 0x10)
+                item_acquire_opcode = '21' if item_index >= 0x100 else '20'
+                item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
+                        item_acquire_opcode, item_index & 0xFF)
+                parameters['item_acquire_opcode'] = item_acquire_opcode
+                parameters['sprite_index_middle'] = '48'
+                parameters['sprite_index_after'] = '48'
+                parameters['after_event'] = ''
+                parameters['after_event_start'] = '7FFF'
+                if reward.item_icon_code == 'default':
+                    item = ItemObject.get(item_index)
+                    assert not item.sprite & 0x80
+                    if item.sprite & 0x40:
+                        sprite_class = 0x18
+                    else:
+                        sprite_class = 0x0a
+                    item_icon_code = '{0:0>2X}-{1:0>2x}'.format(
+                        sprite_class, item.sprite & 0x3F)
+                    reward = reward._replace(item_icon_code=item_icon_code)
 
-        for propobj in (boss, boss_location, reward):
+            elif reward in OpenNPCGenerator.reward_character_properties:
+                reward = OpenNPCGenerator.reward_character_properties[reward]
+                event_text = OpenNPCGenerator.REWARD_EVENT_CHARACTER
+                if 'after_event' in parameters:
+                    assert not parameters['after_event']
+                parameters['after_event'] = event_text
+                parameters['sprite_index_after'] = reward.character_index
+                character_flag = int(reward.character_index, 0x10) + 1
+                parameters['character_flag'] = character_flag
+                parameters['after_event_start'] = '6000'
+
+            if reward is not None:
+                for attr in reward._fields:
+                    if attr == 'name':
+                        continue
+                    parameters[attr] = getattr(reward, attr)
+
+            for attr in sorted(parameters.keys()):
+                if 'item' in attr:
+                    otherattr = attr.replace('item', 'item%s' % i)
+                    parameters[otherattr] = parameters[attr]
+
+        for propobj in (boss, boss_location):
             for attr in propobj._fields:
                 if attr == 'name':
                     continue
                 assert attr not in parameters
                 parameters[attr] = getattr(propobj, attr)
-        patch_with_template('boss_npc', parameters)
+
+        if reward1 and reward2:
+            patch_with_template('boss_npc_double_reward', parameters)
+        else:
+            parameters['reward_event'] = parameters['reward1_event']
+            patch_with_template('boss_npc', parameters)
 
 
 def route_items():
@@ -3296,6 +3352,7 @@ if __name__ == '__main__':
             'personnel': ['nothingpersonnelkid', 'nothing.personnel.kid',
                           'nothing personnel kid', 'nothing_personnel_kid'],
             'easymodo': ['easymodo'],
+            'holiday': ['holiday'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         numify = lambda x: '{0: >3}'.format(x)
@@ -3321,8 +3378,18 @@ if __name__ == '__main__':
 
         #OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
         #                                 'door_key')
-        OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
-                                         'dekar')
+        #OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
+        #                                 reward1='door_key', reward2='dekar')
+        OpenNPCGenerator.create_boss_npc('test_location', 'lizardman',
+                                         reward1='dekar', reward2=None)
+
+        if 'holiday' in get_activated_codes():
+            for meo in MapEventObject.every:
+                for el in meo.event_lists:
+                    for script in el.scripts:
+                        new_script = [(l, o, p) for (l, o, p) in script.script
+                                      if o != 0x7b]
+                        script.script = new_script
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
