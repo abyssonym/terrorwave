@@ -14,5 +14,4 @@ northeast_tower1    keys
 divine_shrine1      keys
 vengeance_shrine1   keys
 truth_tower1        keys
-
-daos_shrine         nothing
+daos_shrine         victory

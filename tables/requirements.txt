@@ -19,6 +19,7 @@
 #.def airship engine1&engine2
 .def submarine mermaid_jade
 .def airship engine
+.def victory victory
 
 #starting_character  *
 starting_item       *

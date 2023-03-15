@@ -1,7 +1,7 @@
 from randomtools.tablereader import (
-    TableObject, get_global_label, tblpath, addresses, names,
-    get_random_degree, mutate_normal, shuffle_normal, get_open_file,
-    write_patch)
+    TableObject, get_global_label, get_seed, tblpath, addresses, names,
+    get_random_degree, mutate_normal, shuffle_normal, shuffle_simple,
+    get_open_file, write_patch)
 from randomtools.utils import (
     map_to_lorom, map_from_lorom,
     classproperty, cached_property, clached_property,
@@ -330,7 +330,69 @@ class CapsuleObject(ReadExtraMixin, TableObject):
 class CapSpritePTRObject(TableObject): pass
 
 
+class MapFormationsObject(TableObject):
+    def __repr__(self):
+        s = '\n'.join(['{0:0>2X}: {1}'.format(i, f)
+                       for (i, f) in enumerate(self.formations)])
+        return 'MAP FORMATIONS {0:0>2X}\n{1}'.format(self.index, s)
+
+    @classproperty
+    def base_pointer(self):
+        assert self.specs.pointer == 0xbb9ac
+        return self.specs.pointer
+
+    @classproperty
+    def all_pointers(self):
+        if hasattr(MapFormationsObject, '_all_pointers'):
+            return MapFormationsObject._all_pointers
+
+        all_pointers = {
+            mfo.reference_pointer + MapFormationsObject.base_pointer
+            for mfo in MapFormationsObject.every}
+        MapFormationsObject._all_pointers = sorted(all_pointers)
+        return MapFormationsObject.all_pointers
+
+    @property
+    def formations_pointer(self):
+        return self.base_pointer + self.reference_pointer
+
+    @property
+    def num_formations(self):
+        index = self.all_pointers.index(self.formations_pointer)
+        try:
+            next_pointer = self.all_pointers[index+1]
+        except IndexError:
+            return 0
+        return next_pointer - self.formations_pointer
+
+    @property
+    def formations(self):
+        self.preprocess()
+        return [FormationObject.get(i) for i in self.formation_indexes]
+
+    def preprocess(self):
+        if hasattr(self, 'formation_indexes'):
+            return
+        f = get_open_file(get_outfile())
+        f.seek(self.formations_pointer)
+        self.formation_indexes = list(map(int, f.read(self.num_formations)))
+
+
 class FormationObject(TableObject):
+    def __repr__(self):
+        ss = []
+        for i, m in enumerate(self.monsters):
+            if m is not None:
+                ss.append('#{0} {1:0>2X}-{2}'.format(i+1, m.index, m.name))
+        ss = ', '.join(ss)
+        return 'FORMATION {0:0>2X}: {1}'.format(self.index, ss)
+
+    @cached_property
+    def monsters(self):
+        return [MonsterObject.get(index) if index < 0xFF else None
+                for index in self.monster_indexes]
+
+class BossFormationObject(TableObject):
     @property
     def name(self):
         ncs = ''
@@ -2021,7 +2083,7 @@ class MapEventObject(TableObject):
                         comment += '\n'
                     elif opcode == 0x53:
                         (formation_index,) = parameters
-                        f = FormationObject.get(formation_index)
+                        f = BossFormationObject.get(formation_index)
                         comment = '{0} ({1})'.format(comment, f.name)
                     elif opcode in {0x20, 0x21}:
                         item_index, quantity = parameters
@@ -2652,6 +2714,10 @@ class MapEventObject(TableObject):
             if npc_index in preload_npcs and preload_npcs[npc_index] != sprite:
                 preload_npcs[npc_index] = 'VARIOUS'
             else:
+                if '. 7B(' in line.upper():
+                    mfo = MapFormationsObject.get(self.index)
+                    formation = mfo.formations[int(npc_index, 0x10)-1]
+                    sprite = '{0} ({1})'.format(sprite, formation)
                 preload_npcs[npc_index] = sprite
         for npc_index, sprite in sorted(preload_npcs.items()):
             check = 'NPC %s' % npc_index
@@ -3313,15 +3379,68 @@ class OpenNPCGenerator:
             patch_with_template('boss_npc', parameters)
 
 
-def route_items():
+def make_open_world():
+    NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
+    MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                     path.join(tblpath, 'restrictions.txt'))
-    while True:
-        unassigned = {x for xs in ir.unassigned_items for x in xs}
-        ir.assign_everything()
-        print(ir.report)
-        ir.clear_assignments()
-        break
+    ir.assign_everything()
+    assert 'daos_shrine' not in ir.assignments
+    ir.assignments['daos_shrine'] = 'victory'
+    print(ir.report)
+
+    MapEventObject.class_reseed('boss_route')
+    sorted_locations = []
+    for rank in sorted(ir.location_ranks):
+        locs = set(ir.location_ranks[rank])
+        locs = sorted(locs,
+                      key=lambda l: (hash('{0}{1}'.format(l, get_seed())), l))
+        for l in locs:
+            if l not in ir.assignments:
+                continue
+            key = l.rstrip('1').rstrip('2')
+            if l in NOBOSS_LOCATIONS or key in NOBOSS_LOCATIONS:
+                continue
+            if key in sorted_locations:
+                continue
+            sorted_locations.append(key)
+
+    bosses = sorted(OpenNPCGenerator.boss_properties.values(),
+                    key=lambda b: b.name)
+    random.shuffle(bosses)
+    chosen_bosses = []
+    done_bosses = set()
+    for b in bosses:
+        key = b.name
+        if key[-1] in '0123456789':
+            key = key[:-1]
+        if key in done_bosses:
+            continue
+        chosen_bosses.append(b)
+        done_bosses.add(key)
+
+    chosen_bosses = chosen_bosses[:len(sorted_locations)]
+    sorted_bosses = sorted(chosen_bosses, key=lambda b: b.boss_formation_index)
+    sorted_bosses = shuffle_simple(sorted_bosses,
+                                   random_degree=MapEventObject.random_degree)
+
+    while len(sorted_bosses) < len(sorted_locations):
+        max_index = len(sorted_bosses)
+        sorted_bosses.insert(random.randint(0, max_index), None)
+
+    assert len(sorted_bosses) == len(sorted_locations)
+    for location, boss in zip(sorted_locations, sorted_bosses):
+        reward1, reward2 = None, None
+        if location in ir.assignments:
+            reward1 = ir.assignments[location]
+        key = '%s1' % location
+        if key in ir.assignments:
+            assert reward1 is None
+            reward1 = ir.assignments[key]
+        key = '%s2' % location
+        if key in ir.assignments:
+            reward2 = ir.assignments[key]
+        assert reward1 or reward2
 
 
 def dump_events(filename):
@@ -3370,7 +3489,7 @@ if __name__ == '__main__':
 
         patch_events()
 
-        route_items()
+        make_open_world()
         patch_events('max_world_clock')
         patch_events('max_world_clock_manual')
         patch_events('open_world_base')

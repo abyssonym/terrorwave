@@ -35,5 +35,5 @@ gades4,7a,21,1b
 amon2,79,22,1b
 erim,7c,23,1b
 daos,7b,24,1b
-egg_dragon,c0,25,19
-master_jelly,94,26,1b
+#egg_dragon,c0,25,19
+#master_jelly,94,26,1b

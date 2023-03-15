@@ -11,7 +11,9 @@ MonsterObject       struct_monster.txt          b05c0   224     point1  b05c0 2
 ItemObject          struct_item.txt             b4f69   467     point1  b4f69 2
 CharGrowthObject    struct_char_growth.txt      pointers_char_growth.txt
 CharacterObject     struct_character.txt        bb93c   7
-FormationObject     struct_2pointer.txt         bc53d   39
+MapFormationsObject struct_2pointer.txt         bb9ac   248
+FormationObject     struct_formation.txt        bbe93   192
+BossFormationObject struct_2pointer.txt         bc53d   39
 CapPaletteObject    struct_cap_palette.txt      bd258   35
 CapsuleObject       struct_capsule.txt          bdcb8   35      point1  bdcb8 2
 ShopObject          struct_shop.txt             pointers_shop.txt
