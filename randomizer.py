@@ -13,6 +13,7 @@ from randomtools.itemrouter import ItemRouter, ItemRouterException
 
 from collections import defaultdict, Counter, namedtuple
 from copy import deepcopy
+from math import floor
 from os import path
 import re
 from string import ascii_letters, digits, punctuation
@@ -393,6 +394,10 @@ class FormationObject(TableObject):
                 for index in self.monster_indexes]
 
 class BossFormationObject(TableObject):
+    GROUND_LEVEL = 0x68
+    CENTER_LINE = 0xa0
+    DUMMIED_MONSTERS = [0x60, 0x99]
+
     @property
     def name(self):
         ncs = ''
@@ -412,6 +417,196 @@ class BossFormationObject(TableObject):
                  for i in self.monster_indexes if i != 0xFF]
         return Counter(names)
 
+    @property
+    def details(self):
+        s = str(self)
+        coordinates = ['({0:0>2x},{1:0>2x})'.format(x, y)
+                       for (x, y) in self.monster_coordinates]
+        coordinates = ' '.join(coordinates)
+        return '{0}\n{1}\n{2}'.format(s, coordinates, hexify(self.unknown))
+
+    @property
+    def monsters(self):
+        return [MonsterObject.get(i) for i in self.monster_indexes
+                if i != 0xFF]
+
+    @property
+    def old_monsters(self):
+        return [MonsterObject.get(i) for i in self.old_data['monster_indexes']
+                if i != 0xFF]
+
+    @property
+    def memory_load(self):
+        sprite_metas = {m.sprite_meta for m in self.monsters}
+        load = sum([m.memory_load for m in sprite_metas])
+        return load
+
+    @property
+    def rank(self):
+        return (max(m.rank for m in self.monsters)
+                * sum(m.hp for m in self.monsters))
+
+    @classproperty
+    def uniques(self):
+        pointers = {bfo.reference_pointer for bfo in BossFormationObject.every}
+        uniques = [bfo for bfo in BossFormationObject.every
+                   if bfo.index > 0]
+        assert len(uniques) == len(pointers)
+        return uniques
+
+    def guess_sprite(self):
+        return max(self.monsters,
+                   key=lambda m: (m.rank, m.index)).guess_sprite()
+
+    def guess_bgm(self):
+        return 0x19
+
+    def become_random(self, seed_monster=None):
+        for bfo in BossFormationObject.uniques:
+            if (bfo.index != self.index
+                    and bfo.reference_pointer == self.reference_pointer):
+                raise Exception(
+                    'Conflict: Boss Formation {0:0>2X}.'.format(self.index))
+        self.unknown = self.get(1).old_data['unknown']
+        if seed_monster is None:
+            seed_monster = random.choice(MonsterObject.every)
+        same_sprite_monsters = {
+            m for m in MonsterObject.every
+            if m.battle_sprite == seed_monster.battle_sprite}
+        same_formation_monsters = set()
+        for f in FormationObject.every:
+            if seed_monster in f.monsters:
+                for m in f.monsters:
+                    if m is not None:
+                        same_formation_monsters.add(m)
+        for bfo in BossFormationObject.uniques:
+            if seed_monster in bfo.old_monsters:
+                for m in bfo.old_monsters:
+                    same_formation_monsters.add(m)
+        distant_relatives = set()
+        for cousin in same_sprite_monsters | same_formation_monsters:
+            distant_relatives.add(cousin)
+            for f in FormationObject.every:
+                if cousin in f.monsters:
+                    for m in f.monsters:
+                        if m is not None:
+                            distant_relatives.add(m)
+            for bfo in BossFormationObject.uniques:
+                if cousin in bfo.old_monsters:
+                    for m in bfo.old_monsters:
+                        distant_relatives.add(m)
+        wildcard = random.choice(MonsterObject.every)
+        candidates = (sorted(same_sprite_monsters) +
+                      sorted(same_formation_monsters) +
+                      sorted(distant_relatives) +
+                      [seed_monster, wildcard])
+        candidates = sorted(candidates, key=lambda m: m.index)
+        candidates = [c for c in candidates if c.sprite_meta.memory_load <= 128]
+
+        chosen_monsters = [seed_monster]
+        memory_load = seed_monster.sprite_meta.memory_load
+        MEMORY_LOAD_LIMIT = 256
+        candidates.append(None)
+        while True:
+            if not candidates:
+                break
+            if len(set(chosen_monsters)) >= 3:
+                candidates = [c for c in candidates
+                              if c in chosen_monsters or c is None]
+            sprite_metas = {m.sprite_meta for m in chosen_monsters}
+            chosen = random.choice(candidates)
+            if chosen is None:
+                break
+            if (memory_load + chosen.sprite_meta.memory_load
+                    > MEMORY_LOAD_LIMIT):
+                break
+            chosen_monsters.append(chosen)
+            memory_load += chosen.sprite_meta.memory_load
+            if len(chosen_monsters) >= 6:
+                break
+
+        chosen_monsters = sorted(chosen_monsters,
+                                 key=lambda m: (-m.rank, m.signature))
+        monster_indexes = []
+        monster_coordinates = []
+
+        RIGHT_BORDER_MARGIN = 8
+        MAX_WIDTH = 224
+        if len(chosen_monsters) > 1:
+            total_width = sum([m.width for m in chosen_monsters])
+            divisor = len(chosen_monsters) - 1
+            margin = int(floor((MAX_WIDTH - total_width) / divisor))
+            margin = min(margin, 8)
+            assert total_width + (margin*(len(chosen_monsters)-1)) <= MAX_WIDTH
+        else:
+            margin = 0
+
+        farthest_left = 0
+        farthest_right = 0
+        companion_coordinates = set()
+        previous_monster = None
+        current_side = 'right'
+        for m in chosen_monsters:
+            if previous_monster is not None:
+                if current_side and previous_monster is not m:
+                    if current_side == 'left':
+                        current_side = 'right'
+                    else:
+                        current_side = 'left'
+                if current_side is None:
+                    current_side = 'right'
+                if current_side == 'right':
+                    x = farthest_right + margin
+                else:
+                    x = farthest_left - (m.width + margin)
+            else:
+                x = 0-(m.width//2)
+
+            if m.height < self.GROUND_LEVEL:
+                y = self.GROUND_LEVEL - m.height
+            else:
+                y = 0x80 - m.height
+
+            farthest_left = min(x, farthest_left)
+            farthest_right = max(x+m.width, farthest_right)
+            monster_indexes.append(m.index)
+            monster_coordinates.append((x, y))
+            previous_monster = m
+
+        width_with_margins = farthest_right - farthest_left
+        extra_space = MAX_WIDTH - width_with_margins
+        right_margin = RIGHT_BORDER_MARGIN + (extra_space//2)
+        offset = (0x100-farthest_right) - right_margin
+        monster_coordinates = [(x + offset, y)
+                               for (x, y) in monster_coordinates]
+        assert all([0 <= x <= 0xFF and 0 <= y <= 0xFF
+                    for (x, y) in monster_coordinates])
+
+        self.monster_indexes = []
+        self.monster_coordinates = []
+        for ((x, y), i) in sorted(zip(monster_coordinates, monster_indexes)):
+            self.monster_indexes.append(i)
+            self.monster_coordinates.append((x, y))
+
+        while len(self.monster_indexes) < 6:
+            assert len(self.monster_coordinates) == len(self.monster_indexes)
+            self.monster_indexes.append(0xFF)
+            self.monster_coordinates.append((0, 0))
+
+        if hasattr(self, '_property_cache'):
+            del(self._property_cache)
+
+    def write_data(self, filename=None, pointer=None):
+        base_pointer = self.specs.pointer
+        formation_pointer = base_pointer + self.reference_pointer
+        f = get_open_file(get_outfile())
+        f.seek(formation_pointer)
+        f.write(bytes(self.monster_indexes))
+        for (x, y) in self.monster_coordinates:
+            f.write(bytes([x, y]))
+        f.write(self.unknown)
+        super().write_data(filename, pointer)
+
     def read_data(self, filename=None, pointer=None):
         super().read_data(filename, pointer)
 
@@ -426,7 +621,26 @@ class BossFormationObject(TableObject):
             x = ord(f.read(1))
             y = ord(f.read(1))
             self.monster_coordinates.append((x, y))
+        # THEORIES
+        # first byte: idle/attack animations?
+        # next four bytes: party splitting for pierre & daniele?
+        # sixth byte boss death animation
+        # seventh byte: special event for pierre, daniele, master jelly?
+        # last five bytes: always 03-01-01-02-00
         self.unknown = f.read(12)
+        self.old_data['monster_indexes'] = self.monster_indexes
+        self.old_data['monster_coordinates'] = self.monster_coordinates
+        self.old_data['unknown'] = self.unknown
+
+
+class SpriteMetaObject(TableObject):
+    @property
+    def height(self):
+        return self.height_misc & 0x1f
+
+    @property
+    def memory_load(self):
+        return self.height * self.width
 
 
 class CapPaletteObject(TableObject):
@@ -716,6 +930,15 @@ class MonsterObject(TableObject):
         'gold': None,
     }
 
+    OVERWORLD_SPRITE_TABLE_FILENAME = path.join(
+        tblpath, 'monster_overworld_sprites.txt')
+    monster_overworld_sprites = {}
+    for line in read_lines_nocomment(OVERWORLD_SPRITE_TABLE_FILENAME):
+        monster_index, sprite_index, name = line.split(' ', 2)
+        monster_index = int(monster_index, 0x10)
+        sprite_index = int(sprite_index, 0x10)
+        monster_overworld_sprites[monster_index] = sprite_index
+
     @property
     def intershuffle_valid(self):
         return (self.rank >= 0 and not 0xA7 <= self.index <= 0xAA
@@ -746,6 +969,18 @@ class MonsterObject(TableObject):
         return self.index >= 0xBC
 
     @property
+    def sprite_meta(self):
+        return SpriteMetaObject.get(self.battle_sprite-1)
+
+    @property
+    def width(self):
+        return self.sprite_meta.width * 8
+
+    @property
+    def height(self):
+        return self.sprite_meta.height * 8
+
+    @property
     def rank(self):
         if hasattr(self, '_rank'):
             return self._rank
@@ -766,6 +1001,9 @@ class MonsterObject(TableObject):
             candidates=[m for m in MonsterObject.every if not m.is_boss])
         super(MonsterObject, cls).intershuffle(
             candidates=[m for m in MonsterObject.every if m.is_boss])
+
+    def guess_sprite(self):
+        return self.monster_overworld_sprites[self.index]
 
     def set_drop(self, item):
         if isinstance(item, ItemObject):
@@ -3285,8 +3523,25 @@ class OpenNPCGenerator:
             }
         parameters['boss_flag'] = OpenNPCGenerator.available_flags.pop()
 
-        boss = OpenNPCGenerator.boss_properties[boss]
         boss_location = OpenNPCGenerator.boss_location_properties[location]
+
+        if isinstance(boss, str):
+            boss = OpenNPCGenerator.boss_properties[boss]
+        else:
+            assert isinstance(boss, BossFormationObject)
+            index = boss.index
+            if boss.monster_indexes == boss.old_data['monster_indexes']:
+                bosses = [b for b in OpenNPCGenerator.boss_properties.values()
+                          if int(b.boss_formation_index, 0x10) == index]
+                assert len(bosses) == 1
+                boss = bosses[0]
+            else:
+                name = 'f{0:0>2X}'.format(index)
+                sprite_index_before = boss.guess_sprite()
+                battle_bgm = boss.guess_bgm()
+                boss = OpenNPCGenerator.Boss(
+                    name, sprite_index_before, index, battle_bgm)
+
 
         old_event_signature = '%s-X-XX' % boss_location.map_index
         map_index = int(boss_location.map_index, 0x10)
@@ -3355,10 +3610,14 @@ class OpenNPCGenerator:
                 parameters['after_event_start'] = '6000'
 
             if reward is not None:
-                for attr in reward._fields:
-                    if attr == 'name':
-                        continue
-                    parameters[attr] = getattr(reward, attr)
+                try:
+                    for attr in reward._fields:
+                        if attr == 'name':
+                            continue
+                        parameters[attr] = getattr(reward, attr)
+                except AttributeError:
+                    print('ERROR: Unable to process reward "%s".' % reward)
+                    return
 
             for attr in sorted(parameters.keys()):
                 if 'item' in attr:
@@ -3389,7 +3648,7 @@ def make_open_world():
     ir.assignments['daos_shrine'] = 'victory'
     print(ir.report)
 
-    MapEventObject.class_reseed('boss_route')
+    MapEventObject.class_reseed('boss_route1')
     sorted_locations = []
     for rank in sorted(ir.location_ranks):
         locs = set(ir.location_ranks[rank])
@@ -3419,8 +3678,32 @@ def make_open_world():
         chosen_bosses.append(b)
         done_bosses.add(key)
 
+    done_formations = {int(b.boss_formation_index, 0x10)
+                       for b in chosen_bosses}
+    spare_formations = [bfo for bfo in BossFormationObject.uniques
+                        if bfo.index not in done_formations]
+    old_formations = {bfo.name for bfo in BossFormationObject.uniques}
+    new_formations = set()
+    seed_monsters = [MonsterObject.get(i)
+                     for i in BossFormationObject.DUMMIED_MONSTERS]
+    for f in spare_formations:
+        for i in range(1000):
+            f.reseed('become%s' % i)
+            if seed_monsters:
+                f.become_random(seed_monsters.pop())
+            else:
+                f.become_random()
+            if f.name not in old_formations | new_formations:
+                new_formations.add(f.name)
+                break
+
+    del(BossFormationObject._class_property_cache['ranked'])
+
+    MapEventObject.class_reseed('boss_route2')
+    chosen_bosses = list(BossFormationObject.uniques)
+    random.shuffle(chosen_bosses)
     chosen_bosses = chosen_bosses[:len(sorted_locations)]
-    sorted_bosses = sorted(chosen_bosses, key=lambda b: b.boss_formation_index)
+    sorted_bosses = sorted(chosen_bosses, key=lambda b: b.rank)
     sorted_bosses = shuffle_simple(sorted_bosses,
                                    random_degree=MapEventObject.random_degree)
 
@@ -3441,6 +3724,7 @@ def make_open_world():
         if key in ir.assignments:
             reward2 = ir.assignments[key]
         assert reward1 or reward2
+        OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
 
 
 def dump_events(filename):
@@ -3489,17 +3773,14 @@ if __name__ == '__main__':
 
         patch_events()
 
-        make_open_world()
         patch_events('max_world_clock')
         patch_events('max_world_clock_manual')
         patch_events('open_world_base')
         MapEventObject.roaming_comments = set()
 
-        #OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
-        #                                 'door_key')
-        #OpenNPCGenerator.create_boss_npc('sundletan_cave', 'lizardman',
-        #                                 reward1='door_key', reward2='dekar')
-        OpenNPCGenerator.create_boss_npc('test_location', 'lizardman',
+        make_open_world()
+        i = 3
+        OpenNPCGenerator.create_boss_npc('test_location', BossFormationObject.get(i),
                                          reward1='dekar', reward2=None)
 
         if 'holiday' in get_activated_codes():

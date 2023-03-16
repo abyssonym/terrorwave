@@ -116,7 +116,7 @@ Submarine
 Airship
 Idura
 Camu
-Lizardman
+Follower
 Blue Clown
 Red Clown
 Amon
@@ -156,7 +156,7 @@ Flytrap
 Bugbear
 Medusa
 Goblin
-Lizardman 2
+Lizardman
 Vampire
 Skeleton
 Stone Golem
@@ -225,10 +225,10 @@ Yellow Flower
 Purple Flytrap
 Blue Zombie
 Gold Golem
-Copper Golem
-Small Gold Golem
-Silver Golem
-Green Mud Golem
+Magma Golem
+Sand Golem
+Iron Golem
+Green Clay Golem
 Red Lich
 Blue Eagle
 Red Snake

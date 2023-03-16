@@ -1,8 +1,8 @@
 # name, sprite index, formation index, battle bgm index
 lizardman,9e,01,19
 catfish,c5,02,19
-skeleton,a0,03,18
-goblin,9d,04,18
+#skeleton,a0,03,18
+#goblin,9d,04,18
 regal_goblin,9d,05,19
 followers,76,06,19
 camu,75,07,19

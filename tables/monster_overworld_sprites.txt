@@ -1,0 +1,224 @@
+00 9D Goblin
+01 9D Armor goblin
+02 9D Regal Goblin
+03 9D Goblin Mage
+04 A9 Troll
+05 A5 Ork
+06 A5 Fighter ork
+07 A5 Ork Mage
+08 9E Lizardman
+09 9E Skull Lizard
+0A EF Armour Dait
+0B EF Dragonian
+0C B9 Cyclops
+0D B9 Mega Cyclops
+0E B9 Flame genie
+0F B9 Well Genie
+10 B9 Wind Genie
+11 B9 Earth Genie
+12 A6 Cobalt
+13 AE Merman
+14 AE Aqualoi
+15 AC Imp
+16 BD Fiend
+17 BD Archfiend
+18 8A Hound
+19 8A Doben
+1A B1 Winger
+1B E8 Serfaco
+1C 8D Pug
+1D C1 Salamander
+1E EE Brinz Lizard
+1F 85 Seahorse
+20 AE Seirein
+21 B3 Earth Viper
+22 A5 Gnome
+23 91 Wispy
+24 9B Thunderbeast
+25 9B Lunar bear
+26 92 Shadowfly
+27 B2 Shadow
+28 B7 Lion
+29 B7 Sphinx
+2A 85 Mad horse
+2B 85 Armor horse
+2C 84 Buffalo
+2D 84 Bruse
+2E 8F Bat
+2F 8F Big Bat
+30 8F Red Bat
+31 E8 Eagle
+32 E8 Hawk
+33 B4 Crow
+34 BE Baby Frog
+35 BE King Frog
+36 83 Lizard
+37 83 Newt
+38 D6 Needle Lizard
+39 D6 Poison Lizard
+3A 9C Medusa
+3B AE Ramia
+3C B6 Basilisk
+3D D2 Cokatoris
+3E 8B Scorpion
+3F 8B Antares
+40 87 Small Crab
+41 D8 Big Crab
+42 87 Red Lobster
+43 D9 Spider
+44 89 Web Spider
+45 86 Beetle
+46 D7 Poison Beetle
+47 92 Mosquito
+48 EA Coridras
+49 E9 Spinner
+4A B8 Tartona
+4B EB Armour Nail
+4C 93 Moth
+4D DC Mega  Moth
+4E 98 Big Bee
+4F 92 Dark Fly
+50 98 Stinger
+51 98 Armor Bee
+52 DA Sentopez
+53 87 Cancer
+54 D8 Garbost
+55 80 Bolt Fish
+56 E9 Moray
+57 EA She Viper
+58 80 Angler fish
+59 85 Unicorn
+5A 81 Evil Shell
+5B 81 Drill Shell
+5C 81 Snell
+5D 81 Ammonite
+5E 80 Evil Fish
+5F 80 Squid
+60 BB Kraken
+61 C2 Killer Whale
+62 C2 White Whale
+63 B6 Grianos
+64 B6 Behemoth
+65 BB Perch
+66 BB Current
+67 96 Vampire Rose
+68 96 Desert Rose
+69 E0 Venus Fly
+6A 9A Moray Vine
+6B 8E Torrent
+6C 8E Mad Ent
+6D BC Crow Kelp
+6E EC Red Plant
+6F 97 La Fleshia
+70 97 Wheel Eel
+71 A0 Skeleton
+72 E1 Ghoul
+73 A7 Zombie
+74 AD Specter
+75 B5 Dark Spirit
+76 A8 Snatcher
+77 D5 Jurahan
+78 E7 Demise
+79 E7 Leech
+7A AB Necromancer
+7B BA Hade Chariot
+7C BA Hades
+7D B5 Dark Skull
+7E B5 Hades Skull
+7F A8 Mummy
+80 9F Vampire
+81 9F Nosferato
+82 C8 Ghost Ship
+83 90 Deadly Sword
+84 99 Deadly Armor
+85 D3 T Rex
+86 D3 Brokion
+87 AF Pumpkin Head
+88 AF Mad Head
+89 D2 Snow Gas
+8A D2 Great Coca
+8B C4 Gargoyle
+8C C4 Rogue Shape
+8D A0 Bone Gorem
+8E A1 Nuborg
+8F A2 Wood Gorem
+90 A3 Mad Gorem
+91 E6 Green Clay
+92 E4 Sand Gorem
+93 E3 Magma Gorem
+94 E5 Iron Gorem
+95 E2 Gold Gorem
+96 BF Hidora
+97 BF Sea Hidora
+98 BF High Hidora
+99 BF King Hidora
+9A BF Orky
+9B C3 Waiban
+9C C3 White Dragon
+9D C0 Red Dragon
+9E C0 Blue Dragon
+9F C0 Green Dragon
+A0 C0 Black Dragon
+A1 C0 Copper Dragon
+A2 C0 Silver Dragon
+A3 C0 Gold Dragon
+A4 94 Red Jelly
+A5 DD Blue Jelly
+A6 DE Bili Jelly
+A7 95 Red Core
+A8 95 Blue Core
+A9 95 Green Core
+AA 95 No Core
+AB A4 Mimic
+AC F0 Blue Mimic
+AD BD Ice Roge
+AE 8C Mushroom
+AF DB Big Mushr'm
+B0 AA Minataurus
+B1 AA Gorgon
+B2 82 Ninja
+B3 82 Asashin
+B4 B0 Samurai
+B5 B0 Dark Warrior
+B6 B0 Ochi Warrior
+B7 ED Sly Fox
+B8 D4 Tengu
+B9 88 Warm Eye
+BA AB Wizard
+BB AB Dark Sum'ner
+BC C5 Big Catfish
+BD 76 Follower
+BE C6 Tarantula
+BF 77 Pierre
+C0 78 Daniele
+C1 D0 Venge Ghost
+C2 C0 Fire Dragon
+C3 C7 Tank
+C4 74 Idura
+C5 75 Camu
+C6 7A Gades
+C7 79 Amon
+C8 7C Erim
+C9 7B Daos
+CA 9E Lizard Man
+CB 9D Goblin
+CC A0 Skeleton
+CD 9D Regal Goblin
+CE 9D Goblin
+CF 9D Goblin Mage
+D0 76 Slave
+D1 76 Follower
+D2 76 Groupie
+D3 C0 Egg Dragon
+D4 A8 Mummy
+D5 A9 Troll
+D6 7A Gades
+D7 74 Idura
+D8 B7 Lion
+D9 96 Rogue Flower
+DA C4 Gargoyle
+DB C8 Ghost Ship
+DC 74 Idura
+DD 18 Soldier
+DE 7A Gades
+DF 94 Master

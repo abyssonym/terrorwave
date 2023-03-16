@@ -62,5 +62,5 @@ gratze_basement     submarine&breakable&hook&basement_key&party3
 shuman              airship&all_tools_or_keys&party3
 stradha             airship&all_tools_or_keys&party3
 kamirno             airship&all_tools&all_keys&party3
-daos_shrine         lisa&marie&clare&dual_blade&all_tools&all_keys&useless_keys&party4
+daos_shrine         lisa&marie&clare&all_tools&all_keys&useless_keys&party4
 #ancient_cave        *
