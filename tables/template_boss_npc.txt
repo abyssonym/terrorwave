@@ -25,6 +25,7 @@ EVENT {{map_index}}-C-{{npc_event_index}}
     0190. A3({{npc_event_index}}-86)
     0200. 37(30)
     {{reward_event}}
-    4000. 1C(@7FFF)
+    4000. 4B({{map_bgm}})
+    4010. 1C(@7FFF)
     {{after_event}}
     7FFF. 00()

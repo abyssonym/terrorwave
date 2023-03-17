@@ -2652,6 +2652,7 @@ class MapEventObject(TableObject):
                 if match:
                     line_number = int(match.group(1), 0x10)
                     if prevno is not None and prevno >= line_number:
+                        print(text)
                         raise Exception(
                             'SCRIPT {0:x} ERROR: Lines out of order.'.format(
                                 self.script_pointer))
@@ -3475,16 +3476,21 @@ class OpenNPCGenerator:
     REWARD_ITEM_TABLE_FILENAME = path.join(tblpath, 'open_reward_items.txt')
     REWARD_CHAR_TABLE_FILENAME = path.join(tblpath,
                                            'open_reward_characters.txt')
+    REWARD_MAIDEN_TABLE_FILENAME = path.join(tblpath,
+                                           'open_reward_maidens.txt')
 
     with open(path.join(tblpath, 'template_reward_item.txt')) as f:
         REWARD_EVENT_ITEM = f.read()
     with open(path.join(tblpath, 'template_reward_character.txt')) as f:
         REWARD_EVENT_CHARACTER = f.read()
+    with open(path.join(tblpath, 'template_reward_maiden.txt')) as f:
+        REWARD_EVENT_MAIDEN = f.read()
 
     boss_properties = {}
     boss_location_properties = {}
     reward_item_properties = {}
     reward_character_properties = {}
+    reward_maiden_properties = {}
 
     Boss = namedtuple('Boss', ['name', 'sprite_index_before',
                                'boss_formation_index', 'battle_bgm'])
@@ -3509,6 +3515,13 @@ class OpenNPCGenerator:
     for line in read_lines_nocomment(REWARD_CHAR_TABLE_FILENAME):
         i = RewardCharacter(*line.split(','))
         reward_character_properties[i.name] = i
+
+    RewardMaiden = namedtuple('RewardMaiden',
+        ['name', 'maiden_name',
+         'my_maiden_flag', 'maiden_flag1', 'maiden_flag2'])
+    for line in read_lines_nocomment(REWARD_MAIDEN_TABLE_FILENAME):
+        i = RewardMaiden(*line.split(','))
+        reward_maiden_properties[i.name] = i
 
     available_flags = sorted(range(0x20, 0x70))
 
@@ -3609,15 +3622,26 @@ class OpenNPCGenerator:
                 parameters['character_flag'] = character_flag
                 parameters['after_event_start'] = '6000'
 
+            elif reward in OpenNPCGenerator.reward_maiden_properties:
+                reward = OpenNPCGenerator.reward_maiden_properties[reward]
+                event_text = OpenNPCGenerator.REWARD_EVENT_MAIDEN
+                if i == 2:
+                    event_text = MapEventObject.Script.shift_line_numbers(
+                        event_text, 0x2000)
+                parameters['reward%s_event' % i] = event_text
+                parameters['sprite_index_after'] = '44'
+                parameters['after_event'] = ''
+                parameters['after_event_start'] = '7FFF'
+
+            elif reward is not None:
+                print('ERROR: Unable to process reward "%s".' % reward)
+                return
+
             if reward is not None:
-                try:
-                    for attr in reward._fields:
-                        if attr == 'name':
-                            continue
-                        parameters[attr] = getattr(reward, attr)
-                except AttributeError:
-                    print('ERROR: Unable to process reward "%s".' % reward)
-                    return
+                for attr in reward._fields:
+                    if attr == 'name':
+                        continue
+                    parameters[attr] = getattr(reward, attr)
 
             for attr in sorted(parameters.keys()):
                 if 'item' in attr:
@@ -3780,8 +3804,10 @@ if __name__ == '__main__':
 
         make_open_world()
         i = 3
-        OpenNPCGenerator.create_boss_npc('test_location', BossFormationObject.get(i),
-                                         reward1='dekar', reward2=None)
+        #OpenNPCGenerator.create_boss_npc('test_location', BossFormationObject.get(i),
+        #                                 reward1='lake_key', reward2='lisa')
+        OpenNPCGenerator.create_boss_npc('test_location', 'lizardman',
+                                         reward1='lake_key', reward2='lisa')
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:

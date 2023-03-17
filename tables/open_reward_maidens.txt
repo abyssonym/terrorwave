@@ -1,0 +1,4 @@
+# name, display name, flag, sister flag, sister flag
+lisa,Lisa,1a,1b,1c
+marie,Marie,1b,1c,1a
+clare,Clare,1c,1a,1b
