@@ -3750,6 +3750,8 @@ def make_open_world():
         assert reward1 or reward2
         OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
 
+    write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
+
 
 def dump_events(filename):
     s = ''
