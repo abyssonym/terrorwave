@@ -821,6 +821,9 @@ class SpellObject(PriceMixin, TableObject):
         self.price_clean()
 
 
+class CharLevelObject(TableObject): pass
+
+
 class CharGrowthObject(TableObject):
     flag = 'c'
     custom_random_enable = True
@@ -3679,6 +3682,9 @@ class OpenNPCGenerator:
 
 
 def make_open_world():
+    for clo in CharLevelObject.every:
+        clo.level = 1
+
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
