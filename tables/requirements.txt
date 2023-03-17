@@ -17,8 +17,8 @@
 .def party4 all_boys&all_girls
 #.def submarine engine1
 #.def airship engine1&engine2
-.def submarine mermaid_jade
 .def airship engine
+.def submarine mermaid_jade|airship
 .def victory victory
 
 #starting_character  *

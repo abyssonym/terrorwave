@@ -3807,7 +3807,7 @@ if __name__ == '__main__':
         #OpenNPCGenerator.create_boss_npc('test_location', BossFormationObject.get(i),
         #                                 reward1='lake_key', reward2='lisa')
         OpenNPCGenerator.create_boss_npc('test_location', 'lizardman',
-                                         reward1='lake_key', reward2='lisa')
+                                         reward1='lake_key', reward2='engine')
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:

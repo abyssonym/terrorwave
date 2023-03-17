@@ -18,7 +18,8 @@ dankirk_key,Dankirk Key,1bc,default
 basement_key,Basement Key,1bd,default
 narcysus_key,Narcysus Key,1be,default
 truth_key,Truth Key,1bf,default
-#mermaid_jade,Mermaid Jade,1c0,default
+mermaid_jade,Mermaid Jade,1c0,default
+engine,Engine,1c1,default
 ancient_key,Ancient Key,1c2,default
 vip_card,VIP Card,1c5,default
 hook,Hook,1a7,default

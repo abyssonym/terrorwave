@@ -15,7 +15,8 @@ EVENT 03-B-02
 0160. 3B(02)
 0180. 30(00-02)
 0202. 23(00-26)                      # Learn Spell
-0D5D. 7C(02)                         # Change Ship Type
+#0D5D. 7C(02)                         # Change Ship Type
+0D5D. 7C(00)                         # Change Ship Type
 0D5F. 7E(00)                         # Set Ship Exists/Unexists
 0D61. 7D(C8)                         # Relocate Ship
 1010. 2B(01)
@@ -44,8 +45,8 @@ EVENT 03-B-02
 2100. 21(bd-01)
 2110. 21(be-01)
 2120. 21(bf-01)
-2130. 21(c0-01)
-2140. 21(c1-01)
+#2130. 21(c0-01)
+#2140. 21(c1-01)
 2150. 21(c2-01)
 2200. 21(a7-01)
 2210. 21(a8-01)
