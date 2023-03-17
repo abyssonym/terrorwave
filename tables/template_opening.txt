@@ -1,0 +1,15 @@
+EVENT 03-B-02
+0000. 15(0A-@7FFF)
+0020. 2B({{starting_character_index}})
+0030. 2C(00)
+0140. 59(11)
+0160. 3B(02)
+0180. 30(00-02)
+0200. 23(00-26)                      # Learn Spell
+0300. 7E(00)                         # Set Ship Exists/Unexists
+0310. 7D(C8)                         # Relocate Ship
+0320. 7C(00)                         # Change Ship Type
+0330. 1D(0B-00)
+{{starting_item_reward_event}}
+7FF0. 1A(0A)
+7FFF. 00()

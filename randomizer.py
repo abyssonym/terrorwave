@@ -3526,6 +3526,31 @@ class OpenNPCGenerator:
     available_flags = sorted(range(0x20, 0x70))
 
     @staticmethod
+    def get_properties_by_name(name):
+        for properties in [OpenNPCGenerator.boss_properties,
+                           OpenNPCGenerator.boss_location_properties,
+                           OpenNPCGenerator.reward_item_properties,
+                           OpenNPCGenerator.reward_character_properties,
+                           OpenNPCGenerator.reward_maiden_properties]:
+            if name in properties:
+                return properties[name]
+
+    @staticmethod
+    def set_appropriate_item_icon(reward):
+        item_index = int(reward.item_index, 0x10)
+        if reward.item_icon_code == 'default':
+            item = ItemObject.get(item_index)
+            assert not item.sprite & 0x80
+            if item.sprite & 0x40:
+                sprite_class = 0x18
+            else:
+                sprite_class = 0x0a
+            item_icon_code = '{0:0>2X}-{1:0>2x}'.format(
+                sprite_class, item.sprite & 0x3F)
+            reward = reward._replace(item_icon_code=item_icon_code)
+        return reward
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None):
         if not (reward1 and reward2):
             reward1 = reward1 or reward2
@@ -3600,16 +3625,7 @@ class OpenNPCGenerator:
                 parameters['sprite_index_after'] = '48'
                 parameters['after_event'] = ''
                 parameters['after_event_start'] = '7FFF'
-                if reward.item_icon_code == 'default':
-                    item = ItemObject.get(item_index)
-                    assert not item.sprite & 0x80
-                    if item.sprite & 0x40:
-                        sprite_class = 0x18
-                    else:
-                        sprite_class = 0x0a
-                    item_icon_code = '{0:0>2X}-{1:0>2x}'.format(
-                        sprite_class, item.sprite & 0x3F)
-                    reward = reward._replace(item_icon_code=item_icon_code)
+                reward = OpenNPCGenerator.set_appropriate_item_icon(reward)
 
             elif reward in OpenNPCGenerator.reward_character_properties:
                 reward = OpenNPCGenerator.reward_character_properties[reward]
@@ -3671,6 +3687,27 @@ def make_open_world():
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
     print(ir.report)
+
+    name = ir.assignments['starting_item']
+    starting_item = OpenNPCGenerator.get_properties_by_name(name)
+    starting_item = OpenNPCGenerator.set_appropriate_item_icon(starting_item)
+    name = ir.assignments['starting_character']
+    starting_character = OpenNPCGenerator.get_properties_by_name(name)
+    starting_item_reward_event = OpenNPCGenerator.REWARD_EVENT_ITEM
+    item_index = int(starting_item.item_index, 0x10)
+    item_acquire_opcode = '21' if item_index >= 0x100 else '20'
+    item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
+            item_acquire_opcode, item_index & 0xFF)
+    parameters = {
+        'reward_id': '',
+        'item_icon_code': starting_item.item_icon_code,
+        'item_display_name': starting_item.item_display_name,
+        'item_acquire_opcode': item_acquire_opcode,
+        'starting_character_index': starting_character.character_index,
+        'starting_item_reward_event': starting_item_reward_event,
+        }
+
+    patch_with_template('opening', parameters)
 
     MapEventObject.class_reseed('boss_route1')
     sorted_locations = []
