@@ -1,5 +1,6 @@
 # objname tablefile address count grouped
-CharLevelObject     struct_level.txt            pointers_levels.txt
+CharLevelObject     struct_level.txt            pointers_level.txt
+CharExpObject       struct_exp.txt              pointers_xp.txt
 RoamingNPCObject    struct_roaming_npc.txt      3ae4e   34
 MapEventObject      struct_map_event.txt        38010   242
 ChestObject         struct_chest.txt            pointers_chest.txt

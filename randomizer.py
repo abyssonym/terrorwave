@@ -822,6 +822,7 @@ class SpellObject(PriceMixin, TableObject):
 
 
 class CharLevelObject(TableObject): pass
+class CharExpObject(TableObject): pass
 
 
 class CharGrowthObject(TableObject):
@@ -3684,6 +3685,9 @@ class OpenNPCGenerator:
 def make_open_world():
     for clo in CharLevelObject.every:
         clo.level = 1
+
+    for cxp in CharExpObject.every:
+        cxp.xp = 0
 
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
     MapEventObject.class_reseed('item_route')
