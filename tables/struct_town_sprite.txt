@@ -1,0 +1,3 @@
+unknown,1
+palette_index,1
+sprite_pointer,3

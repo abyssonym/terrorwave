@@ -1895,6 +1895,22 @@ class WordObject(TableObject):
         message = [m for m in message.split('💙') if m]
         return message
 
+class TownSpriteObject(TableObject): pass
+class OverPaletteObject(TableObject): pass
+
+class OverSpriteObject(TableObject):
+    @staticmethod
+    def become_character(character_index):
+        maxim = TownSpriteObject.get(0)
+        other = TownSpriteObject.get(character_index)
+        maxim_ptr = maxim.sprite_pointer
+        other_ptr = other.sprite_pointer
+        offset = other_ptr - maxim_ptr
+        for oso in OverSpriteObject.every:
+            oso.sprite_pointer = oso.old_data['sprite_pointer'] + offset
+
+        for opo in OverPaletteObject.every:
+            opo.palette_index = other.palette_index * 2
 
 class RoamingNPCObject(TableObject):
     @property
@@ -3716,6 +3732,8 @@ def make_open_world():
         'starting_character_index': starting_character.character_index,
         'starting_item_reward_event': starting_item_reward_event,
         }
+    OverSpriteObject.become_character(
+        int(starting_character.character_index, 0x10))
 
     patch_with_template('opening', parameters)
 

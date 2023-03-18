@@ -1,0 +1,2 @@
+palette_index,1
+unknown,12

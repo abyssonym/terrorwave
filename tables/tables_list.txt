@@ -1,8 +1,10 @@
 # objname tablefile address count grouped
 CharLevelObject     struct_level.txt            pointers_level.txt
 CharExpObject       struct_exp.txt              pointers_xp.txt
-RoamingNPCObject    struct_roaming_npc.txt      3ae4e   34
+OverPaletteObject   struct_over_palette.txt     36ca6   3
+OverSpriteObject    struct_over_sprite.txt      37086   6
 MapEventObject      struct_map_event.txt        38010   242
+RoamingNPCObject    struct_roaming_npc.txt      3ae4e   34
 ChestObject         struct_chest.txt            pointers_chest.txt
 WordObject          struct_word.txt             76a00   640
 AncientChest2Object struct_ancient_chest.txt    8ffdc   9
@@ -22,6 +24,7 @@ CapsuleObject       struct_capsule.txt          bdcb8   35      point1  bdcb8 2
 ShopObject          struct_shop.txt             pointers_shop.txt
 ItemNameObject      struct_item_name.txt        f47e8   467
 CapSpritePTRObject  struct_cap_sprite_ptr.txt   1384bc  35
+TownSpriteObject    struct_town_sprite.txt      pointers_town_sprite.txt
 MonsterMoveObject   struct_monster_move.txt     27f6b5  112
 MapMetaObject       struct_3pointer.txt         27fcbc  242
 $capsule_end        beead
