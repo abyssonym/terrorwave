@@ -1,17 +1,19 @@
 1000. 08: Thank you!
           My name is {{maiden_name}}.<END MESSAGE>
 1020. 14(00-{{maiden_flag1}}-80-{{maiden_flag2}}-30-@1100-FF)
-1030. 4B(34)
-1040. 49(FA)
-1050. 08: We three sisters
+1030. 5B(04-0C)
+1040. 59(11)
+1060. 4B(34)
+1070. 49(FA)
+1080. 08: We three sisters
           have dispelled the
           barrier.<END MESSAGE>
-1060. 49(00)
-1070. 08: You can now reach
+1090. 49(00)
+10a0. 08: You can now reach
           Doom Island from the
           port town known as
           Portravia!<END MESSAGE>
-1080. 1C(@1200)
+10b0. 1C(@1200)
 1100. 08: If you also rescue
           my sisters, we can
           open the way to

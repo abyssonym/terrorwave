@@ -1,15 +1,115 @@
+EVENT 03-X-XX  # $39179:39179
+0027. 68(50-0C)                      # Load NPC (15,1a) 50: 0c Blue Man
+002A. 68(51-0A)                      # Load NPC (1e,11) 51: 0a Red Boy
+002D. 68(52-0F)                      # Load NPC (0d,15) 52: 0f Green Middle Woman
+0030. 68(53-19)                      # Load NPC (13,15) 53: 19 Red Man
+0033. 68(56-0D)                      # Load NPC (21,23) 56: 0d Yellow Woman
+0036. 68(57-0B)                      # Load NPC (1e,1e) 57: 0b Green Girl
+0039. 68(58-0E)                      # Load NPC (19,13) 58: 0e Yellow Middle Man
+0049. 68(5C-70)                      # Load NPC (14,25) 5c: 70 Nothing
+004C. 00()                           # End Event
+
 EVENT 03-B-02
-0000. 15(0A-@7FFF)
-0020. 2B({{starting_character_index}})
-0030. 2C(00)
+1010. 70()
+1020. 2B({{starting_character_index}})
+1030. 2C(00)
+1040. 16(A2-0A-04)
+1050. 00()
+
+!npc a2 0f (05) x:0d y:21
+EVENT A2-X-XX  # $3a5f1:3a5f1
+0000. 6A(0A-@1031)
+0010. 14(00-1A-80-1B-80-1C-30-@80-FF)
+0020. 4B(09)
+0030. 1C(@1031)
+0080. 4B(1F)
+1031. 68(56-6E)                      # Load NPC (06,09) 56: 6e Gray Lab Assistant
+1034. 68(57-6F)                      # Load NPC (0d,08) 57: 6f Red Lab Assistant
+1037. 68(58-6E)                      # Load NPC (0e,1a) 58: 6e Gray Lab Assistant
+103A. 68(59-6E)                      # Load NPC (08,19) 59: 6e Gray Lab Assistant
+103D. 68(5A-6F)                      # Load NPC (05,1f) 5a: 6f Red Lab Assistant
+1040. 68(5B-6E)                      # Load NPC (12,1b) 5b: 6e Gray Lab Assistant
+1043. 68(5C-0B)                      # Load NPC (12,21) 5c: 0b Green Girl
+1046. 68(5D-40)                      # Load NPC (0c,1f) 5d: 40 Lab Assistant
+1049. 68(5E-71)                      # Load NPC (0d,21) 5e: 71 Little Boat
+104F. 00()                           # End Event
+
+EVENT A2-B-0A
+0050. 76()
 0140. 59(11)
-0160. 3B(02)
-0180. 30(00-02)
 0200. 23(00-26)                      # Learn Spell
 0300. 7E(00)                         # Set Ship Exists/Unexists
-0310. 7D(C8)                         # Relocate Ship
+0310. 7D(E0)                         # Relocate Ship
 0320. 7C(00)                         # Change Ship Type
 0330. 1D(0B-00)
+0340. 1A(95)
 {{starting_item_reward_event}}
+#7000. 1A(1A)
+#7010. 1A(1B)
+#7020. 1A(1C)
+#7030. 21(C1-01)
+7FE0. 4B(1F)
 7FF0. 1A(0A)
 7FFF. 00()
+
+EVENT A2-C-5D
+0000. 14(00-1A-80-1B-80-1C-30-@1000-FF)
+0010. 14(C2-01C1-0001-30-@800-FF)
+0020. 08: You've rescued all three
+          maidens! Board the Excerion
+          to fly to Doom Island!<END EVENT>
+0800. 08: You need an Engine to fly
+          to Doom Island.<END EVENT>
+1000. 08: Return here after rescuing
+          the three maidens to go to
+          Doom Island!<END EVENT>
+
+EVENT A2-C-5E
+0000. 14(00-1A-80-1B-80-1C-30-@1000-FF)
+0010. 14(C2-01C1-0001-30-@1000-FF)
+0020. 9E: <UNKNOWN 05>Fly to Doom Island?<END MESSAGE>
+0030. 10(02-@60-@1000)
+0040. 08: Yes.
+          No.<CHOICE>
+0050. 1C(@1000)
+0060. 5B(04-0D)
+0070. 5B(04-0E)
+0080. 16(E6-63-01)
+0800. 00()
+1000. 9E: <UNKNOWN 05>Depart on the
+          Excerion?<END MESSAGE>
+1010. 10(02-@1040-@1030)
+1020. 08: Yes.
+          No.<CHOICE>
+1030. 00()
+1040. 7D(02)
+1050. 7F(FF)
+1100. 2E(00)
+1110. 2E(01)
+1120. 2E(02)
+1130. 2E(03)
+1140. 2E(04)
+1150. 2E(05)
+1160. 2E(06)
+1170. 33(25-5E)
+1200. 5E(03)
+7FFF. 00()
+
+EVENT E7-B-62
+0000. 59(11)
+0010. 1A(71)
+7FFF. 00()
+
+EVENT EA-D-01
+0000. 9E: <UNKNOWN 06><PAUSE 00>You may not cross.<END MESSAGE>
+
+0001. 38(03)
+0005. 5B(05-00)
+0007. BB()
+
+0010. 16(E9-0A-01)
+7FFF. 00()
+
+EVENT E9-B-0A
+0000. 59(11)
+0010. 00()

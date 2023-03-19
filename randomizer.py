@@ -3362,7 +3362,7 @@ def patch_game_script(patch_script_text):
     for line in patch_script_text.split('\n'):
         if '#' in line:
             index = line.index('#')
-            line = line[:index]
+            line = line[:index].rstrip()
         line = line.lstrip()
         if not line:
             continue
@@ -3420,10 +3420,12 @@ def patch_game_script(patch_script_text):
             continue
 
         if line.startswith('EVENT'):
+            while '  ' in line:
+                line = line.replace('  ', ' ')
             if identifier is not None:
                 assert identifier not in to_import
                 to_import[identifier] = script_text
-            identifier = line.split(' ')[-1]
+            identifier = line.strip().split(' ')[-1]
             script_text = ''
         else:
             script_text = '\n'.join([script_text, line])
@@ -3691,11 +3693,33 @@ class OpenNPCGenerator:
                 assert attr not in parameters
                 parameters[attr] = getattr(propobj, attr)
 
-        if reward1 and reward2:
+        if 'victory' in (reward1, reward2):
+            patch_with_template('final_boss_npc', parameters)
+        elif reward1 and reward2:
             patch_with_template('boss_npc_double_reward', parameters)
         else:
             parameters['reward_event'] = parameters['reward1_event']
             patch_with_template('boss_npc', parameters)
+
+
+def set_new_leader_for_events(new_character_index, old_character_index=0):
+    command_replace_dict = {
+        0x33: [1],
+        0x86: [0],
+        0x8c: [0],
+    }
+    for meo in MapEventObject.every:
+        for el in meo.event_lists:
+            for script in el.scripts:
+                new_script = []
+                for line_number, opcode, parameters in script.script:
+                    if opcode in command_replace_dict:
+                        replace_args = command_replace_dict[opcode]
+                        for arg in replace_args:
+                            if parameters[arg] == old_character_index:
+                                parameters[arg] = new_character_index
+                    new_script.append((line_number, opcode, parameters))
+                script.script = new_script
 
 
 def make_open_world():
@@ -3757,20 +3781,19 @@ def make_open_world():
                     key=lambda b: b.name)
     random.shuffle(bosses)
     chosen_bosses = []
+    spare_formations = []
     done_bosses = set()
     for b in bosses:
         key = b.name
         if key[-1] in '0123456789':
             key = key[:-1]
+        b = BossFormationObject.get(int(b.boss_formation_index, 0x10))
         if key in done_bosses:
+            spare_formations.append(b)
             continue
         chosen_bosses.append(b)
         done_bosses.add(key)
 
-    done_formations = {int(b.boss_formation_index, 0x10)
-                       for b in chosen_bosses}
-    spare_formations = [bfo for bfo in BossFormationObject.uniques
-                        if bfo.index not in done_formations]
     old_formations = {bfo.name for bfo in BossFormationObject.uniques}
     new_formations = set()
     seed_monsters = [MonsterObject.get(i)
@@ -3787,9 +3810,8 @@ def make_open_world():
                 break
 
     del(BossFormationObject._class_property_cache['ranked'])
-
     MapEventObject.class_reseed('boss_route2')
-    chosen_bosses = list(BossFormationObject.uniques)
+    chosen_bosses = chosen_bosses + spare_formations
     random.shuffle(chosen_bosses)
     chosen_bosses = chosen_bosses[:len(sorted_locations)]
     sorted_bosses = sorted(chosen_bosses, key=lambda b: b.rank)
@@ -3816,6 +3838,7 @@ def make_open_world():
         OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
+    set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
 
 def dump_events(filename):
@@ -3870,11 +3893,8 @@ if __name__ == '__main__':
         MapEventObject.roaming_comments = set()
 
         make_open_world()
-        i = 3
-        #OpenNPCGenerator.create_boss_npc('test_location', BossFormationObject.get(i),
-        #                                 reward1='lake_key', reward2='lisa')
-        OpenNPCGenerator.create_boss_npc('test_location', 'lizardman',
-                                         reward1='lake_key', reward2='engine')
+        OpenNPCGenerator.create_boss_npc('test_location', 'daos',
+                                         reward1='engine', reward2='lisa')
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:

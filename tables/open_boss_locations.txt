@@ -1,5 +1,5 @@
 # name, map index, x, y, battle bg index, map_bgm
-test_location,03,1f,1f,0f,17
+test_location,a2,0e,1c,0f,17
 skill_cave,05,31,05,0c,17
 sundletan_cave,07,21,10,0c,17
 catfish_cave,0c,09,0f,0f,17
@@ -29,4 +29,4 @@ gratze_basement,d6,18,0e,16,01
 shuman,dc,10,0c,02,09
 stradha,e0,0a,0f,02,09
 kamirno,e4,10,0b,02,09
-daos_shrine,eb,0f,0b,08,0a
+daos_shrine,e9,10,17,08,0a
