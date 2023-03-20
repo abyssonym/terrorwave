@@ -3768,8 +3768,8 @@ def make_open_world():
     sorted_locations = []
     for rank in sorted(ir.location_ranks):
         locs = set(ir.location_ranks[rank])
-        locs = sorted(locs,
-                      key=lambda l: (hash('{0}{1}'.format(l, get_seed())), l))
+        locs = sorted(locs)
+        random.shuffle(locs)
         for l in locs:
             if l not in ir.assignments:
                 continue
