@@ -814,7 +814,7 @@ class SpellObject(PriceMixin, TableObject):
 
     def cleanup(self):
         if self.index == 0x26:
-            self.set_bit('maxim', True)
+            self.characters |= 0x7f
             self.mp_cost = 0
         if 's' not in get_flags() and 'l' not in get_flags():
             return
@@ -3729,6 +3729,9 @@ def make_open_world():
     for cxp in CharExpObject.every:
         cxp.xp = 0
 
+    for rno in RoamingNPCObject.every:
+        rno.map_index = 0xff
+
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
@@ -3838,6 +3841,7 @@ def make_open_world():
         OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
+    write_patch(get_outfile(), 'patch_maximless_escape_fix.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
 
@@ -3893,8 +3897,8 @@ if __name__ == '__main__':
         MapEventObject.roaming_comments = set()
 
         make_open_world()
-        OpenNPCGenerator.create_boss_npc('test_location', 'daos',
-                                         reward1='engine', reward2='lisa')
+        #OpenNPCGenerator.create_boss_npc('test_location', 'daos',
+        #                                 reward1='engine', reward2='lisa')
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:

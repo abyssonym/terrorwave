@@ -1,10 +1,10 @@
 00  0           End Event
-01  0           Button Press?
-02  0           BRK?
-03  0
-04  2
-05  1
-06  1
+01  2           Check for item (as in locked doors)
+02  2           Check for item (as in locked doors)
+03  2           Check for item (as in locked doors)
+04  2           Check for item (as in locked doors)
+05  2           Check for item (as in locked doors)
+06  2           Check for item (as in locked doors)
 07  1           UNVERIFIED
 08  text
 0c  0           NOP?
@@ -141,7 +141,7 @@ a8  1           Ancient Cave Item Management
 a9  1,1
 aa  0
 ab  1           Check Dragon Eggs Obtained
-ad  1           Locked Door?
+ad  1,1,1       Dragon eggs related?
 ae  1
 af  1,1         Character Flicker
 b0  1
