@@ -28,7 +28,8 @@
 21  1,1         Get Item 1XX
 22  2           Get Gold
 23  1,1         Learn Spell
-25  1,1         Remove Item
+24  1,1         Remove Item 0XX
+25  1,1         Remove Item 1XX
 28  0
 29  1,1,1       Increase party member stats
 2b  1           Character Joins Party
@@ -48,6 +49,7 @@
 3c  0           Gather Behind Maxim
 3d  1           Hide Behind Maxim
 40  0
+42  0           DUPLICATE - 00 End Event
 41  1,1
 43  1,1
 45  1,1,1
@@ -94,6 +96,7 @@
 74  1           Set Battle BG
 75  0
 76  0
+77  1           DUPLICATE - BE
 78  0
 79  0
 7b  1,1         Load Monster NPC
@@ -157,7 +160,7 @@ ba  1
 bb  0           Call game report
 bc  0
 bd  1,1
-be  1
+be  1           DUPLICATE - 77
 bf  1,1,1
 c0  1,1,1
 c1  1,1

@@ -664,7 +664,7 @@ class ChestObject(TableObject):
     def __repr__(self):
         s = 'CHEST {0:0>2X}: {1:0>6x}-{2:0>3X} {3}'.format(
             self.index, self.pointer, self.item_index,
-            self.item.name.decode('ascii'))
+            self.item.name)
         return s
 
     @property
@@ -1917,6 +1917,8 @@ class RoamingNPCObject(TableObject):
     def sprite_name(self):
         return names.sprites[self.sprite_index]
 
+class EventInstObject(TableObject): pass
+
 class MapEventObject(TableObject):
     TEXT_PARAMETERS = {
         0x04: 1,
@@ -2253,20 +2255,34 @@ class MapEventObject(TableObject):
 
         @staticmethod
         def shift_line_numbers(script_text, offset):
+            new_text = []
+            for line in script_text.split('\n'):
+                if '. ' in line and ('(' in line or ':' in line):
+                    line = line.lstrip()
+                    if '.' in line[:5] and line[0] != '#':
+                        while line[4] != '.':
+                            line = '0' + line
+                new_text.append(line)
+            script_text = '\n'.join(new_text)
+
             lines = MapEventObject.Script.LINE_MATCHER.findall(script_text)
             for line in lines:
                 value = int(line, 0x10)
                 assert value < offset
+                line = '{0:0>4X}'.format(value)
                 replacement = '{0:0>4X}'.format(value + offset)
-                script_text = script_text.replace('%s. ' % line,
+                script_text = script_text.replace('%s. ' % line.upper(),
+                                                  '%s. ' % replacement)
+                script_text = script_text.replace('%s. ' % line.lower(),
                                                   '%s. ' % replacement)
             lines = MapEventObject.Script.ADDRESS_MATCHER.findall(script_text)
+            lines = sorted(lines, key=lambda l: -int(line, 0x10))
             for line in lines:
                 value = int(line, 0x10)
                 assert value < offset
                 replacement = '{0:X}'.format(value + offset)
-                script_text = script_text.replace('@%s' % line,
-                                                  '@%s' % replacement)
+                script_text = re.sub('@%s(\W)' % line,
+                                     r'@%s\1' % replacement, script_text)
             return script_text
 
         def prettify_script(self, script):
@@ -3104,6 +3120,18 @@ class MapEventObject(TableObject):
         self.FREE_SPACE = sorted(temp)
 
     @classmethod
+    def separate_free_space_banks(self):
+        free_space = []
+        for (a, b) in self.FREE_SPACE:
+            assert b > a
+            while (b & 0xFF8000) > (a & 0xFF8000):
+                new_a = (a & 0xFF8000) + 0x8000
+                free_space.append((a, new_a))
+                a = new_a
+            free_space.append((a, b))
+        self.FREE_SPACE = free_space
+
+    @classmethod
     def allocate(self, length, npc_loader=False, near=None,
                  find_best_fit_dry=False, forced=None):
         if npc_loader:
@@ -3137,6 +3165,7 @@ class MapEventObject(TableObject):
         if remaining[0] < remaining[1]:
             self.FREE_SPACE.append(remaining)
         self.FREE_SPACE = sorted(self.FREE_SPACE)
+        assert a & 0xFF8000 == (a+length-1) & 0xFF8000
         return a
 
     @classmethod
@@ -3310,6 +3339,7 @@ class MapEventObject(TableObject):
 
     @classmethod
     def full_cleanup(self):
+        self.separate_free_space_banks()
         f = get_open_file(get_outfile())
         for (a, b) in self.FREE_SPACE:
             f.seek(a)
@@ -3573,6 +3603,156 @@ class OpenNPCGenerator:
         return reward
 
     @staticmethod
+    def create_karlloon_elf_girl(parameters):
+        consumables = sorted([i.index for i in ItemObject.every
+                              if i.get_bit('usable_battle')])
+        line_counter = 0
+        lines = []
+        for i in consumables:
+            line = '{0:X}. 14(C2-{1:X}-0001-30-@{2:X}-FF)'.format(
+                line_counter, i, line_counter+3)
+            line_counter += 1
+            lines.append(line)
+            opcode = '24' if i < 0x100 else '25'
+            line = '{0:X}. {1}({2:X}-01)'.format(
+                line_counter, opcode, i & 0xFF)
+            line_counter += 1
+            lines.append(line)
+            line = '{0:X}. 1C(@{1:X})'.format(line_counter, line_counter-2)
+            line_counter += 1
+            lines.append(line)
+        line = '{0:X}. 1A(0A)'.format(line_counter)
+        line_counter += 1
+        lines.append(line)
+        item_remover_script = '\n'.join(lines)
+
+        def generate_party_offer_message(party_order, terminator='.'):
+            if not terminator.endswith('<END MESSAGE>'):
+                terminator = '{0}<END MESSAGE>'.format(terminator)
+            character_names = {0: 'Maxim',
+                               1: 'Selan',
+                               2: 'Guy',
+                               3: 'Artea',
+                               4: 'Tia',
+                               5: 'Dekar',
+                               6: 'Lexis',
+                               }
+            line_counter = 0
+            lines = []
+            for i in party_order:
+                character_name = character_names[i]
+                line = '{0:X}. 6A({1:X}-@{2:X})'.format(
+                    line_counter, i+1, line_counter+3)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 08: ...you leave {1}\nhere with me{2}'.format(
+                    line_counter, character_name, terminator)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 1C(@REPLACE_ME)'.format(line_counter)
+                line_counter += 1
+                lines.append(line)
+            line = '{0:X}. 08: ...you give me\na smile{1}'.format(
+                line_counter, terminator)
+            line_counter += 1
+            lines.append(line)
+            lines = [line.replace('REPLACE_ME', '{0:X}'.format(line_counter))
+                     for line in lines]
+            line = '{0:X}. 1A(0A)'.format(line_counter)  # effective no-op
+            lines.append(line)
+            line_counter += 1
+            return '\n'.join(lines)
+
+        shuffled_party = list(range(7))
+        random.shuffle(shuffled_party)
+        party_events = []
+        for party_order in [shuffled_party, reversed(shuffled_party)]:
+            line_counter = 0
+            lines = []
+            for i in party_order:
+                line = '{0:X}. 6A({1:X}-@{2:X})'.format(
+                    line_counter, i+1, line_counter+5)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 2C({1:X})'.format(line_counter, i)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 1B({1:X})'.format(line_counter, i+1)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 1E(0B-FF)'.format(line_counter)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 1C(@REPLACE_ME)'.format(line_counter)
+                line_counter += 1
+                lines.append(line)
+            lines = [line.replace('REPLACE_ME', '{0:X}'.format(line_counter))
+                     for line in lines]
+            line = '{0:X}. 1A(0A)'.format(line_counter)  # effective no-op
+            lines.append(line)
+            line_counter += 1
+            party_events.append('\n'.join(lines))
+
+        barters = ['gold', 'consumables', 'party', 'reverse_party', 'capsules']
+
+        first_offer = random.choice(barters)
+        barters.remove(first_offer)
+        if 'party' in barters and 'reverse_party' in barters:
+            barters.remove('reverse_party')
+        second_offer = random.sample(barters, 2)
+
+        offer_messages = {
+            'gold': '...you give me all\nof your gold',
+            'consumables': '...you give me all of\nyour consumable items',
+            'capsules': '...you give me all of\nyour capsule monsters',
+            }
+
+        def generate_offer_message(offer, terminator='.'):
+            if not terminator.endswith('<END MESSAGE>'):
+                terminator = '{0}<END MESSAGE>'.format(terminator)
+            if offer in offer_messages:
+                message = '0000. 08: {0}{1}'.format(
+                    offer_messages[offer], terminator)
+                return message
+
+            if offer == 'reverse_party':
+                party_order = list(reversed(shuffled_party))
+            else:
+                assert offer == 'party'
+                party_order = list(shuffled_party)
+            return generate_party_offer_message(party_order, terminator)
+
+        offer_acceptance_events = {
+            'gold': '0000. 22(0)',
+            'capsules': '0000. 81(FF)',
+            'consumables': item_remover_script,
+            'party': party_events[0],
+            'reverse_party': party_events[1],
+            }
+
+        karl_first_offer = MapEventObject.Script.shift_line_numbers(
+            generate_offer_message(first_offer), 0x1000)
+        a = generate_offer_message(second_offer[0], terminator=', and...')
+        b = generate_offer_message(second_offer[1], terminator='.')
+        a = MapEventObject.Script.shift_line_numbers(a, 0x3000)
+        b = MapEventObject.Script.shift_line_numbers(b, 0x3400)
+        karl_second_offer = '\n'.join([a, b])
+
+        karl_first_offer_accept = MapEventObject.Script.shift_line_numbers(
+            offer_acceptance_events[first_offer], 0x2000)
+        a = MapEventObject.Script.shift_line_numbers(
+            offer_acceptance_events[second_offer[0]], 0x4000)
+        b = MapEventObject.Script.shift_line_numbers(
+            offer_acceptance_events[second_offer[1]], 0x4400)
+        karl_second_offer_accept = '\n'.join([a, b])
+
+        parameters['karl_first_offer'] = karl_first_offer
+        parameters['karl_second_offer'] = karl_second_offer
+        parameters['karl_first_offer_accept'] = karl_first_offer_accept
+        parameters['karl_second_offer_accept'] = karl_second_offer_accept
+        patch_with_template('karlloon_elf_girl', parameters)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None):
         if not (reward1 and reward2):
             reward1 = reward1 or reward2
@@ -3762,6 +3942,7 @@ def make_open_world():
     OverSpriteObject.become_character(
         int(starting_character.character_index, 0x10))
 
+    OpenNPCGenerator.create_karlloon_elf_girl(parameters)
     patch_with_template('opening', parameters)
 
     MapEventObject.class_reseed('boss_route1')
@@ -3842,6 +4023,8 @@ def make_open_world():
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_escape_fix.txt')
+    write_patch(get_outfile(), 'patch_zero_gold_command.txt')
+    write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
 

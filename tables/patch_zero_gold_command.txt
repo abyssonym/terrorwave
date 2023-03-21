@@ -1,0 +1,30 @@
+003f12: 08
+: c2 20
+: 18
+: c9 00 00
+: d0 redirect
+: 9c 8a 0a
+: 9c 8b 0a
+: 80 exit
+.label redirect
+: 22 00 81 d4
+.label exit
+: e2 20
+: 28
+: 60
+
+2a0100:
+: c2 20
+: 18
+: 6d 8a 0a
+: 8d 8a 0a
+: e2 20
+: ad 8c 0a
+: 69 00
+: 8d 8c 0a
+: c9 98
+: 90 17
+: c2 20
+: ad 8a 0a
+: c9 7f 96 90 0d a9 7f 96 8d 8a 0a e2 20 a9 98 8d 8c 0a
+: 6b

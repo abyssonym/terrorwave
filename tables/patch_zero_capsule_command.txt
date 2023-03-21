@@ -1,0 +1,26 @@
+003da0: 5c 00 82 d4
+003da4: ea ea ea ea  ea ea ea ea  ea ea
+003dae: 20 50 a3
+003db1: 7a ab
+
+2a0200:
+: c9 ff
+: d0 normal
+: a9 ff
+: 8d 7f 0a
+: 9c bb 11
+: 9c bc 11
+: 9c bd 11
+: 9c be 11
+: 9c bf 11
+: 9c c0 11
+: 9c c1 11
+: 5c b1 bd 80
+
+.label normal
+: a9 03
+: 85 30
+: 22 ea af 83
+: 64 6a
+: 22 46 e7 82
+: 5c ae bd 80

@@ -1,0 +1,46 @@
+!npc 78 0f (00) x:07 y:37
+
+EVENT 78-X-XX
+0000. 74(05)                         # Set Battle BG
+000F. 69(01)
+0011. 69(11)
+0013. 4B(2F)                         # Preload Music
+0021. 7B(56-D5)                      # Load Monster NPC (07,48) 56: d5 Red Dullahan
+0024. 7B(57-9C)                      # Load Monster NPC (0a,44) 57: 9c Medusa
+0027. 7B(58-B5)                      # Load Monster NPC (12,4a) 58: b5 Flaming Skull
+002A. 7B(59-A9)                      # Load Monster NPC (18,3b) 59: a9 Troll
+0100. 68(5E-37)
+0110. 00()                           # End Event
+
+EVENT 78-C-5E
+0000. 08: You want to leave
+          the shrine? Hmmm...
+          I'll do it if...<END MESSAGE>
+{{karl_first_offer}}
+1800. 10(02-@1820-@2000)
+1810. 08: No.
+          Yes.<CHOICE>
+1820. 1C(@2800)
+{{karl_first_offer_accept}}
+27FF. 1C(@4800)
+2800. 08: No? Then how
+          about...<END MESSAGE>
+{{karl_second_offer}}
+3800. 10(02-@3820-@4000)
+3810. 08: No.
+          Yes.<CHOICE>
+3820. 1C(@4c00)
+{{karl_second_offer_accept}}
+4800. 08: Great! Pleasure doing
+          business with you!<END MESSAGE>
+4810. A3({{starting_character_index}}-85)
+4820. 16(75-0A-01)
+4830. 00()
+4c00. 08: Fine. Enjoy the rest
+          of your life at the
+          bottom of the majestic
+          Karlloon shrine.<END EVENT>
+
+EVENT 75-B-0A
+0000. 59(11)
+0010. 00()

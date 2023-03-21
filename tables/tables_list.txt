@@ -1,4 +1,5 @@
 # objname tablefile address count grouped
+EventInstObject     struct_2pointer.txt         4a14    205
 CharLevelObject     struct_level.txt            pointers_level.txt
 CharExpObject       struct_exp.txt              pointers_xp.txt
 OverPaletteObject   struct_over_palette.txt     36ca6   3
