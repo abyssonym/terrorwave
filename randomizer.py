@@ -4023,6 +4023,7 @@ def make_open_world():
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_escape_fix.txt')
+    write_patch(get_outfile(), 'patch_maximless_boat_fix.txt')
     write_patch(get_outfile(), 'patch_zero_gold_command.txt')
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
