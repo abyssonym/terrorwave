@@ -1627,7 +1627,7 @@ class MapMetaObject(TableObject):
             return bytes(s)
 
     class Exit:
-        def __init__(self, data, parent_map):
+        def __init__(self, data):
             assert len(data) == 9
             self.index = data[0]
             self.boundary_west = data[1]
@@ -1638,27 +1638,20 @@ class MapMetaObject(TableObject):
             self.destination_x = data[6]
             self.destination_y = data[7]
             self.destination_map = data[8]
-            self.parent_map = parent_map
 
         def __repr__(self):
             height = self.boundary_south - self.boundary_north
             width = self.boundary_east - self.boundary_west
             x = self.boundary_west
-            y = self.boundary_east
-            if self.destination_map == 0xff and False:
-                destination_map = self.parent_map.index
-            else:
-                destination_map = self.destination_map
-            source_map = self.parent_map.index
-            source_map = '{0:0>2X} {1}'.format(
-                source_map, MapEventObject.get(source_map).name)
-            if destination_map == 0xff:
+            y = self.boundary_north
+            if self.destination_map == 0xff:
                 destination_map = ''
             else:
                 destination_map = '{0:0>2X} {1}'.format(
-                    destination_map, MapEventObject.get(destination_map).name)
-            s = '({1:0>2X},{2:0>2X}) -> {3} ({4:0>2X},{5:0>2X})'
-            s = s.format(source_map, x, y, destination_map,
+                    self.destination_map,
+                    MapEventObject.get(self.destination_map).name)
+            s = '({0:0>2X},{1:0>2X}) -> {2} ({3:0>2X},{4:0>2X})'
+            s = s.format(x, y, destination_map,
                          self.destination_x, self.destination_y)
             if not height == width == 1:
                 s = '{0} {1}x{2}'.format(s, width, height)
@@ -1675,6 +1668,54 @@ class MapMetaObject(TableObject):
                 value = getattr(self, attr)
                 s.append(value)
             return bytes(s)
+
+    class Tile:
+        def __init__(self, data):
+            assert len(data) == 5
+            self.index = data[0]
+            self.boundary_west = data[1]
+            self.boundary_north = data[2]
+            self.boundary_east = data[3]
+            self.boundary_south = data[4]
+
+        def __repr__(self):
+            height = self.boundary_south - self.boundary_north
+            width = self.boundary_east - self.boundary_west
+            x = self.boundary_west
+            y = self.boundary_north
+            s = '{0:0>2X},{1:0>2X}'
+            s = s.format(x, y)
+            if not height == width == 1:
+                s = '{0} {1}x{2}'.format(s, width, height)
+            return s
+
+        @property
+        def bytecode(self):
+            s = []
+            for attr in ['index', 'boundary_west', 'boundary_north',
+                         'boundary_east', 'boundary_south']:
+                value = getattr(self, attr)
+                s.append(value)
+            return bytes(s)
+
+    class Waypoint:
+        def __init__(self, data):
+            assert len(data) == 6
+            self.index = data[0]
+            self.x = data[1]
+            self.y = data[2]
+            self.misc = data[3]
+            self.offset = int.from_bytes(data[4:], byteorder='little')
+
+        def __repr__(self):
+            return '{0:0>2X} ({1:0>2X}) {2:0>2X},{3:0>2X} {4:0>4X}'.format(
+                self.index, self.misc, self.x, self.y, self.offset)
+
+        @property
+        def bytecode(self):
+            s = bytes([self.index, self.x, self.y, self.misc])
+            s += int.to_bytes(self.offset, byteorder='little', length=2)
+            return s
 
     @property
     def name(self):
@@ -1704,6 +1745,13 @@ class MapMetaObject(TableObject):
         return s.strip()
 
     @property
+    def pretty_tiles(self):
+        s = ''
+        for v in self.tiles:
+            s += '{0:0>2X} {1}\n'.format(v.index, v)
+        return s.strip()
+
+    @property
     def roaming_npcs(self):
         return [exnpc for exnpc in RoamingNPCObject.every
                 if exnpc.map_index == self.index]
@@ -1723,27 +1771,67 @@ class MapMetaObject(TableObject):
         exit_data += b'\xff'
         bytecode[2] = exit_data
 
+        tile_data = b''
+        for tile in self.tiles:
+            tile_data += tile.bytecode
+        tile_data += b'\xff'
+        bytecode[5] = tile_data
+
         for i in self.old_bytecode:
             if i not in bytecode:
                 bytecode[i] = self.old_bytecode[i]
 
-        bytestring = b'\xff'
-        offsets = []
+        offset_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+                        11, 12, 13, 14, 15, 16, 17,
+                        10, 19, 20, 18]
+
+        offsets = {}
         for i in sorted(bytecode):
-            if bytecode[i] in bytestring:
+            if i not in offset_order:
+                assert bytecode[i] == b'\xff'
+                offsets[i] = 0x2c
+
+        bytestring = b'\xff'
+        for i in offset_order:
+            if i == 8:
+                waypoint_offset = len(bytestring) + 0x2c
+                waypoint_offset += (6 * len(self.waypoints)) + 1
+                waypoint_data = b''
+                if self.waypoints:
+                    min_offset = min([w.offset for w in self.waypoints])
+                for waypoint in self.waypoints:
+                    waypoint.offset += waypoint_offset - min_offset
+                    waypoint_data += waypoint.bytecode
+                waypoint_data += b'\xff' + self.waypoint_shared_data
+                bytecode[8] = waypoint_data
+
+            if i != 8 and bytecode[i] in bytestring and bytecode[i] == b'\xff':
                 index = bytestring.index(bytecode[i])
             else:
                 index = len(bytestring)
                 bytestring += bytecode[i]
-            index += 0x2c
-            offsets.append(index)
 
+            index += 0x2c
+            offsets[i] = index
+
+        offsets = [offsets[i] for i in sorted(offsets)]
+        assert len(offsets) == 21
         offset_str = b''.join([int.to_bytes(o, byteorder='little', length=2)
                                for o in offsets])
         bytestring = offset_str + bytestring
         blocksize = int.to_bytes(
             len(bytestring) + 2, byteorder='little', length=2)
         bytestring = blocksize + bytestring
+
+        # verify the stupid dumb waypoint data structure
+        if self.waypoints:
+            right = self.waypoints[0].offset
+            left = right - 7
+            check = self.waypoints[-1].bytecode + b'\xff'
+            assert bytestring[left:right] == check
+            rightright = right + len(self.waypoint_shared_data)
+            assert bytestring[right:rightright] == self.waypoint_shared_data
+
         return bytestring
 
     def get_next_npc_index(self):
@@ -1812,10 +1900,19 @@ class MapMetaObject(TableObject):
         bytestr = bytes([index, boundary_west, boundary_north,
                          boundary_east, boundary_south, misc,
                          destination_x, destination_y, destination_map])
-        my_exit = self.Exit(bytestr, self)
+        my_exit = self.Exit(bytestr)
         self.exits.append(my_exit)
         self.exits = sorted(self.exits, key=lambda x: x.index)
         return my_exit
+
+    def add_tile(self, boundary, index):
+        ((boundary_west, boundary_north),
+            (boundary_east, boundary_south)) = boundary
+        bytestr = bytes([index, boundary_west, boundary_north,
+                         boundary_east, boundary_south])
+        tile = self.Tile(bytestr)
+        self.tiles.append(tile)
+        self.tiles = sorted(self.tiles, key=lambda t: t.index)
 
     def add_or_replace_npc(self, x, y, boundary=None, misc=0, index=None):
         if index is None:
@@ -1838,6 +1935,13 @@ class MapMetaObject(TableObject):
             self.exits.remove(existing[0])
         return self.add_exit(boundary, destination_map, destination_x,
                              destination_y, misc, force_index=index)
+
+    def add_or_replace_tile(self, boundary, index):
+        existing = [t for t in self.tiles if t.index == index]
+        if existing:
+            assert len(existing) == 1
+            self.tiles.remove(existing[0])
+        return self.add_tile(boundary, index=index)
 
     def set_event_signatures(self):
         for npcp in self.npc_positions:
@@ -1897,31 +2001,67 @@ class MapMetaObject(TableObject):
 
         self.npc_positions = []
         npc_position_data = self.old_bytecode[7]
-        if npc_position_data:
-            assert not (len(npc_position_data)-1) % 8
-            assert npc_position_data[-1] == 0xff
-            npc_position_data = npc_position_data[:-1]
-            while npc_position_data:
-                npc_position = self.NPCPosition(npc_position_data[:8])
-                npc_position_data = npc_position_data[8:]
-                self.npc_positions.append(npc_position)
-            self.old_num_npcs = len(self.npc_positions)
+        assert not (len(npc_position_data)-1) % 8
+        assert npc_position_data[-1] == 0xff
+        npc_position_data = npc_position_data[:-1]
+        while npc_position_data:
+            npc_position = self.NPCPosition(npc_position_data[:8])
+            npc_position_data = npc_position_data[8:]
+            self.npc_positions.append(npc_position)
+        self.old_num_npcs = len(self.npc_positions)
 
         self.exits = []
         exit_data = self.old_bytecode[2]
-        if exit_data:
-            assert not (len(exit_data)-1) % 9
-            assert exit_data[-1] == 0xff
-            exit_data = exit_data[:-1]
-            while exit_data:
-                my_exit = self.Exit(exit_data[:9], self)
-                exit_data = exit_data[9:]
-                self.exits.append(my_exit)
-            self.old_num_exits = len(self.exits)
+        assert not (len(exit_data)-1) % 9
+        assert exit_data[-1] == 0xff
+        exit_data = exit_data[:-1]
+        while exit_data:
+            my_exit = self.Exit(exit_data[:9])
+            exit_data = exit_data[9:]
+            self.exits.append(my_exit)
+        self.old_num_exits = len(self.exits)
+
+        self.tiles = []
+        tile_data = self.old_bytecode[5]
+        assert not (len(tile_data)-1) % 5
+        assert tile_data[-1] == 0xff
+        tile_data = tile_data[:-1]
+        while tile_data:
+            tile = self.Tile(tile_data[:5])
+            tile_data = tile_data[5:]
+            self.tiles.append(tile)
+        self.old_num_tiles = len(self.tiles)
+
+        self.waypoints = []
+        waypoint_data = self.old_bytecode[8]
+        while waypoint_data:
+            if waypoint_data[0] == 0xff:
+                break
+            waypoint = self.Waypoint(waypoint_data[:6])
+            waypoint_data = waypoint_data[6:]
+            self.waypoints.append(waypoint)
+        self.waypoint_shared_data = waypoint_data[1:]
 
     def cleanup(self):
         npcp_indexes = [npcp.index for npcp in self.npc_positions]
         assert len(npcp_indexes) == len(set(npcp_indexes))
+
+    @classmethod
+    def full_cleanup(self):
+        self.separate_free_space_banks()
+        super().full_cleanup()
+
+    @classmethod
+    def separate_free_space_banks(self):
+        free_space = []
+        for (a, b) in self.FREE_SPACE:
+            assert b > a
+            while (b & 0xFF8000) > (a & 0xFF8000):
+                new_a = (a & 0xFF8000) + 0x8000
+                free_space.append((a, new_a))
+                a = new_a
+            free_space.append((a, b))
+        self.FREE_SPACE = free_space
 
     def write_data(self, filename=None, pointer=None):
         blocksize = len(self.bytecode)
@@ -3072,17 +3212,26 @@ class MapEventObject(TableObject):
         roamings = [c for c in self.roaming_comments if check in c]
         outroamings = [c for c in roamings if c.startswith(check)]
         inroamings = [c for c in roamings if c not in outroamings]
-        s2, s3, s4 = '', '', ''
+        s2, s3, s4, s5 = '', '', '', ''
         for c in sorted(inroamings):
-            s2 += '# ' + c + '\n'
+            s3 += '# ' + c + '\n'
         for c in sorted(outroamings):
-            s4 += '# ' + c + '\n'
+            s5 += '# ' + c + '\n'
         if self.map_meta.exits:
             s1 += '\n' + self.map_meta.pretty_exits
             s1 = s1.replace('\n', '\n# EXIT ') + '\n'
+        if self.map_meta.tiles:
+            pretty_tiles = self.map_meta.pretty_tiles
+            for line in pretty_tiles.split('\n'):
+                tile_index = int(line.split()[0], 0x10)
+                signature = '{0:0>2X}-D-{1:0>2X}'.format(self.index,
+                                                         tile_index)
+                s2 += '\n{0} [{1}]'.format(line, signature)
+            s2 = s2.replace('\n', '\n# TILE ') + '\n'
+
         if self.map_meta.npc_positions:
-            s3 += '\n' + self.map_meta.pretty_positions
-            s3 = s3.replace('\n', '\n# NPC ') + '\n'
+            s4 += '\n' + self.map_meta.pretty_positions
+            s4 = s4.replace('\n', '\n# NPC ') + '\n'
         assert self.event_lists[0].index == 'X'
         npc_preload_matcher = re.compile(
             '.*([0-9a-fA-F]{2}): (.*)$')
@@ -3106,14 +3255,14 @@ class MapEventObject(TableObject):
         for npc_index, sprite in sorted(preload_npcs.items()):
             check = 'NPC %s' % npc_index
             try:
-                index = s3.index(check)
+                index = s4.index(check)
             except ValueError:
                 continue
-            eol = s3[index:].index('\n') + index
-            s3 = s3[:eol] + ' PRELOAD %s' % sprite + s3[eol:]
+            eol = s4[index:].index('\n') + index
+            s4 = s4[:eol] + ' PRELOAD %s' % sprite + s4[eol:]
             assert index > 0
-        s = '{0}\n{1}\n{2}\n{3}\n'.format(s1.strip(), s2.strip(),
-                                          s3.strip(), s4.strip())
+        s = '{0}\n{1}\n{2}\n{3}\n{4}'.format(
+            s1.strip(), s2.strip(), s3.strip(), s4.strip(), s5.strip())
         s = s.strip()
         if '\n' in s:
             s += '\n'
@@ -3598,7 +3747,29 @@ def patch_game_script(patch_script_text):
                 boundary = ((boundary_west, boundary_north),
                             (boundary_east, boundary_south))
                 MapMetaObject.get(source_index).add_or_replace_exit(
-                    boundary, dest_index, dest_x, dest_y, misc)
+                    boundary, dest_index, dest_x, dest_y, misc, exit_index)
+            elif line.startswith('!tile'):
+                try:
+                    (command, tile_index, location, dimensions) = line.split()
+                except ValueError:
+                    (command, tile_index, location) = line.split()
+                    dimensions = '1x1'
+                map_index, location = location.split(':')
+                boundary_west, boundary_north = location.split(',')
+                width, height = dimensions.split('x')
+                assert tile_index != '+1'
+                tile_index = int(tile_index, 0x10)
+                map_index = int(map_index, 0x10)
+                boundary_west = int(boundary_west, 0x10)
+                boundary_north = int(boundary_north, 0x10)
+                width = int(width)
+                height = int(height)
+                boundary_east = boundary_west + width
+                boundary_south = boundary_north + height
+                boundary = ((boundary_west, boundary_north),
+                            (boundary_east, boundary_south))
+                MapMetaObject.get(map_index).add_or_replace_tile(
+                    boundary, tile_index)
             else:
                 raise Exception('Unknown event patch command: %s' % line)
             continue

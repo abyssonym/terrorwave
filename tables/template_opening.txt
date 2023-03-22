@@ -66,7 +66,8 @@ EVENT A2-C-5D
           the three maidens to go to
           Doom Island!<END EVENT>
 
-EVENT A2-C-5E
+!tile 0a a2:0d,20 2x1
+EVENT A2-D-0A
 0000. 14(00-1A-80-1B-80-1C-30-@1000-FF)
 0010. 14(C2-01C1-0001-30-@1000-FF)
 0020. 9E: <UNKNOWN 05>Fly to Doom Island?<END MESSAGE>
