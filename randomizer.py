@@ -1626,6 +1626,60 @@ class MapMetaObject(TableObject):
                 s.append(value)
             return bytes(s)
 
+    class Exit:
+        def __init__(self, data, parent_map):
+            assert len(data) == 9
+            self.index = data[0]
+            self.boundary_west = data[1]
+            self.boundary_north = data[2]
+            self.boundary_east = data[3]
+            self.boundary_south = data[4]
+            self.misc = data[5]
+            self.destination_x = data[6]
+            self.destination_y = data[7]
+            self.destination_map = data[8]
+            self.parent_map = parent_map
+
+        def __repr__(self):
+            height = self.boundary_south - self.boundary_north
+            width = self.boundary_east - self.boundary_west
+            x = self.boundary_west
+            y = self.boundary_east
+            if self.destination_map == 0xff and False:
+                destination_map = self.parent_map.index
+            else:
+                destination_map = self.destination_map
+            source_map = self.parent_map.index
+            source_map = '{0:0>2X} {1}'.format(
+                source_map, MapEventObject.get(source_map).name)
+            if destination_map == 0xff:
+                destination_map = ''
+            else:
+                destination_map = '{0:0>2X} {1}'.format(
+                    destination_map, MapEventObject.get(destination_map).name)
+            s = '({1:0>2X},{2:0>2X}) -> {3} ({4:0>2X},{5:0>2X})'
+            s = s.format(source_map, x, y, destination_map,
+                         self.destination_x, self.destination_y)
+            if not height == width == 1:
+                s = '{0} {1}x{2}'.format(s, width, height)
+            while '  ' in s:
+                s = s.replace('  ', ' ')
+            return s
+
+        @property
+        def bytecode(self):
+            s = []
+            for attr in ['index', 'boundary_west', 'boundary_north',
+                         'boundary_east', 'boundary_south', 'misc',
+                         'destination_x', 'destination_y', 'destination_map']:
+                value = getattr(self, attr)
+                s.append(value)
+            return bytes(s)
+
+    @property
+    def name(self):
+        return MapEventObject.get(self.index).name
+
     @property
     def pretty_positions(self):
         self.set_event_signatures()
@@ -1643,81 +1697,67 @@ class MapMetaObject(TableObject):
         return s.strip()
 
     @property
+    def pretty_exits(self):
+        s = ''
+        for x in self.exits:
+            s += '{0:0>2X} ({1:0>2X}) {2}\n'.format(x.index, x.misc, x)
+        return s.strip()
+
+    @property
     def roaming_npcs(self):
         return [exnpc for exnpc in RoamingNPCObject.every
                 if exnpc.map_index == self.index]
 
     @property
-    def npc_position_offset_length(self):
-        data = self.old_data
-        blocksize = len(data)
-        offsets = []
-        for i in range(1, 22):
-            i *= 2
-            offset = int.from_bytes(data[i:i+2], byteorder='little')
-            offsets.append(offset)
-        assert data[i+2] == 0xff
-        offset_order = sorted(set(offsets) | {blocksize})
-
-        npc_position_offset = offsets[7]
-        assert npc_position_offset in offset_order
-        index = offset_order.index(npc_position_offset)
-        npc_position_length = offset_order[index+1] - npc_position_offset
-        assert npc_position_length % 8 == 1
-        return npc_position_offset, npc_position_length
-
-    @property
     def bytecode(self):
-        npcpo, npcpl = self.npc_position_offset_length
-        assert npcpl >= 1
-        header_data = self.old_data[:npcpo]
-        footer_data = self.old_data[npcpo+npcpl:]
-        old_npc_position_data = self.old_data[npcpo:npcpo+npcpl]
-
+        bytecode = {}
         npc_position_data = b''
         for npc_position in self.npc_positions:
             npc_position_data += npc_position.bytecode
         npc_position_data += b'\xff'
-        new_npcpl = len(npc_position_data)
-        npcpl_difference = new_npcpl - npcpl
+        bytecode[7] = npc_position_data
 
+        exit_data = b''
+        for my_exit in self.exits:
+            exit_data += my_exit.bytecode
+        exit_data += b'\xff'
+        bytecode[2] = exit_data
+
+        for i in self.old_bytecode:
+            if i not in bytecode:
+                bytecode[i] = self.old_bytecode[i]
+
+        bytestring = b'\xff'
         offsets = []
-        for i in range(1, 22):
-            i *= 2
-            offset = int.from_bytes(header_data[i:i+2], byteorder='little')
-            offsets.append(offset)
-
-        assert offsets[7] == npcpo
-        if len(self.npc_positions) > self.old_num_npcs:
-            offsets[7] = len(self.old_data)
-            footer_data += npc_position_data
-            npc_position_data = old_npc_position_data
-        else:
-            while len(npc_position_data) < len(old_npc_position_data):
-                npc_position_data += b'\xff'
-
-        if self.npc_positions:
-            assert offsets[7] > 0x2c
-        else:
-            assert offsets[7] == 0x2c
-        assert all(o >= 0x2c for o in offsets)
+        for i in sorted(bytecode):
+            if bytecode[i] in bytestring:
+                index = bytestring.index(bytecode[i])
+            else:
+                index = len(bytestring)
+                bytestring += bytecode[i]
+            index += 0x2c
+            offsets.append(index)
 
         offset_str = b''.join([int.to_bytes(o, byteorder='little', length=2)
                                for o in offsets])
+        bytestring = offset_str + bytestring
         blocksize = int.to_bytes(
-            len(header_data + npc_position_data + footer_data),
-            length=2, byteorder='little')
-        header_data = (
-            blocksize + offset_str + header_data[2+len(offset_str):])
-        bytecode = header_data + npc_position_data + footer_data
-        assert bytecode[0x2c] == 0xff
-        return bytecode
+            len(bytestring) + 2, byteorder='little', length=2)
+        bytestring = blocksize + bytestring
+        return bytestring
 
-    def get_next_index(self):
+    def get_next_npc_index(self):
         if self.npc_positions:
             index = max(npcp.index for npcp in self.npc_positions) + 1
         else:
             index = 1
+        return index
+
+    def get_next_exit_index(self):
+        if self.exits:
+            index = max(x.index for x in self.exits) + 1
+        else:
+            index = 0
         return index
 
     def add_npc(self, x, y, boundary=None, misc=0, force_index=None):
@@ -1742,7 +1782,7 @@ class MapMetaObject(TableObject):
         if force_index:
             index = force_index
         else:
-            index = self.get_next_index()
+            index = self.get_next_npc_index()
         assert 1 <= index <= 0x20
         bytestr = bytes([index, x, y, boundary_west, boundary_north,
                          boundary_east, boundary_south, misc])
@@ -1750,6 +1790,32 @@ class MapMetaObject(TableObject):
         self.npc_positions.append(npcp)
         self.npc_positions = sorted(self.npc_positions, key=lambda x: x.index)
         return npcp
+
+    def add_exit(self, boundary, destination_map, destination_x, destination_y,
+                 misc=0xF0, force_index=None):
+        if destination_map == self.index:
+            destination_map = 0xFF
+        ((boundary_west, boundary_north),
+            (boundary_east, boundary_south)) = boundary
+        boundary_east = x if boundary_east is None else boundary_east
+        boundary_west = x if boundary_west is None else boundary_west
+        boundary_north = y if boundary_north is None else boundary_north
+        boundary_south = y if boundary_south is None else boundary_south
+        boundary_east += 1
+        boundary_south += 1
+        assert boundary_east > boundary_west
+        assert boundary_south > boundary_north
+        if force_index:
+            index = force_index
+        else:
+            index = self.get_next_exit_index()
+        bytestr = bytes([index, boundary_west, boundary_north,
+                         boundary_east, boundary_south, misc,
+                         destination_x, destination_y, destination_map])
+        my_exit = self.Exit(bytestr, self)
+        self.exits.append(my_exit)
+        self.exits = sorted(self.exits, key=lambda x: x.index)
+        return my_exit
 
     def add_or_replace_npc(self, x, y, boundary=None, misc=0, index=None):
         if index is None:
@@ -1760,6 +1826,18 @@ class MapMetaObject(TableObject):
             assert len(existing) == 1
             self.npc_positions.remove(existing[0])
         return self.add_npc(x, y, boundary, misc, force_index=index)
+
+    def add_or_replace_exit(self, boundary, destination_map, destination_x,
+                            destination_y, misc=0xF0, index=None):
+        if index is None:
+            return self.add_exit(boundary, destination_map, destination_x,
+                                 destination_y, misc)
+        existing = [x for x in self.exits if x.index == index]
+        if existing:
+            assert len(existing) == 1
+            self.exits.remove(existing[0])
+        return self.add_exit(boundary, destination_map, destination_x,
+                             destination_y, misc, force_index=index)
 
     def set_event_signatures(self):
         for npcp in self.npc_positions:
@@ -1795,27 +1873,55 @@ class MapMetaObject(TableObject):
         blocksize = int.from_bytes(f.read(2), byteorder='little')
         f.seek(pointer)
         data = f.read(blocksize)
-        self.old_data = data
+        self.old_bytecode = {}
 
-        npcpo, npcpl = self.npc_position_offset_length
-        npc_position_data = data[npcpo:npcpo+npcpl]
+        offsets = []
+        for i in range(21):
+            i *= 2
+            offset = int.from_bytes(data[i+2:i+4], byteorder='little')
+            offsets.append(offset)
+        sorted_offsets = sorted(set(offsets))
 
-        assert npc_position_data[-1] == 0xff
-        npc_position_data = npc_position_data[:-1]
+        for i in range(21):
+            offset = offsets[i]
+            offset_index = sorted_offsets.index(offset)
+            if offset_index == len(sorted_offsets)-1:
+                next_offset = blocksize
+            else:
+                next_offset = sorted_offsets[offset_index+1]
+            assert next_offset > offset
+            offset_data = data[offset:next_offset]
+            if offset == 0x2c:
+                assert offset_data == b'\xff'
+            self.old_bytecode[i] = offset_data
+
         self.npc_positions = []
-        while npc_position_data:
-            npc_position = self.NPCPosition(npc_position_data[:8])
-            npc_position_data = npc_position_data[8:]
-            self.npc_positions.append(npc_position)
-        self.old_num_npcs = len(self.npc_positions)
-        assert self.old_data == self.bytecode
+        npc_position_data = self.old_bytecode[7]
+        if npc_position_data:
+            assert not (len(npc_position_data)-1) % 8
+            assert npc_position_data[-1] == 0xff
+            npc_position_data = npc_position_data[:-1]
+            while npc_position_data:
+                npc_position = self.NPCPosition(npc_position_data[:8])
+                npc_position_data = npc_position_data[8:]
+                self.npc_positions.append(npc_position)
+            self.old_num_npcs = len(self.npc_positions)
+
+        self.exits = []
+        exit_data = self.old_bytecode[2]
+        if exit_data:
+            assert not (len(exit_data)-1) % 9
+            assert exit_data[-1] == 0xff
+            exit_data = exit_data[:-1]
+            while exit_data:
+                my_exit = self.Exit(exit_data[:9], self)
+                exit_data = exit_data[9:]
+                self.exits.append(my_exit)
+            self.old_num_exits = len(self.exits)
 
     def cleanup(self):
         npcp_indexes = [npcp.index for npcp in self.npc_positions]
         assert len(npcp_indexes) == len(set(npcp_indexes))
-        if npcp_indexes and self.bytecode != self.old_data:
-            assert min(npcp_indexes) >= 1
-            assert max(npcp_indexes) <= 0x20
 
     def write_data(self, filename=None, pointer=None):
         blocksize = len(self.bytecode)
@@ -2960,20 +3066,23 @@ class MapEventObject(TableObject):
 
     # MapEventObject methods
     def __repr__(self):
-        s1 = '# MAP {0:0>2X}-{1:0>5x} ({2})\n'.format(
+        s1 = '# MAP {0:0>2X}-{1:0>5x} ({2})'.format(
             self.index, self.pointer, self.name)
         check = '[{0:0>2X}'.format(self.index)
         roamings = [c for c in self.roaming_comments if check in c]
         outroamings = [c for c in roamings if c.startswith(check)]
         inroamings = [c for c in roamings if c not in outroamings]
-        s2, s3 = '', ''
+        s2, s3, s4 = '', '', ''
         for c in sorted(inroamings):
-            s1 += '# ' + c + '\n'
+            s2 += '# ' + c + '\n'
         for c in sorted(outroamings):
-            s3 += '# ' + c + '\n'
+            s4 += '# ' + c + '\n'
+        if self.map_meta.exits:
+            s1 += '\n' + self.map_meta.pretty_exits
+            s1 = s1.replace('\n', '\n# EXIT ') + '\n'
         if self.map_meta.npc_positions:
-            s2 += '\n' + self.map_meta.pretty_positions
-            s2 = s2.replace('\n', '\n# NPC ') + '\n'
+            s3 += '\n' + self.map_meta.pretty_positions
+            s3 = s3.replace('\n', '\n# NPC ') + '\n'
         assert self.event_lists[0].index == 'X'
         npc_preload_matcher = re.compile(
             '.*([0-9a-fA-F]{2}): (.*)$')
@@ -2997,13 +3106,14 @@ class MapEventObject(TableObject):
         for npc_index, sprite in sorted(preload_npcs.items()):
             check = 'NPC %s' % npc_index
             try:
-                index = s2.index(check)
+                index = s3.index(check)
             except ValueError:
                 continue
-            eol = s2[index:].index('\n') + index
-            s2 = s2[:eol] + ' PRELOAD %s' % sprite + s2[eol:]
+            eol = s3[index:].index('\n') + index
+            s3 = s3[:eol] + ' PRELOAD %s' % sprite + s3[eol:]
             assert index > 0
-        s = '{0}\n{1}\n{2}\n'.format(s1.strip(), s2.strip(), s3.strip())
+        s = '{0}\n{1}\n{2}\n{3}\n'.format(s1.strip(), s2.strip(),
+                                          s3.strip(), s4.strip())
         s = s.strip()
         if '\n' in s:
             s += '\n'
@@ -3036,7 +3146,8 @@ class MapEventObject(TableObject):
                 break
             name += c
         name, _ = self.parse_name(data=name, repeat_pointer=0x38000)
-        return self.prettify_text(name)
+        name = self.prettify_text(name, no_opcodes=True)
+        return re.sub('<..>', '?', name)
 
     @clached_property
     def ALL_POINTERS(self):
@@ -3209,9 +3320,11 @@ class MapEventObject(TableObject):
         return text, data
 
     @classmethod
-    def prettify_text(self, text_script):
+    def prettify_text(self, text_script, no_opcodes=False):
         s = ''
         for opcode, parameters in text_script:
+            if no_opcodes:
+                opcode = None
             if opcode in {5, 6}:
                 index = parameters[0]
                 index += (0x100 * (opcode-5))
@@ -3232,7 +3345,7 @@ class MapEventObject(TableObject):
                 s += '<{0}>'.format(parameters)
             elif opcode is None:
                 for c in parameters:
-                    if c in self.CHARACTER_MAP:
+                    if c in self.CHARACTER_MAP and not no_opcodes:
                         s += self.CHARACTER_MAP[c]
                     elif c & 0x80:
                         index = c & 0x7F
@@ -3397,9 +3510,13 @@ def patch_game_script(patch_script_text):
         if not line:
             continue
         if line.startswith('!'):
-            if line.lower().startswith('!npc'):
-                (command, map_index, npc_index,
-                    misc, a, b) = line.upper().split()
+            line = line.strip().lower()
+            while '  ' in line:
+                line = line.replace('  ', ' ')
+            if line.startswith('!npc'):
+                (command, npc_index, misc, location) = line.split()
+                map_index, location = location.split(':')
+                a, b = location.split(',')
                 map_index = int(map_index, 0x10)
                 if npc_index == '+1':
                     npc_index = None
@@ -3413,10 +3530,8 @@ def patch_game_script(patch_script_text):
                 misc = int(misc[1:-1], 0x10)
                 (x, y, boundary_west, boundary_east, boundary_north,
                     boundary_south) = None, None, None, None, None, None
-                for coordinate in (a, b):
-                    assert coordinate[0] in ('X', 'Y')
+                for axis, value_range in zip(('x', 'y'), (a, b)):
                     try:
-                        value_range = coordinate.split(':')[1]
                         assert '>' not in value_range
                         if '<' in value_range:
                             left, middle, right = value_range.split('<=')
@@ -3424,20 +3539,20 @@ def patch_game_script(patch_script_text):
                             middle = int(middle, 0x10)
                             right = int(right, 0x10)
                             assert left <= middle <= right
-                            if coordinate[0] == 'X':
+                            if coordinate[0] == 'x':
                                 boundary_west = left
                                 x = middle
                                 boundary_east = right
                             else:
-                                assert coordinate[0] == 'Y'
+                                assert coordinate[0] == 'y'
                                 boundary_north = left
                                 y = middle
                                 boundary_south = right
                         else:
-                            if coordinate[0] == 'X':
+                            if axis == 'x':
                                 x = int(value_range, 0x10)
                             else:
-                                assert coordinate[0] == 'Y'
+                                assert axis == 'y'
                                 y = int(value_range, 0x10)
                     except:
                         raise Exception('Malformed coordinates: %s' % line)
@@ -3445,6 +3560,45 @@ def patch_game_script(patch_script_text):
                             (boundary_east, boundary_south))
                 MapMetaObject.get(map_index).add_or_replace_npc(
                     x, y, boundary, misc, npc_index)
+            elif line.startswith('!exit'):
+                try:
+                    (command, exit_index, misc,
+                        movement, dimensions) = line.split()
+                except ValueError:
+                    (command, exit_index, misc, movement) = line.split()
+                    dimensions = '1x1'
+                if exit_index == '+1':
+                    exit_index = None
+                else:
+                    exit_index = int(exit_index, 0x10)
+                try:
+                    assert misc.startswith('(')
+                    assert misc.endswith(')')
+                except:
+                    raise Exception('Malformed "misc" field: %s' % line)
+                misc = int(misc[1:-1], 0x10)
+
+                source, destination = movement.split('->')
+                source_index, source_location = source.split(':')
+                dest_index, dest_location = destination.split(':')
+                boundary_west, boundary_north = source_location.split(',')
+                dest_x, dest_y = dest_location.split(',')
+                width, height = dimensions.split('x')
+
+                source_index = int(source_index, 0x10)
+                dest_index = int(dest_index, 0x10)
+                boundary_west = int(boundary_west, 0x10)
+                boundary_north = int(boundary_north, 0x10)
+                dest_x = int(dest_x, 0x10)
+                dest_y = int(dest_y, 0x10)
+                width = int(width)
+                height = int(height)
+                boundary_east = boundary_west + width - 1
+                boundary_south = boundary_north + height - 1
+                boundary = ((boundary_west, boundary_north),
+                            (boundary_east, boundary_south))
+                MapMetaObject.get(source_index).add_or_replace_exit(
+                    boundary, dest_index, dest_x, dest_y, misc)
             else:
                 raise Exception('Unknown event patch command: %s' % line)
             continue
@@ -3629,7 +3783,7 @@ class OpenNPCGenerator:
         def generate_party_offer_message(party_order, terminator='.'):
             if not terminator.endswith('<END MESSAGE>'):
                 terminator = '{0}<END MESSAGE>'.format(terminator)
-            character_names = {0: 'Maxim',
+            character_names = {0: '$MAXIM$',
                                1: 'Selan',
                                2: 'Guy',
                                3: 'Artea',
@@ -3785,7 +3939,7 @@ class OpenNPCGenerator:
 
         old_event_signature = '%s-X-XX' % boss_location.map_index
         map_index = int(boss_location.map_index, 0x10)
-        npc_index = MapMetaObject.get(map_index).get_next_index()
+        npc_index = MapMetaObject.get(map_index).get_next_npc_index()
         parameters['npc_index'] = npc_index
         parameters['npc_event_index'] = npc_index + 0x4f
 
@@ -4022,7 +4176,7 @@ def make_open_world():
         OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
-    write_patch(get_outfile(), 'patch_maximless_escape_fix.txt')
+    write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
     write_patch(get_outfile(), 'patch_maximless_boat_fix.txt')
     write_patch(get_outfile(), 'patch_zero_gold_command.txt')
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')

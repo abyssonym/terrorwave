@@ -1,4 +1,4 @@
-!npc {{map_index}} {{npc_index}} (00) x:{{npc_x}} y:{{npc_y}}
+!npc {{npc_index}} (00) {{map_index}}:{{npc_x}},{{npc_y}}
 
 EVENT {{map_index}}-X-XX
     0010. 15({{boss_flag}}-@40)

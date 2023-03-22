@@ -1,4 +1,4 @@
-!npc 78 0f (00) x:07 y:37
+!npc 0f (00) 78:07,37
 
 EVENT 78-X-XX
 0000. 74(05)                         # Set Battle BG

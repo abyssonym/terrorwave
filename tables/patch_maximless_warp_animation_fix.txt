@@ -1,0 +1,5 @@
+01cb73: 8a
+: f0 is_leader
+: ea ea
+.label is_leader
+01cb84: a2 07 00
