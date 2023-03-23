@@ -1,0 +1,8 @@
+# name, display name, character index, sprite index
+jelze,{Foomy},00,c9
+flash,{Shaggy},01,ca
+gusto,{Hard Hat},02,cb
+zeppy,{Red Fish},03,cc
+darbi,{Myconido},04,cd
+sully,{Raddisher},05,ce
+blaze,{Armor Dog},06,cf

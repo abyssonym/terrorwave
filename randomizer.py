@@ -823,6 +823,7 @@ class SpellObject(PriceMixin, TableObject):
 
 class CharLevelObject(TableObject): pass
 class CharExpObject(TableObject): pass
+class CapsuleLevelObject(TableObject): pass
 
 
 class CharGrowthObject(TableObject):
@@ -3855,6 +3856,8 @@ class OpenNPCGenerator:
                                            'open_reward_characters.txt')
     REWARD_MAIDEN_TABLE_FILENAME = path.join(tblpath,
                                            'open_reward_maidens.txt')
+    REWARD_CAPSULE_TABLE_FILENAME = path.join(tblpath,
+                                              'open_reward_capsules.txt')
 
     with open(path.join(tblpath, 'template_reward_item.txt')) as f:
         REWARD_EVENT_ITEM = f.read()
@@ -3862,12 +3865,15 @@ class OpenNPCGenerator:
         REWARD_EVENT_CHARACTER = f.read()
     with open(path.join(tblpath, 'template_reward_maiden.txt')) as f:
         REWARD_EVENT_MAIDEN = f.read()
+    with open(path.join(tblpath, 'template_reward_capsule.txt')) as f:
+        REWARD_EVENT_CAPSULE = f.read()
 
     boss_properties = {}
     boss_location_properties = {}
     reward_item_properties = {}
     reward_character_properties = {}
     reward_maiden_properties = {}
+    reward_capsule_properties = {}
 
     Boss = namedtuple('Boss', ['name', 'sprite_index_before',
                                'boss_formation_index', 'battle_bgm'])
@@ -3899,6 +3905,13 @@ class OpenNPCGenerator:
     for line in read_lines_nocomment(REWARD_MAIDEN_TABLE_FILENAME):
         i = RewardMaiden(*line.split(','))
         reward_maiden_properties[i.name] = i
+
+    RewardCapsule = namedtuple('RewardCapsule',
+        ['name', 'capsule_display_name',
+         'capsule_index', 'sprite_index_after'])
+    for line in read_lines_nocomment(REWARD_CAPSULE_TABLE_FILENAME):
+        i = RewardCapsule(*line.split(','))
+        reward_capsule_properties[i.name] = i
 
     available_flags = sorted(range(0x20, 0x70))
 
@@ -4118,13 +4131,16 @@ class OpenNPCGenerator:
         el = meo.get_eventlist_by_index('X')
         script = el.get_script_by_index(None)
 
-        old_event_start = 0x4000
         old_event_text = '#' + str(script)
         assert old_event_text.startswith('#EVENT')
+        addrs = [int(addr, 0x10) for addr in
+                 MapEventObject.Script.LINE_MATCHER.findall(old_event_text)]
+        min_addr, max_addr = min(addrs), max(addrs)
+        shift_amount = 0x1000 + max_addr
 
         old_event_text = MapEventObject.Script.shift_line_numbers(
-            old_event_text, old_event_start)
-        parameters['old_event_start'] = old_event_start
+            old_event_text, shift_amount)
+        parameters['old_event_start'] = shift_amount + min_addr
         parameters['old_event'] = old_event_text
 
         for i in range(1, 3):
@@ -4175,6 +4191,14 @@ class OpenNPCGenerator:
                 parameters['sprite_index_after'] = '44'
                 parameters['after_event'] = ''
                 parameters['after_event_start'] = '7FFF'
+
+            elif reward in OpenNPCGenerator.reward_capsule_properties:
+                reward = OpenNPCGenerator.reward_capsule_properties[reward]
+                event_text = OpenNPCGenerator.REWARD_EVENT_CAPSULE
+                if 'after_event' in parameters:
+                    assert not parameters['after_event']
+                parameters['after_event'] = event_text
+                parameters['after_event_start'] = '6000'
 
             elif reward is not None:
                 print('ERROR: Unable to process reward "%s".' % reward)
@@ -4229,6 +4253,9 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
 
 def make_open_world():
     for clo in CharLevelObject.every:
+        clo.level = 1
+
+    for clo in CapsuleLevelObject.every:
         clo.level = 1
 
     for cxp in CharExpObject.every:
@@ -4307,6 +4334,11 @@ def make_open_world():
     new_formations = set()
     seed_monsters = [MonsterObject.get(i)
                      for i in BossFormationObject.DUMMIED_MONSTERS]
+    SCRAP_FORMATIONS = [3, 4]
+    for bfo in BossFormationObject.every:
+        if bfo.index in SCRAP_FORMATIONS and bfo not in spare_formations:
+            spare_formations.append(bfo)
+
     for f in spare_formations:
         for i in range(1000):
             f.reseed('become%s' % i)
@@ -4323,13 +4355,11 @@ def make_open_world():
     chosen_bosses = chosen_bosses + spare_formations
     random.shuffle(chosen_bosses)
     chosen_bosses = chosen_bosses[:len(sorted_locations)]
-    sorted_bosses = sorted(chosen_bosses, key=lambda b: b.rank)
+    while len(chosen_bosses) < len(sorted_locations):
+        chosen_bosses.append(random.choice(chosen_bosses))
+    sorted_bosses = sorted(chosen_bosses, key=lambda b: (b.rank, b.index))
     sorted_bosses = shuffle_simple(sorted_bosses,
                                    random_degree=MapEventObject.random_degree)
-
-    while len(sorted_bosses) < len(sorted_locations):
-        max_index = len(sorted_bosses)
-        sorted_bosses.insert(random.randint(0, max_index), None)
 
     assert len(sorted_bosses) == len(sorted_locations)
     for location, boss in zip(sorted_locations, sorted_bosses):

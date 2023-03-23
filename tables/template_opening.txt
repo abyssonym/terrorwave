@@ -204,3 +204,69 @@ EVENT EA-D-01
 EVENT E9-B-0A
 0000. 59(11)
 0010. 00()
+
+EVENT 0E-X-XX
+0000. 69(08)
+0002. 69(98)
+0004. 4B(14)                         # Preload Music
+0006. 68(50-0D)                      # Load NPC (0f,16) 50: 0d Yellow Woman
+000C. 00()                           # End Event
+
+EVENT 0E-D-01
+0000. 00()
+
+EVENT 27-X-XX  # $3964a:3964a
+0000. 74(12)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(17)                         # Preload Music
+0008. 7B(50-89)                      # Load Monster NPC (16,20) 50: 89 Spider
+000B. 7B(51-98)                      # Load Monster NPC (14,0f) 51: 98 Hornet
+000E. 7B(52-8F)                      # Load Monster NPC (28,09) 52: 8f Bat
+0011. 7B(53-98)                      # Load Monster NPC (28,1a) 53: 98 Hornet
+001E. 00()                           # End Event
+
+EVENT 49-X-XX
+0000. 74(09)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(08)                         # Preload Music
+0008. 7B(50-E4)                      # Load Monster NPC (05,16) 50: e4 Sand Golem
+000B. 7B(51-90)                      # Load Monster NPC (0c,1b) 51: 90 Sword
+000E. 7B(52-9E)                      # Load Monster NPC (0b,17) 52: 9e Lizardman
+0011. 7B(53-A5)                      # Load Monster NPC (05,09) 53: a5 Hobgoblin
+001E. 68(55-70)                      # Load NPC (13,05) 55: 70 Nothing
+0021. 00()                           # End Event
+
+EVENT 70-X-XX  # $39f36:39f36
+0000. 74(0A)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(05)                         # Preload Music
+0008. 68(50-70)                      # Load NPC (14,04) 50: 70 Nothing
+000B. 7B(51-B0)                      # Load Monster NPC (1f,16) 51: b0 Samurai
+000E. 7B(52-81)                      # Load Monster NPC (1e,22) 52: 81 Snail
+0011. 7B(53-80)                      # Load Monster NPC (1b,27) 53: 80 Octopus
+0014. 7B(54-B0)                      # Load Monster NPC (09,16) 54: b0 Samurai
+0017. 7B(55-81)                      # Load Monster NPC (07,20) 55: 81 Snail
+001A. 7B(56-80)                      # Load Monster NPC (0d,20) 56: 80 Octopus
+0027. 00()                           # End Event
+
+EVENT 7E-X-XX  # $3a106:3a106
+0000. 74(07)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 69(31)
+0008. 4B(13)                         # Preload Music
+002C. 00()
+
+EVENT ED-X-XX  # $3adf5:3adf5
+0000. 69(98)
+0002. 4B(14)                         # Preload Music
+000E. 00()                           # End Event
+
+EVENT EF-X-XX  # $3ae0d:3ae0d
+0000. 69(01)
+0002. 69(91)
+0004. 4B(14)                         # Preload Music
+0010. 00()
