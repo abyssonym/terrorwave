@@ -51,7 +51,7 @@
 40  0
 42  0           DUPLICATE - 00 End Event
 41  1,1
-43  1,1
+43  1,1         Overwrite Map Tiles
 45  1,1,1
 47  1           Thinking On/Off
 48  1,1
@@ -64,7 +64,7 @@
 50  0
 51  0
 53  1           Invoke Battle
-54  1
+54  1           Open locked door?
 55  1
 56  0           Stop Earthquake
 57  0

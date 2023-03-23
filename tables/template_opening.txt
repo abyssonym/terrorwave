@@ -18,6 +18,68 @@ EVENT 03-B-02
 1040. 16(A2-0A-04)
 1050. 00()
 
+!exit +1 (F1) 42:0a,0c->43:08,15
+!tile 0a 42:0a,0c
+EVENT 42-D-0A
+0000. 43(01-02)
+0010. 00()
+
+EVENT 43-X-XX  # $39a09:39a09
+0000. 74(0B)                         # Set Battle BG
+0002. 69(01)
+0004. 69(09)
+0006. 69(19)
+0008. 4B(17)                         # Preload Music
+000D. 00()                           # End Event
+
+!exit +1 (F1) 43:08,11->44:06,25
+!tile 0a 43:08,11
+EVENT 43-D-0A
+0000. 43(01-02)
+7FFF. 00()
+
+EVENT 44-X-XX  # $399b2:399b2
+0000. 74(0B)                         # Set Battle BG
+0002. 69(01)
+0004. 69(09)
+0006. 69(99)
+0100. 68(50-37)
+1008. 4B(17)                         # Preload Music
+100A. 00()                           # End Event
+
+EVENT 44-A-00
+0000. 54(00)
+7FFF. 00()
+
+EVENT 44-A-01
+0000. 00()
+
+EVENT 44-C-50
+0000. 08: Sorry, if I let
+          you touch this orb,
+          it will crash the
+          game.
+7FFF. 00()
+
+EVENT 44-D-01
+0000. 00()
+
+EVENT 90-A-01  # $5fda5:5fdd6
+0000. 14(C2-01C0-0001-30-@1B-FF)
+0001. 14(C2-01C1-0001-30-@1B-FF)
+0007. 43(01-03)
+001B. 54(05)
+001D. 00()                           # End Event
+
+EVENT 90-D-03
+0000. 00()
+
+EVENT 90-D-04
+0000. 00()
+
+EVENT 90-D-05
+0000. 00()
+
 !npc 0f (05) a2:0d,21
 EVENT A2-X-XX  # $3a5f1:3a5f1
 0000. 6A(0A-@1031)
@@ -97,6 +159,37 @@ EVENT A2-D-0A
 1170. 33(25-5E)
 1200. 5E(03)
 7FFF. 00()
+
+EVENT D6-X-XX
+0000. 69(08)
+0002. 69(98)
+0004. 4B(01)                         # Preload Music
+7FFF. 00()
+
+EVENT D6-D-01
+0000. 00()
+
+EVENT D6-D-02
+0000. 00()
+
+EVENT E6-B-63  # $701c2:701ce
+0000. 2E(00)                         # Character Disappears
+0001. 2E(01)                         # Character Disappears
+0002. 2E(02)                         # Character Disappears
+0003. 2E(03)                         # Character Disappears
+0004. 2E(04)                         # Character Disappears
+0005. 2E(05)                         # Character Disappears
+0006. 2E(06)                         # Character Disappears
+0007. 2D({{starting_character_index}})
+1006. 6C({{starting_character_index}}-F8-00)
+100A. 34({{starting_character_index}}-FA)
+100D. A3({{starting_character_index}}-9B)
+1010. 59(11)                         # Luminosity
+1012. 76()
+1013. 89(00)
+1015. 37(14)                         # Pause
+1017. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
+101B. 00()                           # End Event
 
 EVENT E7-B-62
 0000. 59(11)
