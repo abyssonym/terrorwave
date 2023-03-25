@@ -661,6 +661,14 @@ class ChestObject(TableObject):
     flag_description = 'treasure chests'
     custom_random_enable = True
 
+    chest_maps = {}
+    for line in read_lines_nocomment(path.join(tblpath, 'chest_maps.txt')):
+        chest_index, map_index, _ = line.split(' ', 2)
+        chest_index = int(chest_index, 0x10)
+        map_index = int(map_index, 0x10)
+        assert chest_index not in chest_maps
+        chest_maps[chest_index] = map_index
+
     def __repr__(self):
         s = 'CHEST {0:0>2X}: {1:0>6x}-{2:0>3X} {3}'.format(
             self.index, self.pointer, self.item_index,
@@ -673,8 +681,21 @@ class ChestObject(TableObject):
             self.get_bit('item_high_bit') << 8) | self.item_low_byte
 
     @property
+    def old_item_index(self):
+        return ((self.get_bit('item_high_bit', old=True) << 8)
+                | self.old_data['item_low_byte'])
+
+    @property
+    def map_index(self):
+        return ChestObject.chest_maps[self.index]
+
+    @property
     def item(self):
         return ItemObject.get(self.item_index)
+
+    @staticmethod
+    def get_chests_by_map_index(map_index):
+        return [c for c in ChestObject.every if c.map_index == map_index]
 
     def set_item(self, item):
         if isinstance(item, ItemObject):
@@ -687,6 +708,7 @@ class ChestObject(TableObject):
 
     def mutate(self):
         i = self.item.get_similar()
+        old_item = self.item
         self.set_item(i)
 
     @classmethod
@@ -2912,9 +2934,11 @@ class MapEventObject(TableObject):
                     script.append((len(full_data), 0, []))
             return script
 
-        def import_script(self, text):
+        def import_script(self, text, warn_double_import=True):
+            warn_double_import = warn_double_import or DEBUG_MODE
             assert not self.frozen
-            if hasattr(self, '_imported') and self._imported:
+            if (warn_double_import and
+                    hasattr(self, '_imported') and self._imported):
                 print('WARNING: Script {0:x} double imported.'.format(
                     self.script_pointer))
             self._imported = True
@@ -3262,9 +3286,15 @@ class MapEventObject(TableObject):
             eol = s4[index:].index('\n') + index
             s4 = s4[:eol] + ' PRELOAD %s' % sprite + s4[eol:]
             assert index > 0
-        s = '{0}\n{1}\n{2}\n{3}\n{4}'.format(
+        s = '{0}\n{1}\n{2}\n{3}\n{4}\n'.format(
             s1.strip(), s2.strip(), s3.strip(), s4.strip(), s5.strip())
+
+        for c in ChestObject.get_chests_by_map_index(self.index):
+            s += '# {0}\n'.format(c)
+
         s = s.strip()
+        while '\n\n' in s:
+            s = s.replace('\n\n', '\n')
         if '\n' in s:
             s += '\n'
         for el in self.event_lists:
@@ -3648,7 +3678,7 @@ def randomize_rng():
     f.write(chr(b))
 
 
-def patch_game_script(patch_script_text):
+def patch_game_script(patch_script_text, warn_double_import=True):
     to_import = {}
     identifier = None
     script_text = None
@@ -3796,10 +3826,11 @@ def patch_game_script(patch_script_text):
         meo = MapEventObject.get(map_index)
         el = meo.get_eventlist_by_index(el_index)
         script = el.get_or_create_script_by_index(script_index)
-        script.import_script(script_text)
+        script.import_script(
+            script_text, warn_double_import=warn_double_import)
 
 
-def patch_events(filenames=None):
+def patch_events(filenames=None, warn_double_import=True):
     if filenames is None:
         filenames = []
         for label in EVENT_PATCHES:
@@ -3820,10 +3851,10 @@ def patch_events(filenames=None):
         for line in read_lines_nocomment(filename):
             patch_script_text += line + '\n'
     patch_script_text = patch_script_text.strip()
-    patch_game_script(patch_script_text)
+    patch_game_script(patch_script_text, warn_double_import=warn_double_import)
 
 
-def patch_with_template(template, parameters):
+def patch_with_template(template, parameters, warn_double_import=False):
     if '\n' not in template and '{{' not in template:
         with open(path.join(
                 tblpath, 'template_{0}.txt'.format(template))) as f:
@@ -3845,7 +3876,7 @@ def patch_with_template(template, parameters):
         matches = sorted(set(matcher.findall(text)))
         raise Exception('Unexpanded template tags: %s' % matches)
 
-    patch_game_script(text)
+    patch_game_script(text, warn_double_import=warn_double_import)
 
 
 class OpenNPCGenerator:
@@ -4091,17 +4122,20 @@ class OpenNPCGenerator:
         patch_with_template('karlloon_elf_girl', parameters)
 
     @staticmethod
-    def create_boss_npc(location, boss, reward1=None, reward2=None):
+    def create_boss_npc(location, boss, reward1=None, reward2=None,
+                        parameters=None):
+        if parameters is not None:
+            parameters = dict(parameters)
+        else:
+            parameters = {}
         if not (reward1 and reward2):
             reward1 = reward1 or reward2
             reward2 = None
-        parameters = {
-            'reward1_event': '',
-            'reward2_event': '',
-            }
+        parameters['reward1_event'] = ''
+        parameters['reward2_event'] = ''
         parameters['boss_flag'] = OpenNPCGenerator.available_flags.pop()
 
-        boss_location = OpenNPCGenerator.boss_location_properties[location]
+        location = OpenNPCGenerator.boss_location_properties[location]
 
         if isinstance(boss, str):
             boss = OpenNPCGenerator.boss_properties[boss]
@@ -4121,8 +4155,8 @@ class OpenNPCGenerator:
                     name, sprite_index_before, index, battle_bgm)
 
 
-        old_event_signature = '%s-X-XX' % boss_location.map_index
-        map_index = int(boss_location.map_index, 0x10)
+        old_event_signature = '%s-X-XX' % location.map_index
+        map_index = int(location.map_index, 0x10)
         npc_index = MapMetaObject.get(map_index).get_next_npc_index()
         parameters['npc_index'] = npc_index
         parameters['npc_event_index'] = npc_index + 0x4f
@@ -4210,12 +4244,17 @@ class OpenNPCGenerator:
                         continue
                     parameters[attr] = getattr(reward, attr)
 
+            if i == 1:
+                reward1_tuple = reward
+            if i == 2:
+                reward2_tuple = reward
+
             for attr in sorted(parameters.keys()):
                 if 'item' in attr:
                     otherattr = attr.replace('item', 'item%s' % i)
                     parameters[otherattr] = parameters[attr]
 
-        for propobj in (boss, boss_location):
+        for propobj in (boss, location):
             for attr in propobj._fields:
                 if attr == 'name':
                     continue
@@ -4230,8 +4269,12 @@ class OpenNPCGenerator:
             parameters['reward_event'] = parameters['reward1_event']
             patch_with_template('boss_npc', parameters)
 
+        return location, boss, reward1_tuple, reward2_tuple
+
 
 def set_new_leader_for_events(new_character_index, old_character_index=0):
+    EXEMPT_EVENTS = {'02-B-01', '04-B-02', '1C-B-03', '2C-B-04',
+                     '45-B-02', '7A-B-01', 'A6-B-03', '02-B-02'}
     command_replace_dict = {
         0x33: [1],
         0x86: [0],
@@ -4240,6 +4283,8 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
     for meo in MapEventObject.every:
         for el in meo.event_lists:
             for script in el.scripts:
+                if script.signature in EXEMPT_EVENTS:
+                    continue
                 new_script = []
                 for line_number, opcode, parameters in script.script:
                     if opcode in command_replace_dict:
@@ -4273,9 +4318,13 @@ def make_open_world():
     ir.assignments['daos_shrine'] = 'victory'
     print(ir.report)
 
+    assigned_item_indexes = {}
     name = ir.assignments['starting_item']
     starting_item = OpenNPCGenerator.get_properties_by_name(name)
+    index = int(starting_item.item_index, 0x10)
+    assigned_item_indexes['starting_item'] = index
     starting_item = OpenNPCGenerator.set_appropriate_item_icon(starting_item)
+
     name = ir.assignments['starting_character']
     starting_character = OpenNPCGenerator.get_properties_by_name(name)
     starting_item_reward_event = OpenNPCGenerator.REWARD_EVENT_ITEM
@@ -4283,6 +4332,21 @@ def make_open_world():
     item_acquire_opcode = '21' if item_index >= 0x100 else '20'
     item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
             item_acquire_opcode, item_index & 0xFF)
+    final_boss_flag = OpenNPCGenerator.available_flags.pop()
+    iris_ending_flag = OpenNPCGenerator.available_flags.pop()
+    ending_npcs = [0x50, 0x51, 0x52]
+    random.shuffle(ending_npcs)
+    a, b, c = ending_npcs
+    male_titles = {'Czar', 'Duke', 'Emperor', 'King', 'Lord', 'Master'}
+    female_titles = {'Czarina', 'Duchess', 'Empress',
+                     'Queen', 'Lady', 'Mistress'}
+    unisex_titles = {'Sovereign'}
+    if starting_character.name in {'selan', 'tia'}:
+        candidates = female_titles | unisex_titles
+    else:
+        assert starting_character.name in {'maxim', 'guy', 'dekar'}
+        candidates = male_titles | unisex_titles
+    ending_title = random.choice(sorted(candidates))
     parameters = {
         'reward_id': '',
         'item_icon_code': starting_item.item_icon_code,
@@ -4290,12 +4354,17 @@ def make_open_world():
         'item_acquire_opcode': item_acquire_opcode,
         'starting_character_index': starting_character.character_index,
         'starting_item_reward_event': starting_item_reward_event,
+        'final_boss_flag': final_boss_flag,
+        'iris_ending_flag': iris_ending_flag,
+        'ending_npc_a': a,
+        'ending_npc_b': b,
+        'ending_npc_c': c,
+        'ending_title': ending_title,
         }
     OverSpriteObject.become_character(
         int(starting_character.character_index, 0x10))
 
     OpenNPCGenerator.create_karlloon_elf_girl(parameters)
-    patch_with_template('opening', parameters)
 
     MapEventObject.class_reseed('boss_route1')
     sorted_locations = []
@@ -4374,8 +4443,29 @@ def make_open_world():
         if key in ir.assignments:
             reward2 = ir.assignments[key]
         assert reward1 or reward2
-        OpenNPCGenerator.create_boss_npc(location, boss, reward1, reward2)
+        location, boss, reward1, reward2 = OpenNPCGenerator.create_boss_npc(
+            location, boss, reward1, reward2, parameters)
+        for reward in reward1, reward2:
+            if hasattr(reward, 'item_index'):
+                assigned_item_indexes[location.name] = int(reward.item_index,
+                                                           0x10)
+        if location.name == 'daos_shrine':
+            parameters['final_boss_sprite_index'] = boss.sprite_index_before
 
+    conflict_chests = [c for c in ChestObject.every
+                       if c.item_index in assigned_item_indexes.values()]
+    CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
+                      0x1a1, 0x1a2, 0x1a3, 0x1a4, 0x1a5,
+                      0x1c2, 0x1c5]
+    FILLER_ITEM = 0x2b
+    conflict_items = sorted(CONFLICT_ITEMS)
+    while len(conflict_items) < len(conflict_chests):
+        conflict_items.append(FILLER_ITEM)
+    random.shuffle(conflict_items)
+    for chest, item in zip(conflict_chests, conflict_items):
+        chest.set_item(item)
+
+    patch_with_template('opening', parameters)
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
     write_patch(get_outfile(), 'patch_maximless_boat_fix.txt')
@@ -4429,7 +4519,6 @@ if __name__ == '__main__':
             print('NOTHING PERSONNEL KID.')
 
         patch_events()
-
         patch_events('max_world_clock')
         patch_events('max_world_clock_manual')
         patch_events('open_world_base')

@@ -28,7 +28,7 @@ if __name__ == '__main__':
         meo.preprocess()
 
     if mode == 'import':
-        patch_events(script_dump)
+        patch_events(script_dump, warn_double_import=True)
         MapEventObject.write_all(outfile)
         MapMetaObject.write_all(outfile)
         backup_name = '{0}.backup'.format(sourcefile)

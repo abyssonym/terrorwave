@@ -38,7 +38,7 @@
 2e  1           Character Disappears
 30  1,1         Teleport Character
 31  1,1         Change Facing
-32  1,1         Character Stands Still?
+32  1,1         Change NPC wander behavior (misc byte)
 33  1,1         Move Character to Location
 34  1,1         Change Character Sprite
 35  1,1,1       Move roaming NPC
@@ -50,7 +50,7 @@
 3d  1           Hide Behind Maxim
 40  0
 42  0           DUPLICATE - 00 End Event
-41  1,1
+41  1,1         Camera related (follow for X steps?)
 43  1,1         Overwrite Map Tiles
 45  1,1,1
 47  1           Thinking On/Off
@@ -118,8 +118,8 @@
 8c  1,1,1       (related to item acquisition sprite)
 8d  1,1,1,1,1,1 Play Wave-Warping Animation
 8e  1,1,1
-8f  1,1,1
-90  1,1,1
+8f  1,1,1       Wave motion up-down
+90  1,1,1       Wave motion right-left
 91  1,1
 92  1
 94  1,1,1
@@ -131,7 +131,7 @@
 9c  1,1,1
 9d  1
 9e  text
-9f  1,1,1
+9f  1,1,1       Wave motion shrink
 a0  1,1,1,1,1,1
 a1  1,1
 a2  1

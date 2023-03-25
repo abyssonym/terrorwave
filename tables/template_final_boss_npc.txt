@@ -1,6 +1,7 @@
 !npc {{npc_index}} (00) {{map_index}}:{{npc_x}},{{npc_y}}
 
 EVENT {{map_index}}-X-XX
+    0010. 15({{final_boss_flag}}-@{{old_event_start}})
     0020. 68({{npc_event_index}}-{{sprite_index_before}})
     {{old_event}}
 
@@ -11,28 +12,18 @@ EVENT {{map_index}}-C-{{npc_event_index}}
     0020. 08: No.
               Yes.<CHOICE>
     0030. 1C(@7FFF)
-    1020. 4B(1B)
+    1020. 4B({{battle_bgm}})
     1030. 74({{battle_bg}})
     1040. 53({{boss_formation_index}})
-    1050. 6A(FF-@1090)
+    1050. 6A(FF-@1080)
     1060. A5()
     1070. 00()
-    #0080. 1A({{boss_flag}})
+    1080. 1A({{final_boss_flag}})
     1090. 70()
-    #1100. A4()
-    1100. 59(11)
+    1100. A4()
     1110. 76()
     1160. A3({{npc_event_index}}-85)
     1170. 37(30)
-    1180. 34({{npc_event_index}}-{{sprite_index_after}})
-    1190. A3({{npc_event_index}}-86)
-    1200. 37(30)
-    1300. 4B(34)
-    1310. 49(FA)
-    1320. 9E: <UNKNOWN 05>Congratulations!!<END MESSAGE>
-    1330. 58(18)
-    1340. 57()
-    1350. 4B(28)
-    1360. 5B(05-00)
-    1370. BB()
+    1180. 2E({{npc_event_index}})
+    4000. 4B({{map_bgm}})
     7FFF. 00()

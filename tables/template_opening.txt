@@ -18,6 +18,27 @@ EVENT 03-B-02
 1040. 16(A2-0A-04)
 1050. 00()
 
+EVENT 0E-X-XX
+0000. 69(08)
+0002. 69(98)
+0004. 4B(14)                         # Preload Music
+0006. 68(50-0D)                      # Load NPC (0f,16) 50: 0d Yellow Woman
+000C. 00()                           # End Event
+
+EVENT 0E-D-01
+0000. 00()
+
+EVENT 27-X-XX  # $3964a:3964a
+0000. 74(12)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(17)                         # Preload Music
+0008. 7B(50-89)                      # Load Monster NPC (16,20) 50: 89 Spider
+000B. 7B(51-98)                      # Load Monster NPC (14,0f) 51: 98 Hornet
+000E. 7B(52-8F)                      # Load Monster NPC (28,09) 52: 8f Bat
+0011. 7B(53-98)                      # Load Monster NPC (28,1a) 53: 98 Hornet
+001E. 00()                           # End Event
+
 !exit +1 (F1) 42:0a,0c->43:08,15
 !tile 0a 42:0a,0c
 EVENT 42-D-0A
@@ -63,6 +84,176 @@ EVENT 44-C-50
 
 EVENT 44-D-01
 0000. 00()
+
+EVENT 49-X-XX
+0000. 74(09)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(08)                         # Preload Music
+0008. 7B(50-E4)                      # Load Monster NPC (05,16) 50: e4 Sand Golem
+000B. 7B(51-90)                      # Load Monster NPC (0c,1b) 51: 90 Sword
+000E. 7B(52-9E)                      # Load Monster NPC (0b,17) 52: 9e Lizardman
+0011. 7B(53-A5)                      # Load Monster NPC (05,09) 53: a5 Hobgoblin
+001E. 68(55-70)                      # Load NPC (13,05) 55: 70 Nothing
+0021. 00()                           # End Event
+
+!npc 1e (00) 69:02,10
+EVENT 69-X-XX  # $39d83:39d83
+0000. 69(08)
+0002. 69(98)
+1000. 14(C2-019C-0001-40-C8-30-@1800-FF)
+1010. 14(C2-019D-0001-40-C9-30-@1800-FF)
+1020. 14(C2-019E-0001-40-CA-30-@1800-FF)
+1030. 14(C2-019F-0001-40-CB-30-@1800-FF)
+1040. 14(C2-01A0-0001-40-CC-30-@1800-FF)
+1050. 14(C2-01A1-0001-40-CD-30-@1800-FF)
+1060. 14(C2-01A2-0001-40-CE-30-@1800-FF)
+1070. 14(C2-01A3-0001-40-CF-30-@1800-FF)
+1080. 14(C2-01A4-0001-40-D0-30-@1800-FF)
+1090. 14(C2-01A5-0001-40-D1-30-@1800-FF)
+1700. 4B(09)
+1710. 1C(@2006)
+1800. 4B(15)
+2006. 68(50-0E)                      # Load NPC (14,1c) 50: 0e Yellow Middle Man
+2009. 68(51-32)                      # Load NPC (06,1b) 51: 32 Priest
+200C. 68(52-0E)                      # Load NPC (14,0e) 52: 0e Yellow Middle Man
+200F. 68(53-0E)                      # Load NPC (04,04) 53: 0e Yellow Middle Man
+2012. 68(54-0C)                      # Load NPC (0a,05) 54: 0c Blue Man
+2015. 68(55-0E)                      # Load NPC (16,04) 55: 0e Yellow Middle Man
+2018. 68(56-1C)                      # Load NPC (12,07) 56: 1c Brown Woman
+201B. 68(57-10)                      # Load NPC (13,06) 57: 10 Bald Old Man
+201E. 68(58-0D)                      # Load NPC (17,07) 58: 0d Yellow Woman
+2021. 68(59-1C)                      # Load NPC (05,11) 59: 1c Brown Woman
+2024. 68(5A-0F)                      # Load NPC (20,12) 5a: 0f Green Middle Woman
+2027. 68(5B-1A)                      # Load NPC (1f,05) 5b: 1a Sailor
+202A. 68(5C-F1)                      # Load NPC (0b,11) 5c: f1 Sword
+202D. 68(5D-F2)                      # Load NPC (0a,11) 5d: f2 Shield
+2030. 68(5E-F3)                      # Load NPC (09,11) 5e: f3 Helm
+2033. 68(5F-F4)                      # Load NPC (08,11) 5f: f4 Armor
+2036. 68(60-F5)                      # Load NPC (07,11) 60: f5 Ring
+2039. 68(61-F6)                      # Load NPC (0b,14) 61: f6 Gemstone
+203C. 68(62-F7)                      # Load NPC (0a,14) 62: f7 Rod
+203F. 68(63-F8)                      # Load NPC (09,14) 63: f8 Vase
+2042. 68(64-F9)                      # Load NPC (08,14) 64: f9 Circlet
+2045. 68(65-94)                      # Load NPC (07,14) 65: 94 Jelly
+3000. 68(6D-6D)
+7FFF. 00()                           # End Event
+
+EVENT 69-A-02
+0000. 21(9C-01)
+0001. 21(9D-01)
+0002. 21(9E-01)
+0003. 21(9F-01)
+0004. 21(A0-01)
+0005. 21(A1-01)
+0006. 21(A2-01)
+0007. 21(A3-01)
+0008. 21(A4-01)
+0009. 21(A5-01)
+1000. 14(C2-019C-0001-30-@1020-FF)
+1010. 1A(C8)
+1020. 14(C2-019D-0001-30-@1040-FF)
+1030. 1A(C9)
+1040. 14(C2-019E-0001-30-@1060-FF)
+1050. 1A(CA)
+1060. 14(C2-019F-0001-30-@1080-FF)
+1070. 1A(CB)
+1080. 14(C2-01A0-0001-30-@10a0-FF)
+1090. 1A(CC)
+10a0. 14(C2-01A1-0001-30-@10c0-FF)
+10b0. 1A(CD)
+10c0. 14(C2-01A2-0001-30-@10e0-FF)
+10d0. 1A(CE)
+10e0. 14(C2-01A3-0001-30-@1100-FF)
+10f0. 1A(CF)
+1100. 14(C2-01A4-0001-30-@1120-FF)
+1110. 1A(D0)
+1120. 14(C2-01A5-0001-30-@1140-FF)
+1130. 1A(D1)
+1140. 2E(53)
+7FFF. 00()
+
+EVENT 69-C-53
+0000. 08: Oh, sorry, I'll move
+          out of your way.<END MESSAGE>
+0010. A3(53-85)
+0020. 37(10)
+0030. 2E(53)
+0040. 00()
+
+EVENT 69-C-6D
+0000. 14(12-0E-0A-20-@2000-FF)
+1000. 08: Hark, traveler, do you
+          tire of all the fighting?
+          There exists another
+          path to victory.<END MESSAGE>
+1010. 08: Gather all ten Iris
+          treasures hither this
+          hallowed tea shop
+          basement.<END MESSAGE>
+1020. 08: Then seek my counsel
+          yet once more, and
+          Doom Island shall
+          be yours.<END MESSAGE>
+1030. 00()
+2000. 08: Hark.<PAUSE 82>.<PAUSE 82>.<PAUSE 82> HARK!!<PAUSE 82>
+          Reunited at last are
+          the Iris treasures of
+          old!<END MESSAGE>
+2010. 08: Now go, adventurer,
+          and seize the prize
+          befitting your long
+          hunt!<END MESSAGE>
+2030. 4C(33)
+2040. 95(FF-00-3C)
+2050. 37(3C)
+2070. 4C(33)
+2080. 37(3C)
+2090. 97()
+2095. 37(1E)
+20a0. 4C(32)
+2100. A3({{starting_character_index}}-9B)
+2110. 1A({{final_boss_flag}})
+2120. 1A({{iris_ending_flag}})
+3010. 6A(01-@3030)
+3020. 2C(00)
+3030. 6A(02-@3050)
+3040. 2C(01)
+3050. 6A(03-@3070)
+3060. 2C(02)
+3070. 6A(04-@3090)
+3080. 2C(03)
+3090. 6A(05-@30B0)
+30A0. 2C(04)
+30B0. 6A(06-@30D0)
+30C0. 2C(05)
+30D0. 6A(07-@30F0)
+30E0. 2C(06)
+30F0. 1A(0A)
+7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
+7FFF. 00()
+
+EVENT 70-X-XX  # $39f36:39f36
+0000. 74(0A)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 4B(05)                         # Preload Music
+0008. 68(50-70)                      # Load NPC (14,04) 50: 70 Nothing
+000B. 7B(51-B0)                      # Load Monster NPC (1f,16) 51: b0 Samurai
+000E. 7B(52-81)                      # Load Monster NPC (1e,22) 52: 81 Snail
+0011. 7B(53-80)                      # Load Monster NPC (1b,27) 53: 80 Octopus
+0014. 7B(54-B0)                      # Load Monster NPC (09,16) 54: b0 Samurai
+0017. 7B(55-81)                      # Load Monster NPC (07,20) 55: 81 Snail
+001A. 7B(56-80)                      # Load Monster NPC (0d,20) 56: 80 Octopus
+0027. 00()                           # End Event
+
+EVENT 7E-X-XX  # $3a106:3a106
+0000. 74(07)                         # Set Battle BG
+0002. 69(01)
+0004. 69(11)
+0006. 69(31)
+0008. 4B(13)                         # Preload Music
+002C. 00()
 
 EVENT 90-A-01  # $5fda5:5fdd6
 0000. 14(C2-01C0-0001-30-@1B-FF)
@@ -196,69 +387,170 @@ EVENT E7-B-62
 0010. 1A(71)
 7FFF. 00()
 
-EVENT EA-D-01
-0000. 9E: <UNKNOWN 06><PAUSE 00>You may not cross.<END MESSAGE>
-0010. 16(E9-0A-01)
-7FFF. 00()
-
 EVENT E9-B-0A
 0000. 59(11)
 0010. 00()
 
-EVENT 0E-X-XX
-0000. 69(08)
-0002. 69(98)
-0004. 4B(14)                         # Preload Music
-0006. 68(50-0D)                      # Load NPC (0f,16) 50: 0d Yellow Woman
-000C. 00()                           # End Event
+!exit 01 (00) ea:0,0->ea:0,0
+!tile 0a ea:10,12
+EVENT EA-A-01
+0000. 15({{final_boss_flag}}-@7FFF)
+1007. 43(02-01)
+7FFF. 00()
 
-EVENT 0E-D-01
-0000. 00()
+EVENT EA-D-01
+0000. 15({{final_boss_flag}}-@7FFF)
+1000. 9E: <UNKNOWN 06><PAUSE 00>You may not cross.<END MESSAGE>
+1010. 16(E9-0A-01)
+7FFF. 00()
 
-EVENT 27-X-XX  # $3964a:3964a
-0000. 74(12)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(17)                         # Preload Music
-0008. 7B(50-89)                      # Load Monster NPC (16,20) 50: 89 Spider
-000B. 7B(51-98)                      # Load Monster NPC (14,0f) 51: 98 Hornet
-000E. 7B(52-8F)                      # Load Monster NPC (28,09) 52: 8f Bat
-0011. 7B(53-98)                      # Load Monster NPC (28,1a) 53: 98 Hornet
-001E. 00()                           # End Event
+EVENT EA-D-0A
+0000. A3({{starting_character_index}}-85)
+1000. 16(EB-0A-07)
+7FFF. 00()
 
-EVENT 49-X-XX
-0000. 74(09)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(08)                         # Preload Music
-0008. 7B(50-E4)                      # Load Monster NPC (05,16) 50: e4 Sand Golem
-000B. 7B(51-90)                      # Load Monster NPC (0c,1b) 51: 90 Sword
-000E. 7B(52-9E)                      # Load Monster NPC (0b,17) 52: 9e Lizardman
-0011. 7B(53-A5)                      # Load Monster NPC (05,09) 53: a5 Hobgoblin
-001E. 68(55-70)                      # Load NPC (13,05) 55: 70 Nothing
-0021. 00()                           # End Event
+#!npc 0f (05) a2:0d,21
+!tile 02 eb:00,00
+!npc 01 (05) eb:0f,1e
+!npc 02 (05) eb:0f,1e
+!npc 03 (05) eb:0f,1e
+!npc 04 (05) eb:0d,0b
+!npc 05 (05) eb:11,0b
+EVENT EB-X-XX
+1000. 68(50-70)
+1010. 68(51-70)
+1020. 68(52-70)
+1030. 6A({{iris_ending_flag}}-@7FFF)
+2000. 68(53-6D)
+2010. 68(54-{{final_boss_sprite_index}})
+7FFF. 00()
 
-EVENT 70-X-XX  # $39f36:39f36
-0000. 74(0A)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(05)                         # Preload Music
-0008. 68(50-70)                      # Load NPC (14,04) 50: 70 Nothing
-000B. 7B(51-B0)                      # Load Monster NPC (1f,16) 51: b0 Samurai
-000E. 7B(52-81)                      # Load Monster NPC (1e,22) 52: 81 Snail
-0011. 7B(53-80)                      # Load Monster NPC (1b,27) 53: 80 Octopus
-0014. 7B(54-B0)                      # Load Monster NPC (09,16) 54: b0 Samurai
-0017. 7B(55-81)                      # Load Monster NPC (07,20) 55: 81 Snail
-001A. 7B(56-80)                      # Load Monster NPC (0d,20) 56: 80 Octopus
-0027. 00()                           # End Event
+EVENT EB-A-01
+7FFF. 00()
 
-EVENT 7E-X-XX  # $3a106:3a106
-0000. 74(07)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 69(31)
-0008. 4B(13)                         # Preload Music
-002C. 00()
+EVENT EB-B-0A
+0000. 3B(07)
+0010. 6A(01-@30)
+0020. 2C(00)
+0030. 6A(02-@50)
+0040. 2C(01)
+0050. 6A(03-@70)
+0060. 2C(02)
+0070. 6A(04-@90)
+0080. 2C(03)
+0090. 6A(05-@B0)
+00A0. 2C(04)
+00B0. 6A(06-@D0)
+00C0. 2C(05)
+00D0. 6A(07-@400)
+00E0. 2C(06)
+0400. 59(11)
+0800. 41(11-12)
+
+1000. 33(06-{{starting_character_index}})
+
+1010. 6A(01-@1030)
+1015. 34({{ending_npc_a}}-00)
+1020. 1B(01)
+1025. 1C(@2010)
+1030. 6A(02-@1050)
+1035. 34({{ending_npc_a}}-01)
+1040. 1B(02)
+1045. 1C(@2010)
+1050. 6A(03-@1070)
+1055. 34({{ending_npc_a}}-02)
+1060. 1B(03)
+1065. 1C(@2010)
+1070. 6A(04-@1090)
+1075. 34({{ending_npc_a}}-03)
+1080. 1B(04)
+1085. 1C(@2010)
+1090. 6A(05-@10B0)
+1095. 34({{ending_npc_a}}-04)
+10A0. 1B(05)
+10A5. 1C(@2010)
+10B0. 6A(06-@10D0)
+10B5. 34({{ending_npc_a}}-05)
+10C0. 1B(06)
+10C5. 1C(@2010)
+10D0. 6A(07-@2010)
+10D5. 34({{ending_npc_a}}-06)
+10E0. 1B(07)
+
+2010. 6A(01-@2030)
+2015. 34({{ending_npc_b}}-00)
+2020. 1B(01)
+2025. 1C(@3010)
+2030. 6A(02-@2050)
+2035. 34({{ending_npc_b}}-01)
+2040. 1B(02)
+2045. 1C(@3010)
+2050. 6A(03-@2070)
+2055. 34({{ending_npc_b}}-02)
+2060. 1B(03)
+2065. 1C(@3010)
+2070. 6A(04-@2090)
+2075. 34({{ending_npc_b}}-03)
+2080. 1B(04)
+2085. 1C(@3010)
+2090. 6A(05-@20B0)
+2095. 34({{ending_npc_b}}-04)
+20A0. 1B(05)
+20A5. 1C(@3010)
+20B0. 6A(06-@20D0)
+20B5. 34({{ending_npc_b}}-05)
+20C0. 1B(06)
+20C5. 1C(@3010)
+20D0. 6A(07-@3010)
+20D5. 34({{ending_npc_b}}-06)
+20E0. 1B(07)
+
+3010. 6A(01-@3030)
+3015. 34({{ending_npc_c}}-00)
+3020. 1B(01)
+3025. 1C(@4010)
+3030. 6A(02-@3050)
+3035. 34({{ending_npc_c}}-01)
+3040. 1B(02)
+3045. 1C(@4010)
+3050. 6A(03-@3070)
+3055. 34({{ending_npc_c}}-02)
+3060. 1B(03)
+3065. 1C(@4010)
+3070. 6A(04-@3090)
+3075. 34({{ending_npc_c}}-03)
+3080. 1B(04)
+3085. 1C(@4010)
+3090. 6A(05-@30B0)
+3095. 34({{ending_npc_c}}-04)
+30A0. 1B(05)
+30A5. 1C(@4010)
+30B0. 6A(06-@30D0)
+30B5. 34({{ending_npc_c}}-05)
+30C0. 1B(06)
+30C5. 1C(@4010)
+30D0. 6A(07-@4010)
+30D5. 34({{ending_npc_c}}-06)
+30E0. 1B(07)
+
+4010. 1A(0A)
+4030. 33(03-51)
+4040. 33(04-52)
+4050. 33(05-50)
+4060. 37(0f)
+4070. 31(50-02)
+4080. 31(51-02)
+4090. 31(52-02)
+
+40A0. 9E: <UNKNOWN 02>Congratulations!!
+          You are the {{ending_title}}
+          of Doom Island!<END MESSAGE>
+40B0. 58(18)
+40C0. 57()
+40D0. 4B(28)
+40E0. 5B(05-00)
+40F0. BB()
+7FFF. 00()
 
 EVENT ED-X-XX  # $3adf5:3adf5
 0000. 69(98)

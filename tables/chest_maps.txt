@@ -1,0 +1,171 @@
+00 06 Escape
+01 06 Antidote
+02 06 Life potion
+03 07 Power potion
+04 07 Dragon egg
+05 07 Magic jar
+06 07 Hide armor
+07 0B Power potion
+08 0B Insect crush
+09 0B Speedy ring
+0A 0B Miracle
+0B 0C Lake key
+0C 11 Bomb
+0D 11 Headband
+0E 11 Water jewel
+0F 12 Escape
+10 12 Coat
+11 13 Secret fruit
+12 13 Dragon egg
+13 13 Miracle
+14 13 Light knife
+15 18 Hi-Potion
+16 18 Eron hat
+17 18 Tuff buckler
+18 19 Horse rock
+19 19 Brave
+1A 19 Miracle
+1B 1A Jet helm
+1C 1A Hi-Potion
+1D 1A Hi-Magic
+1E 1A Power brace
+1F 1A Light armor
+20 1A Witch ring
+21 1B Shrine key
+22 1B Miracle
+23 21 Sky key
+24 23 Jute helmet
+25 24 Fire dagger
+26 24 Camu armor
+27 24 Pearl brace
+28 29 Flame fruit
+29 29 Aqua whip
+2A 29 Fury helmet
+2B 2A Ruby key
+2C 2F Holy wings
+2D 31 Bat rock
+2E 31 Mind ring
+2F 33 Treas. sword
+30 34 Sword key
+31 34 Anger brace
+32 34 Cold rapier
+33 34 Undead ring
+34 34 Round shield
+35 38 Eagle rock
+36 39 Speed potion
+37 39 Muscle ring
+38 3B Wind key
+39 3B Hook
+3A 3B Miracle
+3B 3D Scimitar
+3C 3D Block shield
+3D 41 Regain
+3E 42 Hi-Magic
+3F 47 Thunder ring
+40 48 Deadly sword
+41 48 Thunder ax
+42 49 Life potion
+43 49 Dragon egg
+44 4E Protect ring
+45 4E Pumkin jewel
+46 4E Muscle ring
+47 4F Cloud key
+48 4F Miracle
+49 4F Fayza shield
+4A 54 Magic bikini
+4B 58 Mystery ring
+4C 58 Dragon egg
+4D 58 Big shield
+4E 5A Cancer rock
+4F 5B Light key
+50 5B Bee rock
+51 5B Fire ring
+52 60 Tree key
+53 62 Fire arrow
+54 64 Water ring
+55 6D Narcysus key
+56 6F Ice ring
+57 76 Dekar blade
+58 77 Lion fang
+59 78 Fury ring
+5A 7E Flower key
+5B 7F Hammer
+5C 81 Dragon egg
+5D 81 Flying ax
+5E 81 Power ring
+5F 82 Life potion
+60 82 Snake rock
+61 83 Burn sword
+62 8D Hi-Magic
+63 8D Earth fruit
+64 8E Fury ribbon
+65 8E Dragon egg
+66 8E Figgoru
+67 8E Flame jewel
+68 8F Dankirk key
+69 94 Trial key
+6A 96 Stun gun
+6B 97 Mysto jewel
+6C 97 Samu jewel
+6D A5 Aqua sword
+6E A8 Revive armor
+6F A9 Heart key
+70 AA Dragon egg
+71 AA Holy whip
+72 AB Rocket ring
+73 B0 Heal armor
+74 B1 Evil jewel
+75 B1 Bright armor
+76 B2 Cursed bow
+77 B3 Ghost key
+78 B4 Power robe
+79 B4 Freeze sword
+7A B4 Boom sword
+7B B9 Super sword
+7C BB Song rock
+7D BB Ghost ring
+7E BB Ghostclothes
+7F BC Truth key
+80 C0 Magma key
+81 C1 Gorgon rock
+82 C1 Hipower ring
+83 C1 S-witch ring
+84 C1 Hidora rock
+85 C1 S-myst ring
+86 C1 S-power ring
+87 C1 Miracle
+88 C2 Sonic ring
+89 C2 Lizard blow
+8A C2 Legend helm
+8B C2 Mega shield
+8C C2 Holy robe
+8D C3 Magic scale
+8E C3 S-pro ring
+8F C3 Miracle
+90 C3 S-mind ring
+91 C3 Angry ring
+92 C3 Kraken rock
+93 C7 Miracle
+94 D3 Miracle
+95 D4 Basement key
+96 DD S-thun ring
+97 DD S-water ring
+98 DD S-ice ring
+99 E5 S-fire ring
+9A E7 Miracle
+9B E7 Miracle
+9C E7 Miracle
+9D E7 Miracle
+9E E7 Miracle
+9F E8 Miracle
+A0 E8 Miracle
+A1 E9 Miracle
+A2 E9 Miracle
+A3 EA Miracle
+A4 EA Miracle
+A5 EA Miracle
+A6 EF Secret fruit
+A7 EF Secret fruit
+A8 F0 Light jewel
+A9 F0 Dragon ring
+AA F0 Brill helm
