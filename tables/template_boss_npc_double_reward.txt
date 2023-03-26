@@ -1,4 +1,4 @@
-!npc {{npc_index}} (00) {{map_index}}:{{npc_x}},{{npc_y}}
+!npc {{npc_index}} (05) {{map_index}}:{{npc_x}},{{npc_y}}
 
 EVENT {{map_index}}-X-XX
     0010. 15({{boss_flag}}-@40)
@@ -32,6 +32,7 @@ EVENT {{map_index}}-C-{{npc_event_index}}
     2200. 37(30)
     {{reward2_event}}
     4000. 4B({{map_bgm}})
-    4010. 1C(@7FFF)
+    4010. 1B({{jelly_flag}})
+    4020. 1C(@7FFF)
     {{after_event}}
     7FFF. 00()

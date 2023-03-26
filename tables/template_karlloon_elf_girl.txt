@@ -1,4 +1,4 @@
-!npc 0f (00) 78:07,37
+!npc 0f (05) 78:07,37
 
 EVENT 78-X-XX
 0000. 74(05)                         # Set Battle BG
@@ -33,9 +33,10 @@ EVENT 78-C-5E
 {{karl_second_offer_accept}}
 4800. 08: Great! Pleasure doing
           business with you!<END MESSAGE>
-4810. A3({{starting_character_index}}-85)
-4820. 16(75-0A-01)
-4830. 00()
+4810. 1B({{jelly_flag}})
+4820. A3({{starting_character_index}}-85)
+4830. 16(75-0A-01)
+4840. 00()
 4c00. 08: Fine. Enjoy the rest
           of your life at the
           bottom of the majestic

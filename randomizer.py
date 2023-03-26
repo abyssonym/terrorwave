@@ -378,8 +378,18 @@ class MapFormationsObject(TableObject):
         f.seek(self.formations_pointer)
         self.formation_indexes = list(map(int, f.read(self.num_formations)))
 
+    def write_data(self, filename=None, pointer=None):
+        super().write_data(filename, pointer)
+        if self.num_formations <= 0:
+            return
+        f = get_open_file(get_outfile())
+        f.seek(self.formations_pointer)
+        f.write(bytes(self.formation_indexes))
+
 
 class FormationObject(TableObject):
+    UNUSED_FORMATIONS = [0xA5]
+
     def __repr__(self):
         ss = []
         for i, m in enumerate(self.monsters):
@@ -3878,6 +3888,10 @@ def patch_with_template(template, parameters, warn_double_import=False):
 
     patch_game_script(text, warn_double_import=warn_double_import)
 
+PLAINTEXT_NPC_MATCHER = re.compile(
+    '^\s*# NPC (\S\S) \S(\S\S)\S X:(\S*) Y:(\S*) (?:(\[\S*\]) )?'
+    'PRELOAD (\S\S) [^:]*(?: .FORMATION (\S\S):.*)?$',
+    flags=re.MULTILINE)
 
 class OpenNPCGenerator:
     BOSS_TABLE_FILENAME = path.join(tblpath, 'open_bosses.txt')
@@ -4296,6 +4310,75 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
                 script.script = new_script
 
 
+def make_wild_jelly(jelly_flag):
+    JELLY_SPRITE_INDEX = 0x94
+    JELLY_FORMATIONS = [0x03, 0x07, 0x13]
+    jelly_formation = FormationObject.get(random.choice(JELLY_FORMATIONS))
+    assert 'Jelly' in str(jelly_formation)
+    while True:
+        meo = random.choice(MapEventObject.every)
+        npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
+        candidates = []
+        for (index, misc, x, y, event, sprite, formation) in npcs:
+            if (event or not formation or int(misc, 0x10) != 0
+                    or int(index, 0x10) < 0):
+                continue
+            if '<=' not in x or '<=' not in y:
+                continue
+            if int(sprite, 0x10) == JELLY_SPRITE_INDEX:
+                continue
+            candidates.append((index, x, y))
+        if len(candidates) < 2:
+            continue
+        break
+    index, x, y = random.choice(candidates)
+    index = int(index, 0x10)
+    map_npc_index = 0x4f + index
+    script = meo.event_lists[0].scripts[0]
+    assert '{0:0>2X}-X-XX'.format(meo.index) in str(script)
+    new_script = []
+    for (l, o, p) in script.script:
+        if o == 0x7B and p[0] == map_npc_index:
+            new_script.append((l, 0x1A, [0x0A]))
+        else:
+            new_script.append((l, o, p))
+    new_script.insert(0, (-0x1000, 0x7B, [map_npc_index, JELLY_SPRITE_INDEX]))
+    script.script = new_script
+    script.realign_addresses()
+
+    mfo = MapFormationsObject.get(meo.index)
+    assert index > 0
+    mfo.formation_indexes[index-1] = jelly_formation.index
+    min_x, x, max_x = x.split('<=')
+    min_y, y, max_y = y.split('<=')
+    min_x, max_x, min_y, max_y = [int(c, 0x10)
+                                  for c in (min_x, max_x, min_y, max_y)]
+    min_x, min_y = min_x-2, min_y-2
+    max_x, max_y = max_x+2, max_y+2
+    width = max_x - min_x
+    height = max_y - min_y
+    s = str(meo)
+    for tile_index in range(0x1F, -1, -1):
+        if '# TILE {0:0>2X}'.format(tile_index) in s:
+            continue
+        break
+    else:
+        raise Exception('No space for additional tiles.')
+
+    parameters = {
+        'map_index': meo.index,
+        'npc_index': map_npc_index,
+        'tile_index': tile_index,
+        'x': min_x,
+        'y': min_y,
+        'width': width,
+        'height': height,
+        'jelly_flag': jelly_flag,
+        'map_bgm': 0x1F,
+        }
+    patch_with_template('boss_jelly', parameters)
+
+
 def make_open_world():
     for clo in CharLevelObject.every:
         clo.level = 1
@@ -4334,6 +4417,7 @@ def make_open_world():
             item_acquire_opcode, item_index & 0xFF)
     final_boss_flag = OpenNPCGenerator.available_flags.pop()
     iris_ending_flag = OpenNPCGenerator.available_flags.pop()
+    jelly_flag = OpenNPCGenerator.available_flags.pop()
     ending_npcs = [0x50, 0x51, 0x52]
     random.shuffle(ending_npcs)
     a, b, c = ending_npcs
@@ -4360,6 +4444,7 @@ def make_open_world():
         'ending_npc_b': b,
         'ending_npc_c': c,
         'ending_title': ending_title,
+        'jelly_flag': jelly_flag,
         }
     OverSpriteObject.become_character(
         int(starting_character.character_index, 0x10))
@@ -4431,7 +4516,15 @@ def make_open_world():
                                    random_degree=MapEventObject.random_degree)
 
     assert len(sorted_bosses) == len(sorted_locations)
-    for location, boss in zip(sorted_locations, sorted_bosses):
+    location_bosses = {l: b for (l, b) in zip(sorted_locations, sorted_bosses)}
+    final_boss = location_bosses['daos_shrine']
+    parameters['final_boss_sprite_index'] = final_boss.guess_sprite()
+
+    # Apply base patches BEFORE procedural modifications
+    patch_with_template('opening', parameters)
+
+    assert len(sorted_bosses) == len(sorted_locations)
+    for location, boss in sorted(location_bosses.items()):
         reward1, reward2 = None, None
         if location in ir.assignments:
             reward1 = ir.assignments[location]
@@ -4449,13 +4542,10 @@ def make_open_world():
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes[location.name] = int(reward.item_index,
                                                            0x10)
-        if location.name == 'daos_shrine':
-            parameters['final_boss_sprite_index'] = boss.sprite_index_before
-
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes.values()]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
-                      0x1a1, 0x1a2, 0x1a3, 0x1a4, 0x1a5,
+                      0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
     FILLER_ITEM = 0x2b
     conflict_items = sorted(CONFLICT_ITEMS)
@@ -4465,7 +4555,8 @@ def make_open_world():
     for chest, item in zip(conflict_chests, conflict_items):
         chest.set_item(item)
 
-    patch_with_template('opening', parameters)
+    make_wild_jelly(jelly_flag)
+
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
     write_patch(get_outfile(), 'patch_maximless_boat_fix.txt')
