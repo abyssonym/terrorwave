@@ -4632,6 +4632,10 @@ def make_open_world():
     for rno in RoamingNPCObject.every:
         rno.map_index = 0xff
 
+    final_gades = BossFormationObject.get(0x21)
+    dummied_gades = 0xde
+    final_gades.monster_indexes = [dummied_gades, 0xff, 0xff, 0xff, 0xff, 0xff]
+
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
@@ -4812,6 +4816,10 @@ def make_open_world():
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
+    #OpenNPCGenerator.create_boss_npc('test_location', 'gades4',
+    #                                 reward1='engine', reward2='lisa',
+    #                                 parameters=parameters)
+
 
 def dump_events(filename):
     s = ''
@@ -4864,8 +4872,6 @@ if __name__ == '__main__':
         MapEventObject.roaming_comments = set()
 
         make_open_world()
-        #OpenNPCGenerator.create_boss_npc('test_location', 'daos',
-        #                                 reward1='engine', reward2='lisa')
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:
