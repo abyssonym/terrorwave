@@ -403,6 +403,9 @@ class FormationObject(TableObject):
         return [MonsterObject.get(index) if index < 0xFF else None
                 for index in self.monster_indexes]
 
+    def preprocess(self):
+        self.monsters
+
 class BossFormationObject(TableObject):
     GROUND_LEVEL = 0x68
     CENTER_LINE = 0xa0
@@ -464,9 +467,12 @@ class BossFormationObject(TableObject):
         assert len(uniques) == len(pointers)
         return uniques
 
+    @property
+    def boss(self):
+        return max(self.monsters, key=lambda m: (m.rank, m.index))
+
     def guess_sprite(self):
-        return max(self.monsters,
-                   key=lambda m: (m.rank, m.index)).guess_sprite()
+        return self.boss.guess_sprite()
 
     def guess_bgm(self):
         return 0x19
@@ -702,6 +708,10 @@ class ChestObject(TableObject):
     @property
     def item(self):
         return ItemObject.get(self.item_index)
+
+    @property
+    def old_item(self):
+        return ItemObject.get(self.old_item_index)
 
     @staticmethod
     def get_chests_by_map_index(map_index):
@@ -2230,6 +2240,25 @@ class MapEventObject(TableObject):
 
     roaming_comments = set()
 
+    ZONES_FILENAME = 'zones.txt'
+    zone_maps = {}
+    zone_names = {}
+    reverse_zone_map = {}
+    for line in read_lines_nocomment(path.join(tblpath, ZONES_FILENAME)):
+        line = line.split(' ')
+        zone = line[0]
+        zone_name = ' '.join(line[1:]).strip()
+        zone_index, map_indexes = zone.split(':')
+        zone_index = int(zone_index, 0x10)
+        map_indexes = [int(m, 0x10) for m in map_indexes.split(',')]
+        assert zone_index not in zone_maps
+        assert zone_index not in zone_names
+        zone_maps[zone_index] = map_indexes
+        zone_names[zone_index] = zone_name
+        for m in map_indexes:
+            assert m not in reverse_zone_map
+            reverse_zone_map[m] = zone_index
+
     class EventList:
         def __init__(self, pointer, meo):
             self.pointer = pointer
@@ -2971,8 +3000,8 @@ class MapEventObject(TableObject):
                     if prevno is not None and prevno >= line_number:
                         print(text)
                         raise Exception(
-                            'SCRIPT {0:x} ERROR: Lines out of order.'.format(
-                                self.script_pointer))
+                            'SCRIPT {0} {1:x} ERR: Lines out of order.'.format(
+                                self.signature, self.script_pointer))
                     lines.append((line_number, match.group(2)))
                     seen_line_numbers.add(line_number)
                 else:
@@ -3393,11 +3422,36 @@ class MapEventObject(TableObject):
         assert len(candidates) == 1
         return candidates[0]
 
+    @staticmethod
+    def get_script_by_signature(signature):
+        meo_index, el_index, script_index = signature.split('-')
+        meo = MapEventObject.get(int(meo_index, 0x10))
+        el = meo.get_eventlist_by_index(el_index)
+        script = el.get_script_by_index(int(script_index, 0x10))
+        return script
+
     @property
     def event_pointers(self):
         listed_event_pointers = [p for (pointer, elist) in self.event_lists
                                  for (i, p) in elist]
         return listed_event_pointers
+
+    @property
+    def zone_name(self):
+        return self.zone_names[self.zone_index]
+
+    @property
+    def zone_index(self):
+        if self.index in self.reverse_zone_map:
+            return self.reverse_zone_map[self.index]
+        return None
+
+    @property
+    def neighbors(self):
+        if self.zone_index is None:
+            return [self]
+        return [MapEventObject.get(m)
+                for m in sorted(self.zone_maps[self.zone_index])]
 
     @classmethod
     def deallocate(self, to_deallocate):
@@ -3639,6 +3693,7 @@ class MapEventObject(TableObject):
         assert not hasattr(self, 'event_associations')
         for el in self.event_lists:
             el.read_scripts()
+        self.old_pretty = str(self)
 
     @classmethod
     def full_cleanup(self):
@@ -3889,7 +3944,7 @@ def patch_with_template(template, parameters, warn_double_import=False):
     patch_game_script(text, warn_double_import=warn_double_import)
 
 PLAINTEXT_NPC_MATCHER = re.compile(
-    '^\s*# NPC (\S\S) \S(\S\S)\S X:(\S*) Y:(\S*) (?:(\[\S*\]) )?'
+    '^\s*# NPC (\S\S) \S(\S\S)\S X:(\S*) Y:(\S*) (?:\[(\S*)\] )?'
     'PRELOAD (\S\S) [^:]*(?: .FORMATION (\S\S):.*)?$',
     flags=re.MULTILINE)
 
@@ -4283,7 +4338,9 @@ class OpenNPCGenerator:
             parameters['reward_event'] = parameters['reward1_event']
             patch_with_template('boss_npc', parameters)
 
-        return location, boss, reward1_tuple, reward2_tuple
+        npc_event_index = int(parameters['npc_event_index'], 0x10)
+        signature = '{0:0>2X}-C-{1:0>2X}'.format(map_index, npc_event_index)
+        return location, boss, reward1_tuple, reward2_tuple, signature
 
 
 def set_new_leader_for_events(new_character_index, old_character_index=0):
@@ -4371,12 +4428,195 @@ def make_wild_jelly(jelly_flag):
         'tile_index': tile_index,
         'x': min_x,
         'y': min_y,
-        'width': width,
-        'height': height,
+        'width': str(width),
+        'height': str(height),
         'jelly_flag': jelly_flag,
         'map_bgm': 0x1F,
         }
     patch_with_template('boss_jelly', parameters)
+    return meo.index
+
+
+def generate_hints(boss_events, blue_chests, wild_jelly_map):
+    hint_npcs = []
+    for meo in MapEventObject.every:
+        npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
+        for (index, misc, x, y, event, sprite, formation) in npcs:
+            if formation or '-C-' not in event or int(misc, 0x10) != 0:
+                continue
+            if '<=' not in x or '<=' not in y:
+                continue
+            script = MapEventObject.get_script_by_signature(event)
+            opcodes = {o for (l, o, p) in script.script}
+            if 8 in opcodes and opcodes <= {0, 8} and event in meo.old_pretty:
+                hint_npcs.append(event)
+
+    boss_matcher = re.compile('\. 53\((..)\) ')
+    bg_matcher = re.compile('\. 74\((..)\) ')
+    formation_matcher = re.compile('#.*\(FORMATION (..): ')
+    chest_matcher = re.compile('# CHEST (..): ')
+    getitem_matcher = re.compile('\. 2([01])\((..)-01\) ')
+    character_matcher = re.compile('\. 2B\((..)\) ')
+    capsule_matcher = re.compile('\. 81\((..)\) ')
+    maiden_matcher = re.compile('My name is (\S*)\.')
+
+    hint_topics = (boss_events * 4) + blue_chests + [wild_jelly_map]
+    for npc in hint_npcs:
+        hint_topic = random.choice(hint_topics)
+        hint_target = None
+        event_boss = None
+        if hint_topic in boss_events:
+            map_index, _, _ = hint_topic.split('-')
+            map_index = int(map_index, 0x10)
+            script = MapEventObject.get_script_by_signature(hint_topic).pretty
+            event_boss = boss_matcher.findall(script)
+            assert len(event_boss) == 1
+            event_boss = BossFormationObject.get(int(event_boss[0], 0x10))
+            event_boss = event_boss.boss.name
+            items = getitem_matcher.findall(script)
+            items = [''.join((x, y)) for (x, y) in items]
+            items = [ItemObject.get(int(i, 0x10)).name for i in items]
+            characters = character_matcher.findall(script)
+            characters = [CharacterObject.get(int(c, 0x10)).name
+                          for c in characters]
+            capsules = capsule_matcher.findall(script)
+            capsules = [int(c, 0x10) for c in capsules]
+            capsules = sorted([
+                c.capsule_display_name
+                for c in OpenNPCGenerator.reward_capsule_properties.values()
+                if int(c.capsule_index, 0x10) in capsules])
+            maidens = maiden_matcher.findall(script)
+            hint_targets = (items + characters + capsules + maidens)
+            hint_targets = (hint_targets * 2) + [event_boss]
+            hint_target = random.choice(hint_targets)
+            if hint_target in items:
+                hint_target = 'The {0}'.format(hint_target)
+            elif hint_target in capsules:
+                assert hint_target[0] == '{'
+                if hint_target[1] in 'AEIOU':
+                    hint_target = 'An {0}'.format(hint_target)
+                else:
+                    hint_target = 'A {0}'.format(hint_target)
+
+        elif hint_topic in blue_chests:
+            map_index = hint_topic.map_index
+            if 'Dragon egg' in hint_topic.item.name:
+                hint_target = 'A dragon egg'
+            else:
+                hint_target = 'The {0}'.format(hint_topic.item.name)
+
+        else:
+            assert hint_topic == wild_jelly_map
+            map_index = wild_jelly_map
+            hint_target = "The Master Jelly"
+
+        meo = MapEventObject.get(map_index)
+        zone_maps = meo.neighbors
+        old_zone_text = '\n\n'.join([m.old_pretty for m in zone_maps])
+        new_zone_text = '\n\n'.join([str(m) for m in zone_maps])
+        bgs = bg_matcher.findall(old_zone_text)
+        formations = formation_matcher.findall(old_zone_text)
+        monsters = [m for f in formations
+                    for m in FormationObject.get(int(f, 0x10)).monsters]
+        monsters = [m for m in monsters if m is not None]
+        chests = chest_matcher.findall(old_zone_text)
+        chest_items = [ChestObject.get(int(c, 0x10)).old_item for c in chests]
+        chest_items = [i for i in chest_items if i.rank > 0]
+        bosses = boss_matcher.findall(new_zone_text)
+        bosses = [BossFormationObject.get(int(b, 0x10)) for b in bosses]
+        if len(bosses) != 1:
+            bosses = [b for b in bosses if 'Master x1' not in str(b)]
+        if len(bosses) != 1:
+            bosses = None
+
+        candidates = []
+        if bgs:
+            candidates.append('bg')
+        if monsters:
+            candidates.append('monsters')
+        else:
+            candidates.append(None)
+        if chests:
+            candidates.append('chests')
+        candidates = candidates * 2
+        if bosses and hint_target != event_boss:
+            candidates.append('bosses')
+        hint_type = random.choice(candidates)
+
+        location_hint = None
+        if hint_type == 'bg':
+            bg_hints = {
+                0x01: 'in or near a mountain',
+                0x02: 'in a tower',
+                0x04: 'in a grassy area',
+                0x05: 'in a shrine',
+                0x07: 'in or near a mountain',
+                0x08: 'in the sky',
+                0x09: 'in a dungeon',
+                0x0a: 'in a tower',
+                0x0b: 'in or near a cave',
+                0x0c: 'in or near a cave',
+                0x0d: 'in or near a cave',
+                0x0e: 'in a wet place',
+                0x0f: 'in a wet place',
+                0x10: 'in or near a cave',
+                0x11: 'in or near a cave',
+                0x12: 'in a hot place',
+                0x13: 'in a hot place',
+                0x14: 'in a hot place',
+                0x15: 'in a tower',
+                0x16: 'in a castle',
+                }
+            bg = int(random.choice(bgs), 0x10)
+            if bg not in bg_hints:
+                location_hint = 'somewhere strange'
+            else:
+                location_hint = bg_hints[bg]
+
+        elif hint_type == 'monsters':
+            m = random.choice(monsters)
+            name = m.name
+            if name[-1] in 'sxz' or name.endswith('sh') or name.endswith('ch'):
+                name += 'e'
+            location_hint = 'in a place where {0}s dwell'.format(name)
+
+        elif hint_type == 'chests':
+            c = random.choice(chest_items)
+            word = c.name
+            if word[0].lower() in 'aeiou':
+                word = 'an {0}'.format(word)
+            else:
+                word = 'a {0}'.format(word)
+            location_hint = 'in a place where you might find {0} in a chest'
+            location_hint = location_hint.format(word)
+
+        elif hint_type == 'bosses':
+            assert len(bosses) == 1
+            b = bosses[0]
+            location_hint = 'guarded by {0}'.format(b.boss.name)
+
+        elif hint_type is None:
+            location_hint = 'in a secluded location'
+
+        else:
+            location_hint = 'somewhere strange'
+
+        hint = '{0} is {1}.'.format(hint_target, location_hint)
+        MINIMUM_LINE_LENGTH = 10
+        target_line_length = len(hint) / 4
+        target_line_length = max(target_line_length, MINIMUM_LINE_LENGTH)
+        message = ''
+        for word in hint.split(' '):
+            message = '{0} {1}'.format(message, word).lstrip()
+            message = message.replace('\n ', '\n')
+            prev_line_length = len(message.split('\n')[-1])
+            if prev_line_length > target_line_length:
+                message += '\n'
+        message = message.strip()
+        assert message.count('\n') <= 3
+        npc_script = ('EVENT {0}\n'
+                      '0000. 08: {1}<END EVENT>').format(npc, message)
+        patch_game_script(npc_script, warn_double_import=False)
 
 
 def make_open_world():
@@ -4523,6 +4763,7 @@ def make_open_world():
     # Apply base patches BEFORE procedural modifications
     patch_with_template('opening', parameters)
 
+    boss_events = []
     assert len(sorted_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
         reward1, reward2 = None, None
@@ -4536,8 +4777,10 @@ def make_open_world():
         if key in ir.assignments:
             reward2 = ir.assignments[key]
         assert reward1 or reward2
-        location, boss, reward1, reward2 = OpenNPCGenerator.create_boss_npc(
-            location, boss, reward1, reward2, parameters)
+        result = OpenNPCGenerator.create_boss_npc(location, boss,
+                                                  reward1, reward2, parameters)
+        location, boss, reward1, reward2, event = result
+        boss_events.append(event)
         for reward in reward1, reward2:
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes[location.name] = int(reward.item_index,
@@ -4555,7 +4798,8 @@ def make_open_world():
     for chest, item in zip(conflict_chests, conflict_items):
         chest.set_item(item)
 
-    make_wild_jelly(jelly_flag)
+    wild_jelly_map = make_wild_jelly(jelly_flag)
+    generate_hints(boss_events, conflict_chests, wild_jelly_map)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
