@@ -1,5 +1,5 @@
 .def keys sky_key,lake_key,ruby_key,wind_key,cloud_key,light_key,sword_key,tree_key,flower_key,magma_key,ghost_key,dankirk_key,basement_key,narcysus_key,truth_key
-.def characters maxim,tia,guy,selan,dekar,lexis,arty
+.def characters maxim,tia,guy,selan,dekar,lexis,artea
 .def capsules jelze,flash,gusto,zeppy,darbi,sully,blaze
 
 starting_character  tia,guy,selan,dekar

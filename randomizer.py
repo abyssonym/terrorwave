@@ -4650,6 +4650,10 @@ def make_open_world():
 
     name = ir.assignments['starting_character']
     starting_character = OpenNPCGenerator.get_properties_by_name(name)
+    dual_blade = ItemObject.get(0x36)
+    dual_blade.equipability = 0
+    dual_blade.set_bit(starting_character.name, True)
+
     starting_item_reward_event = OpenNPCGenerator.REWARD_EVENT_ITEM
     item_index = int(starting_item.item_index, 0x10)
     item_acquire_opcode = '21' if item_index >= 0x100 else '20'
