@@ -2369,13 +2369,12 @@ class MapEventObject(TableObject):
                 (len(self.scripts)*3) + 1, near=self.meo.eventlists_pointer)
             f.seek(self.pointer)
             for i, script in enumerate(self.scripts):
-                if script.index == 0 and not hasattr(self.meo,
-                                                     'assigned_zero'):
-                    self.meo.assigned_zero = self.pointer + (i*3)
-
                 data = script.compile(optimize=True, ignore_pointers=True)
                 assert data[-1] == 0
                 if data[0] == 0:
+                    if not hasattr(self.meo, 'assigned_zero'):
+                        self.meo.assigned_zero = self.pointer + (i*3)
+
                     assert hasattr(self.meo, 'assigned_zero')
                     if (DEBUG_MODE and
                             self.meo.assigned_zero != self.pointer + (i*3)):
@@ -2680,7 +2679,7 @@ class MapEventObject(TableObject):
                         comment = '{0} ({1}: {2})'.format(
                             comment, character.name, spell.name)
                     elif opcode == 0x16:
-                        event = '{0:0>2X}-B-{1:0>2X} ({2:0>2X})'.format(
+                        event = '[{0:0>2X}-B-{1:0>2X}] ({2:0>2X})'.format(
                             *parameters)
                         comment = '{0} {1}'.format(comment, event)
                     elif opcode == 0x35:
@@ -2801,7 +2800,7 @@ class MapEventObject(TableObject):
                 text.append(('POSITION', position))
             elif opcode == 0x9e:
                 unknown, data = data[:1], data[1:]
-                text.append(('UNKNOWN', unknown))
+                text.append(('POSITION', unknown))
             text.append((None, b''))
 
             while True:
@@ -3505,6 +3504,9 @@ class MapEventObject(TableObject):
                 candidates = [(a, b) for (a, b) in candidates
                               if 0 <= a - n <= 0x7fff]
 
+        candidates = [(a, b) for (a, b) in candidates
+                      if a & 0xFF8000 == (a+length-1) & 0xFF8000]
+
         if not candidates:
             raise Exception('Not enough free space.')
 
@@ -3583,7 +3585,7 @@ class MapEventObject(TableObject):
                 assert len(parameters) == 1
                 s += '<VOICE {0:0>2X}>'.format(parameters[0])
             elif opcode == 'POSITION':
-                assert len(parameters) == 2
+                assert 1 <= len(parameters) <= 2
                 s += '<POSITION {0}>'.format(hexify(parameters))
             elif opcode == 'COMMENT':
                 s += '<{0}>'.format(parameters)
@@ -3702,7 +3704,37 @@ class MapEventObject(TableObject):
         for (a, b) in self.FREE_SPACE:
             f.seek(a)
             f.write(b'\x00' * (b-a))
+        self._cleanup_text = '\n'.join(
+            [str(meo) for meo in MapEventObject.every])
         super().full_cleanup()
+
+    @classmethod
+    def purge_orphans(self):
+        if not hasattr(MapEventObject, '_cleanup_text'):
+            MapEventObject._cleanup_text = '\n'.join(
+                [str(meo) for meo in MapEventObject.every])
+        for meo in MapEventObject.every:
+            for el in meo.event_lists:
+                if el.index not in 'CD':
+                    continue
+                for script in list(el.scripts):
+                    find_sig = '[{0}]'.format(script.signature)
+                    if find_sig not in MapEventObject._cleanup_text:
+                        el.scripts.remove(script)
+
+    def cleanup(self):
+        for el in self.event_lists:
+            if el.index == 'X':
+                continue
+            for script in list(el.scripts):
+                if {o for (l, o, p) in script.script} == {0}:
+                    el.scripts.remove(script)
+                    continue
+
+                find_sig = '[{0}]'.format(script.signature)
+                if (DEBUG_MODE and el.index in 'CD'
+                        and find_sig not in self._cleanup_text):
+                    print('WARNING: Orphaned event {0}.'.format(find_sig))
 
     def write_data(self, filename=None, pointer=None):
         f = get_open_file(get_outfile())
@@ -4641,6 +4673,8 @@ def make_open_world():
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                     path.join(tblpath, 'restrictions.txt'))
     ir.assign_everything()
+    if 'starting_item' not in ir.assignments:
+        ir.assignments['starting_item'] = 'dragon_egg'
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
     print(ir.report)
@@ -4819,6 +4853,8 @@ def make_open_world():
     #OpenNPCGenerator.create_boss_npc('test_location', 'gades4',
     #                                 reward1='engine', reward2='lisa',
     #                                 parameters=parameters)
+
+    MapEventObject.purge_orphans()
 
 
 def dump_events(filename):

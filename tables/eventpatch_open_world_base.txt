@@ -37,7 +37,7 @@ EVENT 9F-C-50  # $4c99a:4c99e
     00A9. 8C(04-0A-16)                   # Load animation frame 0A-16 for sprite 04
     00AD. 86(04-40)                      # Character Movement?
     00B0. 49(C8)
-    00B2. 9E: <UNKNOWN 06>Gets a set of 10 potions.<END MESSAGE>
+    00B2. 9E: <POSITION 06>Gets a set of 10 potions.<END MESSAGE>
     00C2. 89(00)
     00C4. 49(00)
     00C6. 20(11-0A)                      # Get Item 0XX (Life potion x10)
@@ -58,7 +58,7 @@ EVENT 9F-C-50  # $4c99a:4c99e
     0102. 8C(04-0A-17)                   # Load animation frame 0A-17 for sprite 04
     0106. 86(04-40)                      # Character Movement?
     0109. 49(C8)
-    010B. 9E: <UNKNOWN 06>Gets a set of 20 fruits.<END MESSAGE>
+    010B. 9E: <POSITION 06>Gets a set of 20 fruits.<END MESSAGE>
     011A. 89(00)
     011C. 49(00)
     011E. 20(2E-14)                      # Get Item 0XX (Secret fruit x20)
@@ -81,7 +81,7 @@ EVENT 9F-C-50  # $4c99a:4c99e
     0160. 8C(04-0A-01)                   # Load animation frame 0A-01 for sprite 04
     0164. 86(04-40)                      # Character Movement?
     0167. 49(C8)
-    0169. 9E: <UNKNOWN 06>Gets the Dual Blade.<END MESSAGE>
+    0169. 9E: <POSITION 06>Gets the Dual Blade.<END MESSAGE>
     0179. 89(00)
     017B. 49(00)
     017D. 20(36-01)                      # Get Item 0XX (Dual blade x1)
@@ -97,7 +97,7 @@ EVENT 9F-C-50  # $4c99a:4c99e
     01AA. 8C(04-0A-06)                   # Load animation frame 0A-06 for sprite 04
     01AE. 86(04-40)                      # Character Movement?
     01B1. 49(C8)
-    01B3. 9E: <UNKNOWN 06>Gets a set of Super Rings.<END MESSAGE>
+    01B3. 9E: <POSITION 06>Gets a set of Super Rings.<END MESSAGE>
     01C5. 89(00)
     01C7. 49(00)
     01C9. 21(5B-01)                      # Get Item 1XX (S-power ring x1)
@@ -150,7 +150,7 @@ EVENT 9F-C-50  # $4c99a:4c99e
     02E6. 8C(04-0A-00)                   # Load animation frame 0A-00 for sprite 04
     02EA. 86(04-40)                      # Character Movement?
     02ED. 49(C8)
-    02EF. 9E: <UNKNOWN 06>Gets the Egg Sword
+    02EF. 9E: <POSITION 06>Gets the Egg Sword
               and Egg Rings.<END MESSAGE>
     0308. 89(00)
     030A. 49(00)

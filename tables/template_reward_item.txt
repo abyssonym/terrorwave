@@ -2,7 +2,7 @@
 1010. 8C(00-{{item{{reward_id}}_icon_code}})
 1020. 86(00-40)
 1030. 49(C8)
-1040. 9E: <UNKNOWN 06>Gets the
+1040. 9E: <POSITION 10>Gets the
           {{item{{reward_id}}_display_name}}.<END MESSAGE>
 1050. 89(00)
 1060. 49(00)

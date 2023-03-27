@@ -29,6 +29,8 @@ if __name__ == '__main__':
 
     if mode == 'import':
         patch_events(script_dump, warn_double_import=True)
+        MapEventObject.full_cleanup()
+        MapMetaObject.full_cleanup()
         MapEventObject.write_all(outfile)
         MapMetaObject.write_all(outfile)
         backup_name = '{0}.backup'.format(sourcefile)

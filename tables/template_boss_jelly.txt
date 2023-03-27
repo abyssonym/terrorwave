@@ -3,19 +3,19 @@ EVENT {{map_index}}-D-{{tile_index}}
 0000. 15({{jelly_flag}}-@7FFF)
 0010. 14(F8-{{npc_index}}-00-30-@7FFF-FF)
 0020. 1A({{jelly_flag}})
-0030. 9E: <UNKNOWN 02>Hey! What do you
+0030. 9E: <POSITION 02>Hey! What do you
           think you're doing?<END MESSAGE>
 0040. 4B(1B)
 0050. 53(26)
 0060. A4()
 0070. 76()
 0080. 15(FE-@1000)
-0090. 9E: <UNKNOWN 02>I-incredible...<END MESSAGE>
+0090. 9E: <POSITION 02>I-incredible...<END MESSAGE>
 0100. 4B(33)
 0110. 8C(00-0A-0F)
 0120. 86(00-40)
 0130. 49(C8)
-0140. 9E: <UNKNOWN 02>Gets the
+0140. 9E: <POSITION 10>Gets the
           Power Jelly!<END MESSAGE>
 0150. 89(00)
 0160. 49(00)
@@ -23,7 +23,7 @@ EVENT {{map_index}}-D-{{tile_index}}
 0180. 70()
 0800. 1C(@4000)
 1000. 70()
-1010. 9E: <UNKNOWN 02>Haha! I'm getting
+1010. 9E: <POSITION 02>Haha! I'm getting
           away with your lunch
           money! Serves you right,
           you bully!<END MESSAGE>

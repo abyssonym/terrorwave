@@ -40,7 +40,6 @@ EVENT 27-X-XX  # $3964a:3964a
 001E. 00()                           # End Event
 
 !exit +1 (F1) 42:0a,0c->43:08,15
-!tile 0a 42:0a,0c
 EVENT 42-D-0A
 0000. 43(01-02)
 0010. 00()
@@ -272,6 +271,7 @@ EVENT 90-D-05
 0000. 00()
 
 !npc 0f (05) a2:0d,21
+!tile 1f a2:08,18 15x15
 EVENT A2-X-XX  # $3a5f1:3a5f1
 0000. 6A(0A-@1031)
 0010. 14(00-1A-80-1B-80-1C-30-@80-FF)
@@ -323,7 +323,7 @@ EVENT A2-C-5D
 EVENT A2-D-0A
 0000. 14(00-1A-80-1B-80-1C-30-@1000-FF)
 0010. 14(C2-01C1-0001-30-@1000-FF)
-0020. 9E: <UNKNOWN 05>Fly to Doom Island?<END MESSAGE>
+0020. 08: Fly to Doom Island?<END MESSAGE>
 0030. 10(02-@60-@1000)
 0040. 08: Yes.
           No.<CHOICE>
@@ -332,7 +332,7 @@ EVENT A2-D-0A
 0070. 5B(04-0E)
 0080. 16(E6-63-01)
 0800. 00()
-1000. 9E: <UNKNOWN 05>Depart on the
+1000. 08: Depart on the
           Excerion?<END MESSAGE>
 1010. 10(02-@1040-@1030)
 1020. 08: Yes.
@@ -400,7 +400,7 @@ EVENT EA-A-01
 
 EVENT EA-D-01
 0000. 15({{final_boss_flag}}-@7FFF)
-1000. 9E: <UNKNOWN 06><PAUSE 00>You may not cross.<END MESSAGE>
+1000. 9E: <POSITION 06><PAUSE 00>You may not cross.<END MESSAGE>
 1010. 16(E9-0A-01)
 7FFF. 00()
 
@@ -542,7 +542,7 @@ EVENT EB-B-0A
 4080. 31(51-02)
 4090. 31(52-02)
 
-40A0. 9E: <UNKNOWN 02>Congratulations!!
+40A0. 9E: <POSITION 02>Congratulations!!
           You are the {{ending_title}}
           of Doom Island!<END MESSAGE>
 40B0. 58(18)

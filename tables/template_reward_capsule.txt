@@ -1,7 +1,7 @@
 6000. 81({{capsule_index}})
 6010. 4B(34)
 6020. 49(F0)
-6030. 9E: <UNKNOWN 06>Capsule Monster
+6030. 9E: <POSITION 06>Capsule Monster
           {{capsule_display_name}} joins
           the party!<END MESSAGE>
 6040. A3({{npc_event_index}}-85)

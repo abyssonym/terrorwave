@@ -1,4 +1,5 @@
 # name, display name, item index, icon code
+dragon_egg,Dragon Egg,2b,default
 door_key,Door Key,1ad,default
 shrine_key,Shrine Key,1ae,default
 sky_key,Sky Key,1af,default
