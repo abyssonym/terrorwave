@@ -2,6 +2,9 @@
 EventInstObject     struct_2pointer.txt         4a14    205
 CharLevelObject     struct_level.txt            pointers_level.txt
 CharExpObject       struct_exp.txt              pointers_xp.txt
+# Initially learned spells are also in this same general area
+# but appear to be variable length data
+InitialEquipObject  struct_initial_equip.txt    pointers_initial_equip.txt
 OverPaletteObject   struct_over_palette.txt     36ca6   3
 OverSpriteObject    struct_over_sprite.txt      37086   6
 MapEventObject      struct_map_event.txt        38010   242

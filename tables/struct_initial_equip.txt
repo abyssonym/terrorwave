@@ -1,0 +1,6 @@
+weapon,2
+armor,2
+shield,2
+helm,2
+ring,2
+jewel,2

@@ -868,6 +868,24 @@ class CharExpObject(TableObject): pass
 class CapsuleLevelObject(TableObject): pass
 
 
+class InitialEquipObject(TableObject):
+    def __repr__(self):
+        s = '{0}\n'.format(CharacterObject.get(self.index).name)
+        for (attr, _, _) in self.specs.attributes:
+            i = ItemObject.get(getattr(self, attr))
+            s += '{0:6} - {1:0>2x} {2}\n'.format(attr, i.index, i.name)
+        return s.strip()
+
+    @property
+    def equips(self):
+        return [ItemObject.get(getattr(self, attr))
+                for (attr, _, _) in self.specs.attributes]
+
+    def clear_initial_equipment(self):
+        for attr in self.old_data:
+            setattr(self, attr, 0)
+
+
 class CharGrowthObject(TableObject):
     flag = 'c'
     custom_random_enable = True
@@ -4725,6 +4743,9 @@ def make_open_world():
 
     for cxp in CharExpObject.every:
         cxp.xp = 0
+
+    for ieo in InitialEquipObject.every:
+        ieo.clear_initial_equipment()
 
     for rno in RoamingNPCObject.every:
         rno.map_index = 0xff
