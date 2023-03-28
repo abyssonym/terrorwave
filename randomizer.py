@@ -4118,27 +4118,34 @@ class OpenNPCGenerator:
 
     @staticmethod
     def create_karlloon_elf_girl(parameters):
+
+        def generate_item_remover_script(items):
+            line_counter = 0
+            lines = []
+            for i in items:
+                line = '{0:X}. 14(C2-{1:X}-0001-30-@{2:X}-FF)'.format(
+                    line_counter, i, line_counter+3)
+                line_counter += 1
+                lines.append(line)
+                opcode = '24' if i < 0x100 else '25'
+                line = '{0:X}. {1}({2:X}-01)'.format(
+                    line_counter, opcode, i & 0xFF)
+                line_counter += 1
+                lines.append(line)
+                line = '{0:X}. 1C(@{1:X})'.format(line_counter, line_counter-2)
+                line_counter += 1
+                lines.append(line)
+            line = '{0:X}. 1A(0A)'.format(line_counter)
+            line_counter += 1
+            lines.append(line)
+            return '\n'.join(lines)
+
         consumables = sorted([i.index for i in ItemObject.every
                               if i.get_bit('usable_battle')])
-        line_counter = 0
-        lines = []
-        for i in consumables:
-            line = '{0:X}. 14(C2-{1:X}-0001-30-@{2:X}-FF)'.format(
-                line_counter, i, line_counter+3)
-            line_counter += 1
-            lines.append(line)
-            opcode = '24' if i < 0x100 else '25'
-            line = '{0:X}. {1}({2:X}-01)'.format(
-                line_counter, opcode, i & 0xFF)
-            line_counter += 1
-            lines.append(line)
-            line = '{0:X}. 1C(@{1:X})'.format(line_counter, line_counter-2)
-            line_counter += 1
-            lines.append(line)
-        line = '{0:X}. 1A(0A)'.format(line_counter)
-        line_counter += 1
-        lines.append(line)
-        item_remover_script = '\n'.join(lines)
+        item_remover_script = generate_item_remover_script(consumables)
+        equipment = sorted([i.index for i in ItemObject.every
+                            if i.equipability and i.get_bit('equipable')])
+        equipment_remover_script = generate_item_remover_script(equipment)
 
         def generate_party_offer_message(party_order, terminator='.'):
             if not terminator.endswith('<END MESSAGE>'):
@@ -4207,7 +4214,8 @@ class OpenNPCGenerator:
             line_counter += 1
             party_events.append('\n'.join(lines))
 
-        barters = ['gold', 'consumables', 'party', 'reverse_party', 'capsules']
+        barters = ['gold', 'consumables', 'equipment',
+                   'party', 'reverse_party', 'capsules']
 
         first_offer = random.choice(barters)
         barters.remove(first_offer)
@@ -4218,6 +4226,7 @@ class OpenNPCGenerator:
         offer_messages = {
             'gold': '...you give me all\nof your gold',
             'consumables': '...you give me all of\nyour consumable items',
+            'equipment': '...you give me all of\nyour spare equipment',
             'capsules': '...you give me all of\nyour capsule monsters',
             }
 
@@ -4246,6 +4255,7 @@ class OpenNPCGenerator:
             'gold': '0000. 22(0)',
             'capsules': capsule_remover_script,
             'consumables': item_remover_script,
+            'equipment': equipment_remover_script,
             'party': party_events[0],
             'reverse_party': party_events[1],
             }
