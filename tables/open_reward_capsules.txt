@@ -1,8 +1,8 @@
-# name, display name, character index, sprite index
-jelze,{Foomy},00,c9
-flash,{Shaggy},01,ca
-gusto,{Hard Hat},02,cb
-zeppy,{Red Fish},03,cc
-darbi,{Myconido},04,cd
-sully,{Raddisher},05,ce
-blaze,{Armor Dog},06,cf
+# name, display name, character index, sprite index, capsule flag
+jelze,{Foomy},00,c9,08
+flash,{Shaggy},01,ca,09
+gusto,{Hard Hat},02,cb,0c
+zeppy,{Red Fish},03,cc,0d
+darbi,{Myconido},04,cd,0e
+sully,{Raddisher},05,ce,0f
+blaze,{Armor Dog},06,cf,10

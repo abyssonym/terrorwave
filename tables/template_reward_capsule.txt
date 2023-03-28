@@ -1,10 +1,15 @@
-6000. 81({{capsule_index}})
-6010. 4B(34)
-6020. 49(F0)
-6030. 9E: <POSITION 06>Capsule Monster
+6000. 15({{capsule_flag}}-@6200)
+6100. 81({{capsule_index}})
+6110. 4B(34)
+6120. 49(F0)
+6130. 9E: <POSITION 06>Capsule Monster
           {{capsule_display_name}} joins
           the party!<END MESSAGE>
-6040. A3({{npc_event_index}}-85)
-6050. 37(30)
-6060. 2E({{npc_event_index}})
-6070. 4B({{map_bgm}})
+6140. A3({{npc_event_index}}-85)
+6150. 37(30)
+6160. 2E({{npc_event_index}})
+6170. 1A({{capsule_flag}})
+6180. 1C(@6300)
+6200. 9E: <POSITION 06>This monster is
+          already in your party.<END MESSAGE>
+6300. 4B({{map_bgm}})

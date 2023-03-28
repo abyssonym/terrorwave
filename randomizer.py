@@ -4084,7 +4084,7 @@ class OpenNPCGenerator:
 
     RewardCapsule = namedtuple('RewardCapsule',
         ['name', 'capsule_display_name',
-         'capsule_index', 'sprite_index_after'])
+         'capsule_index', 'sprite_index_after', 'capsule_flag'])
     for line in read_lines_nocomment(REWARD_CAPSULE_TABLE_FILENAME):
         i = RewardCapsule(*line.split(','))
         reward_capsule_properties[i.name] = i
@@ -4236,9 +4236,15 @@ class OpenNPCGenerator:
                 party_order = list(shuffled_party)
             return generate_party_offer_message(party_order, terminator)
 
+        capsule_flags = [c.capsule_flag for c in
+                         OpenNPCGenerator.reward_capsule_properties.values()]
+        capsule_remover_script = '0000. 81(FF)\n'
+        for i, cf in enumerate(sorted(capsule_flags)):
+            capsule_remover_script += '000{0}. 1B({1})\n'.format(i+1, cf)
+
         offer_acceptance_events = {
             'gold': '0000. 22(0)',
-            'capsules': '0000. 81(FF)',
+            'capsules': capsule_remover_script,
             'consumables': item_remover_script,
             'party': party_events[0],
             'reverse_party': party_events[1],
