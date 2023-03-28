@@ -1,0 +1,4440 @@
+EVENT 03-C-11
+  0000. 08: Wherever you go,
+            remember my words.
+            They are sure to
+            come in handy.<END EVENT>
+
+EVENT 03-C-13
+  0000. 08: Thank you, $MAXIM$.
+            Now I can go to
+            Sundletan.<END EVENT>
+
+EVENT 03-C-50
+  0000. 08: I heard you were
+            going on a journey.<END EVENT>
+
+EVENT 03-C-51
+  0000. 08: $MAXIM$, are you
+            going somewhere?<END EVENT>
+
+EVENT 03-C-52
+  0000. 08: Where are you going,
+            $MAXIM$? Do you have
+            any idea?<END EVENT>
+
+EVENT 03-C-53
+  0000. 08: So you're going, huh...!?
+            It's going to be awfully
+            lonesome without you,
+            $MAXIM$.<END EVENT>
+
+EVENT 03-C-56
+  0000. 08: You know it's dangerous,
+            yet you're going. Why?
+            I just don't understand.<END EVENT>
+
+EVENT 03-C-57
+  0000. 08: Are you going? Would
+            you bring me a present
+            when you come back,
+            please?<END EVENT>
+
+EVENT 03-C-58
+  0000. 08: I guess you have to
+            go. I somehow knew all
+            along that someday
+            you'd be leaving.<END EVENT>
+
+EVENT 03-D-01
+  0000. 00()                           # End Event
+
+EVENT 03-D-02
+  0000. 00()                           # End Event
+
+EVENT 04-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 14(00-0A-30-@10-FF)            # If Flag 0A ($077f:04) set then DON'T jump to @10
+  000B. 4B(02)                         # Preload Music
+  000D. 1C(@12)                        # Jump
+  # LABEL @10 $391c9
+  0010. 4B(06)                         # Preload Music
+  # LABEL @12 $391cb
+  0012. 68(50-0E)                      # Load NPC (18,04) 50: 0e Yellow Middle Man
+  0015. 68(51-11)                      # Load NPC (05,18) 51: 11 Gray Old Woman
+  0018. 68(52-32)                      # Load NPC (2a,05) 52: 32 Priest
+  001B. 68(53-0E)                      # Load NPC (17,12) 53: 0e Yellow Middle Man
+  001E. 68(54-10)                      # Load NPC (23,17) 54: 10 Bald Old Man
+  0021. 68(55-0D)                      # Load NPC (09,0b) 55: 0d Yellow Woman
+  0024. 68(56-10)                      # Load NPC (2e,0a) 56: 10 Bald Old Man
+  0027. 14(01-0A-30-@31-FF)            # If Flag 0A ($077f:04) NOT set then DON'T jump to @31
+  002E. 68(58-00)                      # Load NPC (09,0d) 58: 00 Maxim
+  # LABEL @31 $391ea
+  0031. 68(59-47)                      # Load NPC (07,04) 59: 47 Phantom Fish
+  0034. 68(5A-17)                      # Load NPC (03,1a) 5a: 17 Maid
+  0037. 00()                           # End Event
+
+EVENT 04-B-01
+  0000. 30(10-01)                      # Teleport Character
+  0003. 31(00-01)                      # Change Facing
+  0006. 59(11)                         # Luminosity
+  0008. 33(01-00)                      # Move Character to Location
+  000B. 61: Tia, are you home?<END MESSAGE>
+  0019. 33(02-10)                      # Move Character to Location
+  001C. 54(00)                         # Open locked door?
+  001E. 33(03-10)                      # Move Character to Location
+  0021. 13: <VOICE 10>Hi, $MAXIM$! How
+            was work today?<END MESSAGE>
+  0036. 61: Alright. I got six
+            jellies.<END MESSAGE>
+  0048. 13: <VOICE 10>Let's see...<PAUSE 83>that'll
+            be 120 gold pieces, right?<END MESSAGE>
+  0068. 61: Wait a minute, Tia.
+            I said six jellies. That
+            comes to 180 gold pieces!<END MESSAGE>
+  0093. 13: <VOICE 10>Look, monsters are cheap
+            these days. The city's
+            suffering so I can't
+            pay the top price.<END MESSAGE>
+  00CB. 61: Yeah, it's true. More
+            monsters every day.<END MESSAGE>
+  00E3. 13: <VOICE 10>It's spooky, you know.<END MESSAGE>
+  00F5. 61: Well, I should appreciate
+            it though. I'm a monster
+            hunter. I'd lose my job
+            without them.<END MESSAGE>
+  012D. 33(04-10)                      # Move Character to Location
+  0130. 31(00-03)                      # Change Facing
+  0133. 33(12-10)                      # Move Character to Location
+  0136. 37(0A)                         # Pause
+  0138. 13: <VOICE 10>$MAXIM$! Have you
+            thought about getting
+            an ordinary job?<END MESSAGE>
+  015B. 61: What is an ordinary
+            job anyway?<END MESSAGE>
+  0171. 31(10-02)                      # Change Facing
+  0174. 37(14)                         # Pause
+  0176. 13: <VOICE 10>Let's see...<END MESSAGE>
+  0180. 6C(10-FF-00)                   # Move Character by Distance
+  0184. 37(03)                         # Pause
+  0186. 6C(10-FE-00)                   # Move Character by Distance
+  018A. 37(03)                         # Pause
+  018C. 6C(10-FD-00)                   # Move Character by Distance
+  0190. 37(03)                         # Pause
+  0192. 6C(10-FC-00)                   # Move Character by Distance
+  0196. 37(03)                         # Pause
+  0198. 13: <VOICE 10>like...<END MESSAGE>
+  019F. 6C(10-FB-00)                   # Move Character by Distance
+  01A3. 37(03)                         # Pause
+  01A5. 6C(10-FA-00)                   # Move Character by Distance
+  01A9. 37(03)                         # Pause
+  01AB. 6C(10-FB-00)                   # Move Character by Distance
+  01AF. 37(03)                         # Pause
+  01B1. 6C(10-FC-00)                   # Move Character by Distance
+  01B5. 37(03)                         # Pause
+  01B7. 13: <VOICE 10>a shop owner...<END MESSAGE>
+  01C4. 6C(10-FD-00)                   # Move Character by Distance
+  01C8. 37(03)                         # Pause
+  01CA. 6C(10-FE-00)                   # Move Character by Distance
+  01CE. 37(03)                         # Pause
+  01D0. 6C(10-FF-00)                   # Move Character by Distance
+  01D4. 37(03)                         # Pause
+  01D6. 6C(10-00-00)                   # Move Character by Distance
+  01DA. 37(03)                         # Pause
+  01DC. 13: <VOICE 10>perhaps.<END MESSAGE>
+  01E4. 31(10-03)                      # Change Facing
+  01E7. 37(0A)                         # Pause
+  01E9. 31(00-02)                      # Change Facing
+  01EC. 37(0A)                         # Pause
+  01EE. 61: Me? Shop owner? Ha!
+            That'll be the day!<END MESSAGE>
+  020D. 33(10-10)                      # Move Character to Location
+  0210. 47(10)                         # Thinking On/Off
+  0212. 13: <VOICE 10>How can he be
+            so insensitive...!?<END MESSAGE>
+  022C. 31(00-03)                      # Change Facing
+  022F. 37(0A)                         # Pause
+  0231. 47(00)                         # Thinking On/Off
+  0233. 61: Did you say something,
+            Tia?<END MESSAGE>
+  0244. 33(11-10)                      # Move Character to Location
+  0247. 37(0A)                         # Pause
+  0249. 13: <VOICE 10>Forget it!! Here's
+            your money!<END MESSAGE>
+  0262. 34(10-2F)                      # Change Character Sprite
+  0265. 37(0A)                         # Pause
+  0267. 6C(10-01-00)                   # Move Character by Distance
+  026B. 6C(10-02-00)                   # Move Character by Distance
+  026F. 6C(10-03-00)                   # Move Character by Distance
+  0273. 6C(10-04-00)                   # Move Character by Distance
+  0277. 34(10-30)                      # Change Character Sprite
+  027A. 4C(0C)                         # Play Sound
+  027C. 34(10-04)                      # Change Character Sprite
+  027F. 6C(10-03-00)                   # Move Character by Distance
+  0283. 6C(00-02-00)                   # Move Character by Distance
+  0287. 37(01)                         # Pause
+  0289. 6C(00-04-00)                   # Move Character by Distance
+  028D. 37(01)                         # Pause
+  028F. 6C(10-02-00)                   # Move Character by Distance
+  0293. 6C(00-06-00)                   # Move Character by Distance
+  0297. 37(01)                         # Pause
+  0299. 6C(00-08-00)                   # Move Character by Distance
+  029D. 37(01)                         # Pause
+  029F. 6C(10-00-00)                   # Move Character by Distance
+  02A3. 6C(00-04-00)                   # Move Character by Distance
+  02A7. 37(01)                         # Pause
+  02A9. 6C(00-00-00)                   # Move Character by Distance
+  02AD. 37(01)                         # Pause
+  02AF. 33(05-10)                      # Move Character to Location
+  02B2. 31(10-02)                      # Change Facing
+  02B5. 37(0A)                         # Pause
+  02B7. 55(00)
+  02B9. 33(16-10)                      # Move Character to Location
+  02BC. 32(10-05)                      # Change NPC wander behavior (misc byte)
+  02BF. 41(02-00)                      # Camera related (follow for X steps?)
+  02C2. 22(0078)                       # Get Gold
+  02C5. 00()                           # End Event
+
+EVENT 04-C-10
+  0000. 13: <VOICE 10>Oh, $MAXIM$! Thank
+            goodness, you're here.
+            I had this weird feeling.<END MESSAGE>
+  0024. 61: About what?<END MESSAGE>
+  002E. 13: <VOICE 10>Well.., I..I had this
+            feeling that you were
+            going away somewhere...<END MESSAGE>
+  0055. 61: ......<END MESSAGE>
+  005A. 13: <VOICE 10>Silly me. It's nothing,
+            forget it. So, what
+            was it you wanted today?<END MESSAGE>
+  0084. 18(01)                         # Call Shop
+  0086. 00()                           # End Event
+
+EVENT 04-C-50
+  0000. 08: When you're tired, the
+            best thing is to rest.
+            Would you like to rest?<END MESSAGE>
+  002C. 10(02-@3B-@3A)                 # Set Up Branching Event
+  0032. 08: Yes.
+            No.<CHOICE>
+  # LABEL @3A $3c3d3
+  003A. 00()                           # End Event
+  # LABEL @3B $3c3d4
+  003B. 17(00)                         # Call Inn at Price
+  003D. 00()                           # End Event
+
+EVENT 04-C-53
+  0000. 08: I'd like you to stay
+            in town, if possible.
+            But if you insist,
+            I can't stop you.<END EVENT>
+
+EVENT 04-C-54
+  0000. 08: You don't know how
+            dangerous the journey
+            could be. Be careful,
+            $MAXIM$. Be very careful!<END EVENT>
+
+EVENT 04-D-01
+  0000. 00()                           # End Event
+
+EVENT 05-X-XX
+  0000. 74(0B)                         # Set Battle BG
+  0002. 69(09)
+  0004. 69(19)
+  0006. 4B(17)                         # Preload Music
+  0008. 7B(52-83)                      # Load Monster NPC (1a,06) 52: 83 Lizard
+  000B. 7B(53-94)                      # Load Monster NPC (21,07) 53: 94 Jelly
+  000E. 7B(54-94)                      # Load Monster NPC (1c,23) 54: 94 Jelly
+  0011. 00()                           # End Event
+
+EVENT 05-B-01
+  0000. 00()                           # End Event
+
+EVENT 05-C-11
+  0000. 00()                           # End Event
+
+EVENT 05-D-01
+  0000. 00()                           # End Event
+
+EVENT 05-D-02
+  0000. 00()                           # End Event
+
+EVENT 05-D-03
+  0000. 00()                           # End Event
+
+EVENT 05-D-04
+  0000. 15(FA-@8)                      # Branch on Flag FA ($079d:04)
+  0004. 54(05)                         # Open locked door?
+  0006. 1A(FA)                         # Set Event Flag FA ($079d:04)
+  # LABEL @8 $3dba6
+  0008. 00()                           # End Event
+
+EVENT 05-D-05
+  0000. 00()                           # End Event
+
+EVENT 05-D-06
+  0000. 00()                           # End Event
+
+EVENT 05-D-07
+  0000. 00()                           # End Event
+
+EVENT 05-D-08
+  0000. 00()                           # End Event
+
+EVENT 05-D-0B
+  0000. 00()                           # End Event
+
+EVENT 05-D-0D
+  0000. 23(00-26)                      # Learn Spell (Maxim: Reset)
+  0003. 00()                           # End Event
+
+EVENT 05-D-11
+  0000. 00()                           # End Event
+
+EVENT 05-D-12
+  0000. 00()                           # End Event
+
+EVENT 05-D-13
+  0000. 00()                           # End Event
+
+EVENT 06-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 06-C-50
+  0000. 08: You met that woman, huh!?
+            What did you think of
+            her? Didn't you feel
+            she was different?<END EVENT>
+
+EVENT 07-X-XX
+  0000. 74(0D)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(17)                         # Preload Music
+  0008. 7B(52-8F)                      # Load Monster NPC (04,0e) 52: 8f Bat
+  000B. 7B(53-D9)                      # Load Monster NPC (15,17) 53: d9 Green Spider
+  000E. 7B(54-8F)                      # Load Monster NPC (0d,10) 54: 8f Bat
+  0011. 00()                           # End Event
+
+EVENT 07-D-01
+  0000. 00()                           # End Event
+
+EVENT 08-C-50
+  0000. 08: I heard they're not
+            going to hold the
+            coronation ceremony
+            anymore.<END EVENT>
+
+EVENT 08-C-51
+  0000. 08: Thank you. Thanks to
+            you, the earthquakes
+            have stopped.<END EVENT>
+
+EVENT 08-C-52
+  0000. 08: I heard somebody got
+            the crown back from the
+            thieves. I'd love to meet
+            them, you know!<END EVENT>
+
+EVENT 08-C-53
+  0000. 08: You defeated the master
+            catfish, I hear. Well,
+            you must be a strong man!<END MESSAGE>
+  002C. 08: With such power, you
+            could be great in Alunze
+            Kingdom...their soldiers
+            are useless!<END EVENT>
+
+EVENT 08-C-54
+  0000. 08: Welcome to Sundletan!<END EVENT>
+
+EVENT 08-D-01
+  0000. 00()                           # End Event
+
+EVENT 09-C-13
+  0000. 00()                           # End Event
+
+EVENT 09-C-50
+  0000. 08: Hi! The earthquake's over.
+            Now you can rest. It's 10
+            gold pieces a night. Are
+            you staying over?<END MESSAGE>
+  003E. 10(02-@4D-@4C)                 # Set Up Branching Event
+  0044. 08: Yes.
+            No.<CHOICE>
+  # LABEL @4C $3ee56
+  004C. 00()                           # End Event
+  # LABEL @4D $3ee57
+  004D. 17(0A)                         # Call Inn at Price
+  004F. 00()                           # End Event
+
+EVENT 09-C-54
+  0000. 08: You're the brave warrior
+            who defeated the giant
+            catfish. Thanks to you,
+            I can get some sleep.<END MESSAGE>
+  003A. 08: Well, good night.<END MESSAGE>
+  0045. 33(01-54)                      # Move Character to Location
+  0048. 32(54-05)                      # Change NPC wander behavior (misc byte)
+  004B. 47(10)                         # Thinking On/Off
+  004D. 08: Zzzzz. Zzzzz.<END MESSAGE>
+  0059. 47(00)                         # Thinking On/Off
+  005B. 1A(FA)                         # Set Event Flag FA ($079d:04)
+  005D. 00()                           # End Event
+
+EVENT 09-C-55
+  0000. 08: I told two travelers of
+            the coronation in Alunze
+            Kingdom and they just left.
+            Why are they so interested?<END EVENT>
+
+EVENT 09-C-57
+  0000. 08: Even the people in Alunze
+            Kingdom drink this tea.
+            I'm sure they will at
+            the coronation ceremony.<END EVENT>
+
+EVENT 0A-X-XX
+  0000. 74(0E)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(17)                         # Preload Music
+  0008. 68(50-70)                      # Load NPC (0d,0e) 50: 70 Nothing
+  000B. 7B(54-92)                      # Load Monster NPC (14,23) 54: 92 Fly
+  000E. 7B(55-DD)                      # Load Monster NPC (17,15) 55: dd Blue Jelly
+  0011. 7B(56-92)                      # Load Monster NPC (14,19) 56: 92 Fly
+  0014. 7B(57-E8)                      # Load Monster NPC (24,0a) 57: e8 Blue Eagle
+  0017. 7B(58-BE)                      # Load Monster NPC (20,0c) 58: be Frog
+  001A. 7B(59-86)                      # Load Monster NPC (1a,0a) 59: 86 Beetle
+  001D. 7B(5A-E8)                      # Load Monster NPC (1e,06) 5a: e8 Blue Eagle
+  0020. 7B(5B-BE)                      # Load Monster NPC (1f,06) 5b: be Frog
+  0023. 7B(5C-86)                      # Load Monster NPC (20,06) 5c: 86 Beetle
+  0026. 68(5D-70)                      # Load NPC (23,08) 5d: 70 Nothing
+  0029. 00()                           # End Event
+
+EVENT 0A-A-01
+  0000. 00()                           # End Event
+
+EVENT 0A-D-01
+  0000. 00()                           # End Event
+
+EVENT 0C-X-XX
+  0000. 74(0E)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(17)                         # Preload Music
+  0008. 7B(51-BE)                      # Load Monster NPC (08,1a) 51: be Frog
+  000B. 68(52-70)                      # Load NPC (14,10) 52: 70 Nothing
+  000E. 00()                           # End Event
+
+EVENT 0C-D-02
+  0000. 00()                           # End Event
+
+EVENT 0D-A-01
+  0000. 43(03-01)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT 0D-C-50
+  0000. 08: The bridge's fixed now.
+            Alunze Kingdom is
+            further ahead. Good
+            luck on your journey.<END EVENT>
+  002F. 08: Alunze Kingdom is
+            further ahead. Good
+            luck on your journey.<END EVENT>
+
+EVENT 0E-D-02
+  0000. 00()                           # End Event
+
+EVENT 0F-C-50
+  0000. 08: It appears you have
+            found the crown. That's
+            truly amazing, for I
+            could never do that.<END EVENT>
+
+EVENT 0F-C-51
+  0000. 08: Just as I thought. The
+            robbers were in the
+            basement.<END EVENT>
+
+EVENT 0F-C-52
+  0000. 08: You've recaptured the
+            crown! How courageous!
+            What a wonderful thing
+            you've done!<END EVENT>
+
+EVENT 0F-C-53
+  0000. 08: Finally my father has come
+            to his senses. He swears
+            he'll take great care with
+            our kingdom's fortunes.<END MESSAGE>
+  003F. 08: The crown is ours again
+            and my father has seen
+            the light. How can
+            I ever thank you!<END EVENT>
+
+EVENT 10-X-XX
+  0000. AA()
+  0001. 69(08)
+  0003. 69(98)
+  0005. 4B(01)                         # Preload Music
+  0007. 68(50-17)                      # Load NPC (23,13) 50: 17 Maid
+  000A. 68(51-19)                      # Load NPC (24,09) 51: 19 Red Man
+  000D. 68(52-17)                      # Load NPC (2d,0d) 52: 17 Maid
+  0010. 68(53-0C)                      # Load NPC (08,27) 53: 0c Blue Man
+  0013. 68(54-19)                      # Load NPC (0f,27) 54: 19 Red Man
+  0016. 68(55-19)                      # Load NPC (0c,30) 55: 19 Red Man
+  0019. 68(56-16)                      # Load NPC (07,23) 56: 16 Knight
+  001C. 68(57-16)                      # Load NPC (0d,22) 57: 16 Knight
+  001F. 68(58-13)                      # Load NPC (09,1e) 58: 13 Queen
+  0022. 68(59-12)                      # Load NPC (0b,1e) 59: 12 King
+  0025. 68(5C-19)                      # Load NPC (07,0e) 5c: 19 Red Man
+  0028. 68(66-14)                      # Load NPC (0d,1e) 66: 14 Prince
+  002B. 00()                           # End Event
+
+EVENT 10-A-00
+  0000. 00()                           # End Event
+
+EVENT 10-C-50
+  0000. 08: You've recaptured the
+            crown! How wonderful!
+            Our own soldiers are
+            just useless.<END EVENT>
+
+EVENT 10-C-51
+  0000. 08: It's amazing! You came
+            back alive from the
+            basement of the castle.<END EVENT>
+
+EVENT 10-C-52
+  0000. 08: I'm so relieved that the
+            crown is with us again.
+            You were so brave to go
+            down into that basement!<END EVENT>
+
+EVENT 10-C-53
+  0000. 08: Thank you for getting
+            the crown back!<END EVENT>
+
+EVENT 10-C-54
+  0000. 08: Even we'd think twice
+            before going down into
+            that basement. Darn
+            impressive!<END EVENT>
+
+EVENT 10-C-55
+  0000. 08: I heard about you. You
+            recaptured the crown,
+            right? Even I couldn't
+            do that. Cool!<END EVENT>
+
+EVENT 10-C-56
+  0000. 08: The theft has made our
+            Prince rethink his ways.
+            I say maybe we should
+            thank those thieves.<END EVENT>
+
+EVENT 10-C-57
+  0000. 08: Well, I guess there's
+            a lot Alunze Kingdom
+            still has to do.<END EVENT>
+
+EVENT 10-C-58
+  0000. 08: I don't know how to
+            thank you for retrieving
+            our precious crown.<END EVENT>
+
+EVENT 10-C-59
+  0000. 08: I appreciate all
+            you've done. Thank you.<END MESSAGE>
+  001B. 08: We have postponed the
+            ceremony. I shall rebuild
+            my kingdom and make
+            it impregnable to thieves.<END MESSAGE>
+  0057. 08: Then the ceremony
+            shall be held.<END EVENT>
+
+EVENT 10-C-5C
+  0000. 08: I thought the basement
+            was riddled with traps.
+            It's amazing you came
+            back without a scratch!<END EVENT>
+
+EVENT 10-C-66
+  0000. 08: When I'm ready, I will
+            invite all of you and I
+            hope you will grace
+            me with your presence.<END EVENT>
+
+EVENT 10-D-01
+  0000. 00()                           # End Event
+
+EVENT 10-D-02
+  0000. 00()                           # End Event
+
+EVENT 11-C-50
+  0000. 08: What!? You took the
+            crown back! Great! But...
+            uh...I didn't know the
+            crown had been stolen.<END EVENT>
+
+EVENT 14-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. A9(10-07)
+  0005. 69(01)
+  0007. 69(11)
+  0009. 69(91)
+  000B. 4B(08)                         # Preload Music
+  000D. 7B(52-8F)                      # Load Monster NPC (03,28) 52: 8f Bat
+  0010. 7B(53-8F)                      # Load Monster NPC (10,26) 53: 8f Bat
+  0013. 68(55-70)                      # Load NPC (17,10) 55: 70 Nothing
+  0016. 00()                           # End Event
+
+EVENT 14-A-00
+  0000. 43(38-37)                      # Overwrite Map Tiles
+  0003. 43(39-3B)                      # Overwrite Map Tiles
+  0006. 43(3A-37)                      # Overwrite Map Tiles
+  0009. 00()                           # End Event
+
+EVENT 14-A-01
+  0000. 00()                           # End Event
+
+EVENT 14-D-01
+  0000. 00()                           # End Event
+
+EVENT 14-D-03
+  0000. 00()                           # End Event
+
+EVENT 14-D-04
+  0000. 00()                           # End Event
+
+EVENT 15-C-50
+  0000. 08: So, you found the crown,
+            right? If I were you, I
+            might just want to
+            run away with it.<END EVENT>
+
+EVENT 15-C-51
+  0000. 08: You caught the thieves!?
+            Wow! You're incredible!!<END EVENT>
+
+EVENT 15-C-52
+  0000. 08: You! Who are you? You
+            are quite different from
+            the others. I can sense it!<END EVENT>
+
+EVENT 15-C-53
+  0000. 08: If we could lay claim
+            to such a man as you, I
+            can't imagine our King's
+            relief!<END EVENT>
+
+EVENT 15-C-54
+  0000. 08: Oh, Abel? He went
+            off to the small shrine
+            in the north again.<END EVENT>
+
+EVENT 15-C-55
+  0000. 08: I guess the ceremony's
+            been canceled. But why?<END EVENT>
+
+EVENT 16-C-50
+  0000. 08: Seems like the ceremony's
+            off for now. It's
+            20 gold pieces a night.
+            You want to stay?<END MESSAGE>
+  0033. 10(02-@42-@41)                 # Set Up Branching Event
+  0039. 08: Yes.
+            No.<CHOICE>
+  # LABEL @41 $42567
+  0041. 00()                           # End Event
+  # LABEL @42 $42568
+  0042. 17(14)                         # Call Inn at Price
+  0044. 00()                           # End Event
+
+EVENT 16-C-53
+  0000. 08: He's playing outside
+            again. I'm glad he's
+            healthy and all, but I
+            wish he'd study, too.<END EVENT>
+
+EVENT 16-C-54
+  0000. 08: I knew it. There were
+            monsters in the basement.
+            Good thing I didn't
+            say yes to a date there.<END EVENT>
+
+EVENT 17-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 17-C-16
+  0000. 08: I won't use the key for
+            my treasure hunting game
+            any more. So, what
+            can I use now?<END EVENT>
+
+EVENT 17-C-17
+  0000. 00()                           # End Event
+
+EVENT 17-C-50
+  0000. 08: I heard the story from
+            Abel. He apologized
+            sincerely so I forgave
+            him.<END EVENT>
+
+EVENT 17-C-51
+  0000. 08: Did you reach B4 in
+            the dungeon? We only
+            made it to the entrance
+            area. It's just too scary.<END EVENT>
+
+EVENT 18-D-01
+  0000. 00()                           # End Event
+
+EVENT 1B-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(17)                         # Preload Music
+  0008. 7B(59-87)                      # Load Monster NPC (0b,19) 59: 87 Crab
+  000B. 7B(5A-A6)                      # Load Monster NPC (07,1a) 5a: a6 Kobold
+  000E. 7B(5B-87)                      # Load Monster NPC (2c,19) 5b: 87 Crab
+  0011. 7B(5C-DC)                      # Load Monster NPC (30,1b) 5c: dc Red Butterfly
+  0014. 00()                           # End Event
+
+EVENT 1B-A-01
+  0000. 43(02-01)                      # Overwrite Map Tiles
+  0003. 43(03-01)                      # Overwrite Map Tiles
+  0006. 43(04-01)                      # Overwrite Map Tiles
+  0009. 00()                           # End Event
+
+EVENT 1B-D-01
+  0000. 00()                           # End Event
+
+EVENT 1C-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 15(0B-@21)                     # Branch on Flag 0B ($077f:08)
+  0008. 15(B0-@1C)                     # Branch on Flag B0 ($0794:01)
+  000C. 6A(0A-@16)                     # Branch on NOT Flag 0A ($077f:04)
+  0010. 4B(02)                         # Preload Music
+  0012. 1C(@27)                        # Jump
+  0015. 00()                           # End Event
+  # LABEL @16 $39524
+  0016. 4B(06)                         # Preload Music
+  0018. 1C(@27)                        # Jump
+  001B. 00()                           # End Event
+  # LABEL @1C $3952a
+  001C. 72()
+  001D. 1C(@27)                        # Jump
+  0020. 00()                           # End Event
+  # LABEL @21 $3952f
+  0021. 4B(2E)                         # Preload Music
+  0023. 1C(@27)                        # Jump
+  0026. 00()                           # End Event
+  # LABEL @27 $39535
+  0027. 14(01-0B-30-@3D-FF)            # If Flag 0B ($077f:08) NOT set then DON'T jump to @3D
+  002E. 68(51-19)                      # Load NPC (1a,1a) 51: 19 Red Man
+  0031. 68(52-0A)                      # Load NPC (1f,21) 52: 0a Red Boy
+  0034. 68(53-0B)                      # Load NPC (0c,22) 53: 0b Green Girl
+  0037. 68(54-0D)                      # Load NPC (26,0c) 54: 0d Yellow Woman
+  003A. 68(55-11)                      # Load NPC (23,14) 55: 11 Gray Old Woman
+  # LABEL @3D $3954b
+  003D. 14(00-0B-30-@4A-FF)            # If Flag 0B ($077f:08) set then DON'T jump to @4A
+  0044. 68(57-3B)                      # Load NPC (18,25) 57: 3b Blonde Woman
+  0047. 68(58-45)                      # Load NPC (19,25) 58: 45 Green Dress Girl
+  # LABEL @4A $39558
+  004A. 14(01-0A-30-@54-FF)            # If Flag 0A ($077f:04) NOT set then DON'T jump to @54
+  0051. 68(5E-3B)                      # Load NPC (19,17) 5e: 3b Blonde Woman
+  # LABEL @54 $39562
+  0054. 68(5F-4D)                      # Load NPC (00,31) 5f: 4d Shadow
+  0057. 00()                           # End Event
+
+EVENT 1C-B-02
+  0000. 00()                           # End Event
+
+EVENT 1C-C-17
+  0000. 00()                           # End Event
+
+EVENT 1C-C-1C
+  0000. 00()                           # End Event
+
+EVENT 1C-C-51
+  0000. 08: Don't worry about the
+            city. I'll protect it
+            while you're gone.<END EVENT>
+
+EVENT 1C-C-52
+  0000. 08: I'm going to go
+            on a journey, too,
+            when I grow up!<END EVENT>
+
+EVENT 1C-C-53
+  0000. 08: I feel like something
+            good will happen to me
+            today.<END EVENT>
+
+EVENT 1C-C-54
+  0000. 08: You're going to Clamento,
+            aren't you? You can buy
+            lovely things there. I
+            wish I could go.<END EVENT>
+
+EVENT 1C-C-55
+  0000. 08: It's good to travel when
+            you're young. The
+            experience turns into
+            such splendid memories.<END EVENT>
+
+EVENT 1D-A-00
+  0000. 00()                           # End Event
+
+EVENT 1D-B-01
+  0000. 30(04-02)                      # Teleport Character
+  0003. 30(02-03)                      # Teleport Character
+  0006. 30(50-04)                      # Teleport Character
+  0009. 31(50-04)                      # Change Facing
+  000C. 31(02-03)                      # Change Facing
+  000F. 31(00-01)                      # Change Facing
+  0012. 31(04-01)                      # Change Facing
+  0015. 3B(03)                         # Move Camera
+  0017. 59(11)                         # Luminosity
+  0019. 76()
+  001A. 38(01)                         # Pause (Longer)
+  001C. 63: Hilda...<END MESSAGE>
+  0022. 38(01)                         # Pause (Longer)
+  0024. 41(21-03)                      # Camera related (follow for X steps?)
+  0027. 33(01-02)                      # Move Character to Location
+  002A. 41(00-FF)                      # Camera related (follow for X steps?)
+  002D. 41(41-09)                      # Camera related (follow for X steps?)
+  0030. 33(04-02)                      # Move Character to Location
+  0033. 41(00-FF)                      # Camera related (follow for X steps?)
+  0036. 63: Finally slept.<END MESSAGE>
+  0042. 66: How's Hilda doing?<END MESSAGE>
+  004D. 63: She'll live. Wasn't hurt
+            as badly as we thought.
+            But she'll be out of
+            it for a while.<END MESSAGE>
+  0085. 63: Hey, $MAXIM$. Who was that
+            woman at the tower?
+            Seemed like you knew her.<END MESSAGE>
+  00B0. 61: That woman. You know,
+            the one who told me I
+            was destined to fight.<END MESSAGE>
+  00DB. 63: Just what kind of woman
+            is she, I wonder.<END MESSAGE>
+  00F4. 61: Who knows. But she's
+            good for us. She knows
+            how to get rid of the
+            magic cast on that door.<END MESSAGE>
+  0130. 63: Yeah. Anyone who can
+            get to the top of that
+            monster-ridden tower
+            must be pretty strong.<END MESSAGE>
+  0165. 61: That's the way I
+            figure it.<END MESSAGE>
+  0178. 63: So, what's your next
+            move, $MAXIM$?<END MESSAGE>
+  018B. 61: To keep going. I got
+            wind of something
+            that...bothers me.<END MESSAGE>
+  01AC. 63: You talking about the
+            super beings out to
+            rule the world?<END MESSAGE>
+  01CE. 61: You got it. If they
+            really exist, I'm
+            going to have to
+            meet them.<END MESSAGE>
+  01F8. 63: And what do you do
+            after you...meet?<END MESSAGE>
+  0211. 61: If this world is their
+            target...<PAUSE 82>I'll have to
+            destroy them, won't I?<END MESSAGE>
+  023B. 63: We're talking super
+            beings here, you know.
+            You can't just walk
+            on them like bugs.<END MESSAGE>
+  026A. 61: Sword to sword, I can
+            win. <PAUSE 82>And you, Sir Guy?
+            Don't you feel the same?<END MESSAGE>
+  0299. 63: Ha! Of course! I won't
+            be ordered about by
+            anyone. Be ruled? No
+            way, $MAXIM$. Not me.<END MESSAGE>
+  02CF. 61: So I thought. <PAUSE 82>Listen,
+            we've got to be moving
+            on soon.<END MESSAGE>
+  02F2. 63: Huh? Already? Well, I
+            could...<PAUSE 84>Nah. I should
+            take it easy a while
+            longer.<END MESSAGE>
+  0323. 37(1E)                         # Pause
+  0325. 4C(18)                         # Play Sound
+  0327. 37(3C)                         # Pause
+  0329. 33(02-56)                      # Move Character to Location
+  032C. 13: <VOICE 56>You really want to go,
+            don't you Guy?<END MESSAGE>
+  0345. 31(02-04)                      # Change Facing
+  0348. 37(0A)                         # Pause
+  034A. 63: Jessy...<END MESSAGE>
+  0352. 66: What a beautiful woman
+            she is. Who is she, Guy?<END MESSAGE>
+  036E. 31(02-02)                      # Change Facing
+  0371. 37(0A)                         # Pause
+  0373. 63: Jessy. She's...<PAUSE 82>uh...
+            <PAUSE 82>my...<PAUSE 82>you know...<END MESSAGE>
+  0392. 13: <VOICE 56>Can't you say it
+            straight out!?<END MESSAGE>
+  03AB. 31(56-02)                      # Change Facing
+  03AE. 37(0A)                         # Pause
+  03B0. 13: <VOICE 56>Hi. I'm Jessy, Guy's
+            girlfriend.<END MESSAGE>
+  03C9. 66: Why, that's wonderful!
+            Nice to meet you.<END MESSAGE>
+  03E0. 13: <VOICE 56>Same here.<END MESSAGE>
+  03EA. 61: Sir Guy's girl, huh?<END MESSAGE>
+  03F9. 63: What do you mean?
+            Can't I have a
+            girlfriend?<END MESSAGE>
+  0416. 61: Oh, sure. I didn't
+            mean anything by it.<END MESSAGE>
+  042D. 31(02-04)                      # Change Facing
+  0430. 37(0A)                         # Pause
+  0432. 63: So, Jessy. What did
+            you mean when you
+            asked if I wanted
+            to go...?<END MESSAGE>
+  045F. 31(56-03)                      # Change Facing
+  0462. 37(0A)                         # Pause
+  0464. 13: <VOICE 56>You want to go, too,
+            right? <PAUSE 82>It was written
+            all over your face.<END MESSAGE>
+  0491. 63: Well...but, I..<END MESSAGE>
+  049C. 13: <VOICE 56>If it's Hilda holding you
+            back, don't worry. I'll
+            take care of her.<END MESSAGE>
+  04C5. 63: I would feel better if
+            you were at her side.
+            But, you and I...<END MESSAGE>
+  04EF. 13: <VOICE 56>Oh, I'll miss you for
+            sure. But you have to
+            do what you have to
+            do. You see...<END MESSAGE>
+  0525. 47(10)                         # Thinking On/Off
+  0527. 13: <VOICE 56>...when it's all over,
+            you'll come back to
+            me, right?<END MESSAGE>
+  0548. 63: You know I will.<END MESSAGE>
+  0555. 47(00)                         # Thinking On/Off
+  0557. 13: <VOICE 56>Go, then. It's ok, Guy.
+            If you can help, I'm
+            happy for you.<END MESSAGE>
+  0580. 63: Oh, Jessy.<END MESSAGE>
+  0589. 31(04-03)                      # Change Facing
+  058C. 37(0A)                         # Pause
+  058E. 66: They're so close they
+            can trust in each other
+            and wait it out. Now
+            that's true love.<END MESSAGE>
+  05C0. 47(10)                         # Thinking On/Off
+  05C2. 61: That's because one
+            follows the other's
+            lead, sort of supports...<END MESSAGE>
+  05E7. 47(00)                         # Thinking On/Off
+  05E9. 66: $MAXIM$! What on earth
+            are you thinking?<END MESSAGE>
+  0600. 31(00-04)                      # Change Facing
+  0603. 37(0A)                         # Pause
+  0605. 61: Oh! Uh...nothing,
+            nothing at all.<END MESSAGE>
+  061A. 66: Well, I should tell you
+            I'm not a waiting
+            around type of woman.<END MESSAGE>
+  063F. 33(03-02)                      # Move Character to Location
+  0642. 37(0A)                         # Pause
+  0644. 31(00-03)                      # Change Facing
+  0647. 37(0A)                         # Pause
+  0649. 70()                           # Silence
+  064A. 63: $MAXIM$! I can go! I want
+            to meet that super being.
+            You'll let me in, right?<END MESSAGE>
+  0677. 61: You sure about this?
+            I mean, it's a very
+            dangerous journey.<END MESSAGE>
+  0697. 63: Dangerous journey? Is
+            that all you can tempt
+            me with?<END MESSAGE>
+  06BC. 61: Sir Guy...<END MESSAGE>
+  06C5. 63: You have to drop this
+            Sir stuff. I mean, I'm
+            part of the team now.
+            We're equals, ok?<END MESSAGE>
+  06FD. 61: I understand.<END MESSAGE>
+  0704. 63: No, no. You don't have
+            to be so prim and proper.
+            I mean, you can say,
+            like, {Got it.}<END MESSAGE>
+  073D. 61: Got it. Ok, then,
+            let's get going, Guy!<END MESSAGE>
+  0756. 63: Let's do it, $MAXIM$!
+            Outta here, Tia!<END MESSAGE>
+  076B. 1A(03)                         # Set Event Flag 03 ($077e:08)
+  076D. 1B(B0)                         # Clear Event Flag B0 ($0794:01)
+  076F. 41(02-00)                      # Camera related (follow for X steps?)
+  0772. 4B(34)                         # Preload Music
+  0774. 49(F0)
+  0776. 9E: <POSITION 06>Guy joins the party.<END MESSAGE>
+  0786. 49(00)
+  0788. 4B(02)                         # Preload Music
+  078A. 32(56-05)                      # Change NPC wander behavior (misc byte)
+  078D. 32(50-07)                      # Change NPC wander behavior (misc byte)
+  0790. 3C()                           # Gather Behind Maxim
+  0791. 00()                           # End Event
+
+EVENT 1D-C-17
+  0000. 00()                           # End Event
+
+EVENT 1D-C-1C
+  0000. 00()                           # End Event
+
+EVENT 1D-C-50
+  0000. 08: Hilda's fine now. I
+            feel so much better.<END EVENT>
+
+EVENT 1D-C-54
+  0000. 08: Clamento Village is
+            just beyond the
+            Southeast Tower.<END EVENT>
+
+EVENT 1D-C-55
+  0000. 08: Good thing Hilda
+            was ok.<END EVENT>
+
+EVENT 1D-C-56
+  0000. 14(01-03-30-@47-FF)            # If Flag 03 ($077e:08) NOT set then DON'T jump to @47
+  0007. 08: Guy's not here, but don't
+            worry. Probably had to
+            tie up some loose ends.
+            He'll be back soon.<END MESSAGE>
+  0044. 1C(@57)                        # Jump
+  # LABEL @47 $44bf3
+  0047. 08: Take care of yourself,
+            Guy.<END MESSAGE>
+  # LABEL @57 $44c03
+  0057. 00()                           # End Event
+
+EVENT 1F-A-01
+  0000. 43(01-02)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT 24-X-XX
+  0000. 74(0A)                         # Set Battle BG
+  0002. A9(00-05)
+  0005. 69(01)
+  0007. 69(11)
+  0009. 4B(3A)                         # Preload Music
+  000B. 7B(53-9D)                      # Load Monster NPC (07,0e) 53: 9d Goblin
+  000E. 7B(54-A0)                      # Load Monster NPC (09,14) 54: a0 Skeleton
+  0011. 7B(55-9D)                      # Load Monster NPC (1a,10) 55: 9d Goblin
+  0014. 00()                           # End Event
+
+EVENT 24-D-01
+  0000. 00()                           # End Event
+
+EVENT 25-B-02
+  0000. 59(11)                         # Luminosity
+  0002. 33(04-00)                      # Move Character to Location
+  0005. 31(04-04)                      # Change Facing
+  0008. 37(14)                         # Pause
+  000A. 66: $MAXIM$, you were planning
+            to do this right from the
+            start, weren't you?<END MESSAGE>
+  0036. 61: Well, yeah. <PAUSE 84>By the
+            way, here Tia. Take it.<END MESSAGE>
+  0055. 66: You're giving it
+            to me?<END MESSAGE>
+  0065. 61: Well, I can't wear it!<END MESSAGE>
+  0074. 66: Thank you, $MAXIM$. What
+            a lovely thing to do!<END MESSAGE>
+  008D. A3(04-14)                      # Play NPC focused animation
+  0090. 89(04)
+  0092. A3(04-14)                      # Play NPC focused animation
+  0095. 89(04)
+  0097. A3(04-14)                      # Play NPC focused animation
+  009A. 89(04)
+  009C. 31(02-03)                      # Change Facing
+  009F. A3(04-14)                      # Play NPC focused animation
+  00A2. 89(04)
+  00A4. A3(04-14)                      # Play NPC focused animation
+  00A7. 89(04)
+  00A9. A3(04-14)                      # Play NPC focused animation
+  00AC. 89(04)
+  00AE. A3(04-14)                      # Play NPC focused animation
+  00B1. 89(04)
+  00B3. 63: Such a simple thing
+            makes her so happy.
+            She's like a little
+            girl.<END MESSAGE>
+  00DB. 61: Yeah. <PAUSE 84>But I don't
+            know if coming with
+            me will make her
+            happy.<END MESSAGE>
+  0103. 31(02-02)                      # Change Facing
+  0106. 37(0A)                         # Pause
+  0108. 63: Well...<PAUSE 84>that's
+            something she'll
+            decide, isn't it?<END MESSAGE>
+  0125. 61: I guess.
+            <PAUSE 84>Hey, Tia. We're leaving
+            soon.<END MESSAGE>
+  0140. 48(02-0A)
+  0143. 08: <PAUSE 04>I'm coming!<END MESSAGE>
+  014D. 33(05-04)                      # Move Character to Location
+  0150. 3C()                           # Gather Behind Maxim
+  0151. 00()                           # End Event
+
+EVENT 25-C-50
+  0000. 08: They say a strong lady
+            warrior of great beauty
+            lives in Parcelyte, north
+            beyond the small shrine.<END EVENT>
+
+EVENT 25-C-51
+  0000. 08: I heard you saved Jaffy.<END EVENT>
+
+EVENT 25-C-52
+  0000. 08: I can't believe someone
+            paid so much for it. I
+            could buy tons of candy
+            with that kind of money!<END EVENT>
+
+EVENT 25-C-53
+  0000. 08: When Jaffy comes back,
+            I'm going to ask him
+            to make me a new ring.<END EVENT>
+
+EVENT 25-C-54
+  0000. 08: I heard you found the
+            Ruby Apple. Mighty fine,
+            mighty fine, indeed.<END EVENT>
+
+EVENT 25-C-55
+  0000. 08: See? You got permission
+            to go through the small
+            shrine.<END EVENT>
+
+EVENT 26-C-18
+  0000. 00()                           # End Event
+
+EVENT 26-C-54
+  0000. 08: I hope my husband's
+            work is of some help.<END EVENT>
+
+EVENT 26-C-55
+  0000. 08: Oh, it's you folks.
+            I've decided to make
+            the Ruby Apple my
+            family treasure.<END MESSAGE>
+  002E. 08: I have already talked
+            to the keeper at the
+            small shrine. You can
+            go through anytime.<END EVENT>
+
+EVENT 26-C-56
+  0000. 08: That glass shop is all
+            paid up. I wonder how
+            they got their hands
+            on the money?<END MESSAGE>
+  0037. 08: Well, as long as they
+            pay us, I don't really
+            care how they do it.<END EVENT>
+
+EVENT 27-D-01
+  0000. 00()                           # End Event
+
+EVENT 2A-X-XX
+  0000. 74(14)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(17)                         # Preload Music
+  0008. 68(52-6C)                      # Load NPC (00,00) 52: 6c Ruby Apple
+  000B. 68(53-7D)                      # Load NPC (00,2b) 53: 7d Broken Ruby Apple
+  000E. 7B(54-A0)                      # Load Monster NPC (0b,0f) 54: a0 Skeleton
+  0011. 7B(55-9D)                      # Load Monster NPC (06,15) 55: 9d Goblin
+  0014. 7B(56-8F)                      # Load Monster NPC (25,24) 56: 8f Bat
+  0017. 00()                           # End Event
+
+EVENT 2A-A-00
+  0000. 00()                           # End Event
+
+EVENT 2A-C-18
+  0000. 00()                           # End Event
+
+EVENT 2A-D-01
+  0000. 00()                           # End Event
+
+EVENT 2B-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 2B-C-50
+  0000. 08: Please go ahead.<END EVENT>
+
+EVENT 2C-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 15(B3-@18)                     # Branch on Flag B3 ($0794:08)
+  0008. 6A(0A-@12)                     # Branch on NOT Flag 0A ($077f:04)
+  000C. 4B(02)                         # Preload Music
+  000E. 1C(@1D)                        # Jump
+  0011. 00()                           # End Event
+  # LABEL @12 $39742
+  0012. 4B(06)                         # Preload Music
+  0014. 1C(@1D)                        # Jump
+  0017. 00()                           # End Event
+  # LABEL @18 $39748
+  0018. 72()
+  0019. 1C(@1D)                        # Jump
+  001C. 00()                           # End Event
+  # LABEL @1D $3974d
+  001D. 68(50-3D)                      # Load NPC (17,24) 50: 3d Ribbon Girl
+  0020. 68(51-0A)                      # Load NPC (18,21) 51: 0a Red Boy
+  0023. 68(52-0A)                      # Load NPC (17,1c) 52: 0a Red Boy
+  0026. 68(53-0D)                      # Load NPC (18,15) 53: 0d Yellow Woman
+  0029. 68(54-0C)                      # Load NPC (21,1d) 54: 0c Blue Man
+  002C. 68(55-0C)                      # Load NPC (1f,1b) 55: 0c Blue Man
+  002F. 68(65-65)                      # Load NPC (00,31) 65: 65 Snake
+  0032. 00()                           # End Event
+
+EVENT 2C-B-01
+  0000. 00()                           # End Event
+
+EVENT 2C-B-02
+  0000. 00()                           # End Event
+
+EVENT 2C-B-03
+  0000. 00()                           # End Event
+
+EVENT 2C-C-10
+  0000. 00()                           # End Event
+
+EVENT 2C-C-50
+  0000. 08: Hello, $MAXIM$!<END EVENT>
+
+EVENT 2C-C-51
+  0000. 08: Welcome back, $MAXIM$!<END EVENT>
+
+EVENT 2C-C-52
+  0000. 08: Hello, $MAXIM$!<END EVENT>
+
+EVENT 2C-C-53
+  0000. 08: Hello, $MAXIM$. Long
+            time no see!<END EVENT>
+
+EVENT 2C-C-54
+  0000. 08: You always look
+            beautiful, really.<END EVENT>
+
+EVENT 2C-C-55
+  0000. 08: Madam Selan, if you
+            need anything, anything
+            at all, ask me and I'll
+            do my best to get it.<END EVENT>
+
+EVENT 2C-D-01
+  0000. 00()                           # End Event
+
+EVENT 2D-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 15(0B-@17)                     # Branch on Flag 0B ($077f:08)
+  0008. 15(B3-@12)                     # Branch on Flag B3 ($0794:08)
+  000C. 4B(02)                         # Preload Music
+  000E. 1C(@1D)                        # Jump
+  0011. 00()                           # End Event
+  # LABEL @12 $397b2
+  0012. 72()
+  0013. 1C(@1D)                        # Jump
+  0016. 00()                           # End Event
+  # LABEL @17 $397b7
+  0017. 4B(2D)                         # Preload Music
+  0019. 1C(@1D)                        # Jump
+  001C. 00()                           # End Event
+  # LABEL @1D $397bd
+  001D. 68(50-0E)                      # Load NPC (17,04) 50: 0e Yellow Middle Man
+  0020. 68(51-19)                      # Load NPC (13,1c) 51: 19 Red Man
+  0023. 68(52-5C)                      # Load NPC (13,10) 52: 5c Bald Cleric
+  0026. 68(53-32)                      # Load NPC (23,05) 53: 32 Priest
+  0029. 68(54-10)                      # Load NPC (21,17) 54: 10 Bald Old Man
+  002C. 68(55-0D)                      # Load NPC (07,1d) 55: 0d Yellow Woman
+  002F. 68(5A-60)                      # Load NPC (05,04) 5a: 60 Ruby Angel
+  0032. 00()                           # End Event
+
+EVENT 2D-A-00
+  0000. 14(00-02-30-@9-FF)             # If Flag 02 ($077e:04) set then DON'T jump to @9
+  0007. 2E(19)                         # Character Disappears
+  # LABEL @9 $4962d
+  0009. 00()                           # End Event
+
+EVENT 2D-A-01
+  0000. 6C(21-00-EE)                   # Move Character by Distance
+  0004. 00()                           # End Event
+
+EVENT 2D-B-01
+  0000. 00()                           # End Event
+
+EVENT 2D-B-02
+  0000. 00()                           # End Event
+
+EVENT 2D-B-04
+  0000. 00()                           # End Event
+
+EVENT 2D-C-50
+  0000. 08: Hey, $MAXIM$! I guess
+            you need to rest
+            sometimes, huh!? Do
+            you want a good rest?<END MESSAGE>
+  0035. 10(02-@44-@43)                 # Set Up Branching Event
+  003B. 08: Yes.
+            No.<CHOICE>
+  # LABEL @43 $4969d
+  0043. 00()                           # End Event
+  # LABEL @44 $4969e
+  0044. 17(00)                         # Call Inn at Price
+  0046. 00()                           # End Event
+
+EVENT 2D-C-54
+  0000. 08: I guess you have
+            not yet given up
+            the fight.<END EVENT>
+
+EVENT 2D-C-55
+  0000. 08: How's Jeros doing
+            these days?<END EVENT>
+
+EVENT 2D-D-01
+  0000. 17(00)                         # Call Inn at Price
+  0002. 00()                           # End Event
+
+EVENT 2D-D-02
+  0000. 17(00)                         # Call Inn at Price
+  0002. 00()                           # End Event
+
+EVENT 2E-A-00
+  0000. 00()                           # End Event
+
+EVENT 2E-B-01
+  0000. 00()                           # End Event
+
+EVENT 2E-C-50
+  0000. 08: Hello, $MAXIM$.<END EVENT>
+
+EVENT 2E-C-51
+  0000. 08: So what are you two
+            doing in the castle?<END EVENT>
+
+EVENT 2E-C-52
+  0000. 08: Sir $MAXIM$, please honor
+            me sometime with
+            your swordsmanship.<END EVENT>
+
+EVENT 2E-C-53
+  0000. 08: You two are like
+            bread and butter,
+            as always.<END EVENT>
+
+EVENT 2E-C-54
+  0000. 08: Good morning, Commander!<END EVENT>
+
+EVENT 2E-C-55
+  0000. 08: I've polished my skills
+            quite a bit. Sir $MAXIM$,
+            would you have a little
+            match with me sometime?<END EVENT>
+
+EVENT 2E-D-01
+  0000. 00()                           # End Event
+
+EVENT 2E-D-02
+  0000. 00()                           # End Event
+
+EVENT 2F-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(01)                         # Preload Music
+  0006. 68(50-19)                      # Load NPC (18,16) 50: 19 Red Man
+  0009. 68(51-19)                      # Load NPC (1b,0e) 51: 19 Red Man
+  000C. 68(52-17)                      # Load NPC (11,0d) 52: 17 Maid
+  000F. 68(53-18)                      # Load NPC (0f,05) 53: 18 Armored Knight
+  0012. 68(54-17)                      # Load NPC (15,23) 54: 17 Maid
+  0015. 68(55-12)                      # Load NPC (08,1e) 55: 12 King
+  0018. 68(56-13)                      # Load NPC (0a,1e) 56: 13 Queen
+  001B. 68(57-15)                      # Load NPC (06,1e) 57: 15 Princess
+  001E. 68(58-16)                      # Load NPC (0c,22) 58: 16 Knight
+  0021. 68(59-18)                      # Load NPC (14,35) 59: 18 Armored Knight
+  0024. 68(5B-19)                      # Load NPC (0a,2c) 5b: 19 Red Man
+  0027. 00()                           # End Event
+
+EVENT 2F-C-19
+  0000. 00()                           # End Event
+
+EVENT 2F-C-50
+  0000. 08: The King is in the
+            throne room, as normal.<END EVENT>
+
+EVENT 2F-C-51
+  0000. 08: I feel the limits of my
+            swordsmanship these days.
+            I don't know what to do.<END EVENT>
+
+EVENT 2F-C-52
+  0000. 08: Hello, Sir $MAXIM$! What
+            brings you here today?<END EVENT>
+
+EVENT 2F-C-53
+  0000. 08: Commander Selan, you
+            don't show up at
+            training these days.<END EVENT>
+
+EVENT 2F-C-54
+  0000. 08: Please come visit the
+            castle sometime.
+            We'd be thrilled
+            to have you.<END EVENT>
+
+EVENT 2F-C-55
+  0000. 08: I see you are
+            still fighting.<END EVENT>
+
+EVENT 2F-C-56
+  0000. 08: I see you must go
+            to battle once again.<END EVENT>
+
+EVENT 2F-C-57
+  0000. 08: I...I can't do anything,
+            but at least let me
+            wish you a safe journey.<END EVENT>
+
+EVENT 2F-C-58
+  0000. 08: Idura appeared! Could
+            this be...? <PAUSE 84>No, no.
+            I worry too much.<END EVENT>
+
+EVENT 2F-C-59
+  0000. 08: Please pass.<END MESSAGE>
+  0008. 33(2F-00)                      # Move Character to Location
+  000B. 33(08-59)                      # Move Character to Location
+  000E. 32(59-07)                      # Change NPC wander behavior (misc byte)
+  0011. 00()                           # End Event
+
+EVENT 2F-C-5A
+  0000. 08: Jeros's just fine. Don't
+            worry. Have a safe
+            journey. We could use
+            some peace around here.<END EVENT>
+
+EVENT 2F-C-5B
+  0000. 08: Hello, $MAXIM$.
+            The King is inside.<END EVENT>
+
+EVENT 33-X-XX
+  0000. 74(05)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(99)
+  0006. 4B(2F)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT 33-A-00
+  0000. 00()                           # End Event
+
+EVENT 33-A-01
+  0000. 69(11)
+  0002. 54(00)                         # Open locked door?
+  0004. 00()                           # End Event
+
+EVENT 33-C-50
+  0000. 13: <VOICE 50>I wonder if you can
+            really defeat me?<END MESSAGE>
+  0018. 4B(19)                         # Preload Music
+  001A. 53(09)                         # Invoke Battle (Pierre x1)
+  001C. 15(FF-@88)                     # Branch on Flag FF ($079d:80)
+  0020. 70()                           # Silence
+  0021. A4()                           # Screen Mosaic
+  0022. 76()
+  0023. 6F(2F)                         # Change Music
+  0025. 4C(32)                         # Play Sound
+  0027. 9D(50)
+  0029. 89(50)
+  002B. 38(01)                         # Pause (Longer)
+  002D. 4C(33)                         # Play Sound
+  002F. 95(FF-00-3C)                   # Screen tint animation
+  0033. 37(3C)                         # Pause
+  0035. 97()
+  0036. 4C(32)                         # Play Sound
+  0038. 98(50-03)                      # Thunder Warp
+  003B. 38(01)                         # Pause (Longer)
+  003D. 61: No! This can't be true!
+            I defeated you!?<END MESSAGE>
+  0057. 13: <VOICE 50>Ha, ha, ha! Your power
+            is not enough to defeat
+            me. Get out of my face!<END MESSAGE>
+  0083. 16(33-01-01)                   # Warp to Map & Event [33-B-01] (01)
+  0087. 00()                           # End Event
+  # LABEL @88 $4d795
+  0088. A5()                           # Call Game Load Screen
+  0089. 00()                           # End Event
+
+EVENT 33-C-51
+  0000. 08: I wonder if you can
+            really defeat me?<END MESSAGE>
+  0017. 4B(19)                         # Preload Music
+  0019. 53(0A)                         # Invoke Battle (Daniele x1)
+  001B. 15(FF-@87)                     # Branch on Flag FF ($079d:80)
+  001F. 70()                           # Silence
+  0020. A4()                           # Screen Mosaic
+  0021. 76()
+  0022. 6F(2F)                         # Change Music
+  0024. 4C(32)                         # Play Sound
+  0026. 9D(51)
+  0028. 89(51)
+  002A. 38(01)                         # Pause (Longer)
+  002C. 4C(33)                         # Play Sound
+  002E. 95(FF-00-3C)                   # Screen tint animation
+  0032. 37(3C)                         # Pause
+  0034. 97()
+  0035. 4C(32)                         # Play Sound
+  0037. 98(51-04)                      # Thunder Warp
+  003A. 38(01)                         # Pause (Longer)
+  003C. 61: No! This can't be true!
+            I defeated you!?<END MESSAGE>
+  0056. 13: <VOICE 51>Ha, ha, ha! Your power
+            is not enough to defeat
+            me. Get out of my face!<END MESSAGE>
+  0082. 16(33-01-01)                   # Warp to Map & Event [33-B-01] (01)
+  0086. 00()                           # End Event
+  # LABEL @87 $4d822
+  0087. A5()                           # Call Game Load Screen
+  0088. 00()                           # End Event
+
+EVENT 33-D-01
+  0000. 00()                           # End Event
+
+EVENT 33-D-02
+  0000. 00()                           # End Event
+
+EVENT 33-D-03
+  0000. 00()                           # End Event
+
+EVENT 35-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 00()                           # End Event
+
+EVENT 35-C-50
+  0000. 08: Gordovan still might
+            be in danger. Please
+            be very careful.<END EVENT>
+
+EVENT 36-C-50
+  0000. 08: We have to rebuild
+            as quickly as we can.<END EVENT>
+
+EVENT 36-C-51
+  0000. 08: It's going to be
+            hard to rebuild,
+            you know.<END EVENT>
+
+EVENT 36-C-52
+  0000. 08: The new horror...the
+            new horror nears,
+            does it not?<END EVENT>
+
+EVENT 36-C-53
+  0000. 08: Great! The woman
+            traveler is safe.<END EVENT>
+
+EVENT 36-C-54
+  0000. 08: Oh my! That woman saved
+            your lives, really!?
+            It's strange, so very
+            strange.<END EVENT>
+
+EVENT 36-C-56
+  0000. 08: Even though the building's
+            destroyed, what's
+            important is faith. What
+            can I do for you today?<END MESSAGE>
+  0036. 19()                           # Call Church
+  0037. 00()                           # End Event
+
+EVENT 36-C-57
+  0000. 08: Good! Now I can get
+            to Merix, but it's
+            still a bit frightening.<END EVENT>
+
+EVENT 36-C-58
+  0000. 08: It's going to be
+            awfully hard work
+            to rebuild this city,
+            you know!?<END EVENT>
+
+EVENT 36-C-59
+  0000. 08: I'll just have to pull
+            myself together and
+            rebuild.<END EVENT>
+
+EVENT 37-D-01
+  0000. 00()                           # End Event
+
+EVENT 38-A-01
+  0000. 14(10-0A-01-30-@B-FF)          # If Variable 0A ($07a8) == 1 then DON'T jump to @B
+  0008. 43(04-03)                      # Overwrite Map Tiles
+  # LABEL @B $4e414
+  000B. 43(02-01)                      # Overwrite Map Tiles
+  000E. 00()                           # End Event
+
+EVENT 3D-D-01
+  0000. 00()                           # End Event
+
+EVENT 3E-C-50
+  0000. 08: The bridge's fixed, huh?
+            Good. That woman won't
+            have any problems then.<END MESSAGE>
+  0027. 61: What woman?<END MESSAGE>
+  002F. 08: Never seen her before.
+            Came a short while ago
+            and said she wanted to
+            go to Bound Kingdom.<END MESSAGE>
+  0066. 08: I told her she couldn't
+            because the bridge hadn't
+            been fixed. Didn't you
+            see her in the cave?<END EVENT>
+
+EVENT 3E-C-51
+  0000. 08: Who is this man that
+            destroyed Gordovan and
+            the bridge, then headed
+            north? And why?<END EVENT>
+
+EVENT 3E-C-52
+  0000. 08: Since the bridge is fixed,
+            you can go to Bound
+            Kingdom and meet this
+            other warrior.<END EVENT>
+
+EVENT 3E-C-54
+  0000. 08: Seems like Ugene's
+            father's come back
+            from the cave. Ugene
+            looks so happy.<END EVENT>
+
+EVENT 3E-C-55
+  0000. 08: You're a pretty good
+            warrior? I wonder who's
+            stronger, you or the one
+            in Bound Kingdom?<END EVENT>
+
+EVENT 3F-C-1B
+  0000. 00()                           # End Event
+
+EVENT 3F-C-54
+  0000. 08: Are you folks following
+            that man? No need to
+            answer. I can tell by
+            looking at you.<END MESSAGE>
+  0037. 08: I sense something...not
+            evil, but very dangerous
+            from you people...<END EVENT>
+
+EVENT 3F-C-55
+  0000. 08: You helped my father
+            fix the bridge, right?
+            Thank you.<END EVENT>
+
+EVENT 40-A-01
+  0000. 43(05-09)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT 40-D-01
+  0000. 00()                           # End Event
+
+EVENT 42-D-01
+  0000. 00()                           # End Event
+
+EVENT 44-X-XX
+  0000. 74(0B)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(09)
+  0006. 69(99)
+  0008. 4B(17)                         # Preload Music
+  000A. 00()                           # End Event
+
+EVENT 44-A-01
+  0000. 43(01-02)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT 44-B-01
+  0000. 3D(00)                         # Hide Behind Maxim
+  0002. 2D(01)                         # Character Appears
+  0004. 2D(00)                         # Character Appears
+  0006. 2D(04)                         # Character Appears
+  0008. 30(01-02)                      # Teleport Character
+  000B. 30(04-03)                      # Teleport Character
+  000E. 31(00-01)                      # Change Facing
+  0011. 31(04-01)                      # Change Facing
+  0014. 31(01-01)                      # Change Facing
+  0017. 59(11)                         # Luminosity
+  0019. 33(01-00)                      # Move Character to Location
+  001C. 37(0A)                         # Pause
+  001E. 61: Selan! Are you alright!?<END MESSAGE>
+  002E. 31(01-02)                      # Change Facing
+  0031. 37(0A)                         # Pause
+  0033. 62: Tsk, tsk, $MAXIM$.<END MESSAGE>
+  003F. 61: Huh!?<END MESSAGE>
+  0046. 62: You just told me not to
+            do such careless things.
+            But you jumped down
+            right away.<END MESSAGE>
+  0079. 61: I...I might have
+            said that but...<END MESSAGE>
+  0090. 62: I'm just kidding.
+            <PAUSE 82>Thanks. I'm glad
+            you came right away.<END MESSAGE>
+  00B4. 31(01-03)                      # Change Facing
+  00B7. 37(1E)                         # Pause
+  00B9. 31(00-02)                      # Change Facing
+  00BC. 37(1E)                         # Pause
+  00BE. 61: Anyway, I'm glad
+            you're ok.<END MESSAGE>
+  00CF. 33(02-00)                      # Move Character to Location
+  00D2. 31(01-02)                      # Change Facing
+  00D5. 37(0A)                         # Pause
+  00D7. 61: Let's go, Tia!<END MESSAGE>
+  00E1. 31(04-04)                      # Change Facing
+  00E4. 37(0A)                         # Pause
+  00E6. 47(10)                         # Thinking On/Off
+  00E8. 66: You...$MAXIM$, you're so
+            sweet. It would have
+            been much easier if
+            you'd been cold.<END MESSAGE>
+  0119. 47(00)                         # Thinking On/Off
+  011B. 61: What's wrong, Tia?<END MESSAGE>
+  0126. 66: Wh...what? <PAUSE 82>Oh, I'm sorry.
+            I was just spacing out.
+            <PAUSE 82>Let's go.<END MESSAGE>
+  0152. 3C()                           # Gather Behind Maxim
+  0153. 00()                           # End Event
+
+EVENT 44-D-01
+  0000. 00()                           # End Event
+
+EVENT 45-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 15(0B-@18)                     # Branch on Flag 0B ($077f:08)
+  0008. 6A(0A-@12)                     # Branch on NOT Flag 0A ($077f:04)
+  000C. 4B(01)                         # Preload Music
+  000E. 1C(@1E)                        # Jump
+  # LABEL @11 $39a4c
+  0011. 00()                           # End Event
+  # LABEL @12 $39a4d
+  0012. 4B(06)                         # Preload Music
+  0014. 1C(@1E)                        # Jump
+  0017. 00()                           # End Event
+  # LABEL @18 $39a53
+  0018. 4B(2E)                         # Preload Music
+  001A. 1C(@1E)                        # Jump
+  001D. 00()                           # End Event
+  # LABEL @1E $39a59
+  001E. 68(50-19)                      # Load NPC (12,2d) 50: 19 Red Man
+  0021. 68(51-19)                      # Load NPC (21,1e) 51: 19 Red Man
+  0024. 68(52-19)                      # Load NPC (0d,22) 52: 19 Red Man
+  0027. 68(53-17)                      # Load NPC (1a,18) 53: 17 Maid
+  002A. 14(01-0A-30-@11-FF)            # If Flag 0A ($077f:04) NOT set then DON'T jump to @11
+  0031. 68(60-05)                      # Load NPC (15,12) 60: 05 Dekar
+  0034. 68(61-14)                      # Load NPC (15,0f) 61: 14 Prince
+  0037. 68(62-16)                      # Load NPC (15,0f) 62: 16 Knight
+  003A. 68(63-19)                      # Load NPC (11,16) 63: 19 Red Man
+  003D. 68(64-4D)                      # Load NPC (15,13) 64: 4d Shadow
+  0040. 00()                           # End Event
+
+EVENT 45-A-00
+  0000. 14(00-8A-30-@C-FF)             # If Flag 8A ($078f:04) set then DON'T jump to @C
+  0007. 30(1D-05)                      # Teleport Character
+  000A. 54(00)                         # Open locked door?
+  # LABEL @C $4fe05
+  000C. 00()                           # End Event
+
+EVENT 45-C-1D
+  0000. 00()                           # End Event
+
+EVENT 45-C-50
+  0000. 08: Welcome to Bound
+            Kingdom!<END EVENT>
+
+EVENT 45-C-51
+  0000. 08: Oh, it's you $MAXIM$!
+            I'm so glad to see you.<END EVENT>
+
+EVENT 45-C-52
+  0000. 08: I am honored to meet
+            you, $MAXIM$, vanquisher
+            of Gades.<END EVENT>
+
+EVENT 45-C-53
+  0000. 08: Whew! I'm just so busy!
+            I just don't get it.
+            Why so much work?<END EVENT>
+
+EVENT 45-D-01
+  0000. 00()                           # End Event
+
+EVENT 45-D-02
+  0000. 00()                           # End Event
+
+EVENT 46-C-1D
+  0000. 00()                           # End Event
+
+EVENT 46-C-1E
+  0000. 00()                           # End Event
+
+EVENT 46-C-1F
+  0000. 00()                           # End Event
+
+EVENT 46-C-52
+  0000. 08: There's a rumor that
+            the evil Idura went
+            to Aleyn. Well, it's
+            just a rumor, right?<END EVENT>
+
+EVENT 46-C-53
+  0000. 08: $MAXIM$! Dekar! Who's
+            stronger?<END EVENT>
+
+EVENT 46-C-54
+  0000. 14(01-05-30-@2C-FF)            # If Flag 05 ($077e:20) NOT set then DON'T jump to @2C
+  0007. 08: I haven't seen Dekar
+            lately. I wonder what
+            happened to him?<END MESSAGE>
+  0029. 1C(@46)                        # Jump
+  # LABEL @2C $518ba
+  002C. 08: Oh, it's you, Dekar.
+            Where have you been?<END MESSAGE>
+  # LABEL @46 $518d4
+  0046. 00()                           # End Event
+
+EVENT 46-C-55
+  0000. 08: Alright! You're here,
+            you're here, $MAXIM$!<END EVENT>
+
+EVENT 46-C-56
+  0000. 08: I heard someone actually
+            deep fried jelly in
+            olive oil. Who could
+            do such a thing? Ha!<END EVENT>
+
+EVENT 46-C-57
+  0000. 08: You're going to
+            battle, aren't you? I
+            wish you luck!<END EVENT>
+
+EVENT 46-C-59
+  0000. 08: Oh, $MAXIM$! I'm so
+            happy to see you again.
+            We owe everything to
+            you. Our home is yours.<END EVENT>
+
+EVENT 46-C-5A
+  0000. 08: Oh, $MAXIM$. How can
+            I ever repay you for
+            all you have
+            done for us?<END EVENT>
+
+EVENT 46-C-5B
+  0000. 08: So many children want
+            to be like you, Sir $MAXIM$.
+            They say they'll grow
+            into mighty warriors.<END EVENT>
+
+EVENT 46-C-5C
+  0000. 08: You really, seriously,
+            truly beat Gades,
+            huh!? It's just amazing!<END EVENT>
+
+EVENT 46-C-5D
+  0000. 08: I'll try my very best
+            to become like you,
+            Sir $MAXIM$.<END EVENT>
+
+EVENT 46-C-5F
+  0000. 08: I heard you're pretty
+            good, too.<END EVENT>
+
+EVENT 46-D-01
+  0000. 00()                           # End Event
+
+EVENT 4A-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(08)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT 4A-A-00
+  0000. 00()                           # End Event
+
+EVENT 4A-D-01
+  0000. 00()                           # End Event
+
+EVENT 4C-C-50
+  0000. 08: Thank goodness you're
+            safe, $MAXIM$. I nearly
+            gave up hope when the
+            tower crumbled.<END EVENT>
+
+EVENT 4C-D-01
+  0000. 00()                           # End Event
+
+EVENT 4C-D-02
+  0000. 00()                           # End Event
+
+EVENT 52-A-01
+  0000. 43(12-11)                      # Overwrite Map Tiles
+  0003. 43(0C-0B)                      # Overwrite Map Tiles
+  0006. 43(0E-0D)                      # Overwrite Map Tiles
+  0009. 43(10-0F)                      # Overwrite Map Tiles
+  000C. 00()                           # End Event
+
+EVENT 52-D-01
+  0000. 00()                           # End Event
+
+EVENT 55-D-01
+  0000. 00()                           # End Event
+
+EVENT 56-C-50
+  0000. 08: Please go through.<END MESSAGE>
+  000A. 33(0A-00)                      # Move Character to Location
+  000D. 33(04-50)                      # Move Character to Location
+  0010. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0013. 00()                           # End Event
+
+EVENT 56-D-01
+  0000. 00()                           # End Event
+
+EVENT 58-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 58-C-50
+  0000. 08: I'm glad your baby was
+            ok, but we still have
+            tons of monsters.
+            What's causing all this?<END EVENT>
+
+EVENT 5D-D-01
+  0000. 00()                           # End Event
+
+EVENT 5E-B-01
+  0000. 00()                           # End Event
+
+EVENT 5E-C-22
+  0000. 00()                           # End Event
+
+EVENT 5E-C-50
+  0000. 08: There's nothing to
+            worry about while
+            Jyad is making the ship.<END EVENT>
+
+EVENT 5E-C-51
+  0000. 08: I heard the ship Jyad
+            was working on is
+            finally complete!<END EVENT>
+
+EVENT 5E-C-52
+  0000. 08: I wonder if Stela's
+            still ill?<END EVENT>
+
+EVENT 5E-C-53
+  0000. 08: Just as I thought. The
+            Margos looked cool.
+            I want to board, too.<END EVENT>
+
+EVENT 5E-C-55
+  0000. 08: Jyad should be at
+            home. If not, then
+            look around the port.<END EVENT>
+
+EVENT 5E-C-56
+  0000. 08: Well, I guess it's just
+            a matter of time, then.<END EVENT>
+
+EVENT 5E-D-01
+  0000. 00()                           # End Event
+
+EVENT 5E-D-02
+  0000. 00()                           # End Event
+
+EVENT 5E-D-03
+  0000. 00()                           # End Event
+
+EVENT 5F-C-1C
+  0000. 00()                           # End Event
+
+EVENT 5F-C-1D
+  0000. 00()                           # End Event
+
+EVENT 5F-C-22
+  0000. 00()                           # End Event
+
+EVENT 5F-C-50
+  0000. 00()                           # End Event
+
+EVENT 5F-C-55
+  0000. 08: Now the ship's done, I
+            hope I'll get more
+            customers. Would you
+            like something?<END MESSAGE>
+  0030. 18(18)                         # Call Shop
+  0032. 00()                           # End Event
+
+EVENT 5F-C-56
+  0000. 08: I need to go back to
+            work now.<END EVENT>
+
+EVENT 5F-C-57
+  0000. 08: Has he really finished
+            the ship already? He's
+            really good.<END EVENT>
+
+EVENT 5F-C-58
+  0000. 08: Why does he name
+            the ship after a woman
+            called Margos? <PAUSE 84>He should
+            have named her Stela.<END EVENT>
+
+EVENT 60-D-01
+  0000. 00()                           # End Event
+
+EVENT 67-C-22
+  0000. 00()                           # End Event
+
+EVENT 67-D-01
+  0000. 00()                           # End Event
+
+EVENT 68-B-02
+  0000. 59(11)                         # Luminosity
+  0002. 33(09-53)                      # Move Character to Location
+  0005. 13: <VOICE 53>Amazing you got this far!
+            You can play this
+            {Bonus Game} only
+            in the Ancient Cave.<END MESSAGE>
+  003D. 13: <VOICE 53>You should go to the
+            Cafe before you go to
+            the cave. Good luck!<END MESSAGE>
+  0069. 00()                           # End Event
+
+EVENT 68-C-22
+  0000. 00()                           # End Event
+
+EVENT 68-C-53
+  0000. 08: How wonderful! You've
+            cleared the game twice!<END EVENT>
+
+EVENT 69-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(15)                         # Preload Music
+  0006. 68(50-0E)                      # Load NPC (14,1c) 50: 0e Yellow Middle Man
+  0009. 68(51-32)                      # Load NPC (06,1b) 51: 32 Priest
+  000C. 68(52-0E)                      # Load NPC (14,0e) 52: 0e Yellow Middle Man
+  000F. 68(53-0E)                      # Load NPC (04,04) 53: 0e Yellow Middle Man
+  0012. 68(54-0C)                      # Load NPC (0a,05) 54: 0c Blue Man
+  0015. 68(55-0E)                      # Load NPC (16,04) 55: 0e Yellow Middle Man
+  0018. 68(56-1C)                      # Load NPC (12,07) 56: 1c Brown Woman
+  001B. 68(57-10)                      # Load NPC (13,06) 57: 10 Bald Old Man
+  001E. 68(58-0D)                      # Load NPC (17,07) 58: 0d Yellow Woman
+  0021. 68(59-1C)                      # Load NPC (05,11) 59: 1c Brown Woman
+  0024. 68(5A-0F)                      # Load NPC (20,12) 5a: 0f Green Middle Woman
+  0027. 68(5B-1A)                      # Load NPC (1f,05) 5b: 1a Sailor
+  002A. 68(5C-F1)                      # Load NPC (0b,11) 5c: f1 Sword
+  002D. 68(5D-F2)                      # Load NPC (0a,11) 5d: f2 Shield
+  0030. 68(5E-F3)                      # Load NPC (09,11) 5e: f3 Helm
+  0033. 68(5F-F4)                      # Load NPC (08,11) 5f: f4 Armor
+  0036. 68(60-F5)                      # Load NPC (07,11) 60: f5 Ring
+  0039. 68(61-F6)                      # Load NPC (0b,14) 61: f6 Gemstone
+  003C. 68(62-F7)                      # Load NPC (0a,14) 62: f7 Rod
+  003F. 68(63-F8)                      # Load NPC (09,14) 63: f8 Vase
+  0042. 68(64-F9)                      # Load NPC (08,14) 64: f9 Circlet
+  0045. 68(65-94)                      # Load NPC (07,14) 65: 94 Jelly
+  0048. 00()                           # End Event
+
+EVENT 69-A-00
+  0000. 14(01-D2-30-@C-FF)             # If Flag D2 ($0798:04) NOT set then DON'T jump to @C
+  0007. 2E(5C)                         # Character Disappears
+  0009. 1C(@10)                        # Jump
+  # LABEL @C $56b78
+  000C. C0(5C-00-F0)
+  # LABEL @10 $56b7c
+  0010. 14(01-D3-30-@1C-FF)            # If Flag D3 ($0798:08) NOT set then DON'T jump to @1C
+  0017. 2E(5D)                         # Character Disappears
+  0019. 1C(@20)                        # Jump
+  # LABEL @1C $56b88
+  001C. C0(5D-00-F0)
+  # LABEL @20 $56b8c
+  0020. 14(01-D4-30-@2C-FF)            # If Flag D4 ($0798:10) NOT set then DON'T jump to @2C
+  0027. 2E(5E)                         # Character Disappears
+  0029. 1C(@30)                        # Jump
+  # LABEL @2C $56b98
+  002C. C0(5E-00-F0)
+  # LABEL @30 $56b9c
+  0030. 14(01-D5-30-@3C-FF)            # If Flag D5 ($0798:20) NOT set then DON'T jump to @3C
+  0037. 2E(5F)                         # Character Disappears
+  0039. 1C(@40)                        # Jump
+  # LABEL @3C $56ba8
+  003C. C0(5F-00-F0)
+  # LABEL @40 $56bac
+  0040. 14(01-D6-30-@4C-FF)            # If Flag D6 ($0798:40) NOT set then DON'T jump to @4C
+  0047. 2E(60)                         # Character Disappears
+  0049. 1C(@50)                        # Jump
+  # LABEL @4C $56bb8
+  004C. C0(60-00-F0)
+  # LABEL @50 $56bbc
+  0050. 14(01-D7-30-@5C-FF)            # If Flag D7 ($0798:80) NOT set then DON'T jump to @5C
+  0057. 2E(61)                         # Character Disappears
+  0059. 1C(@60)                        # Jump
+  # LABEL @5C $56bc8
+  005C. C0(61-00-F0)
+  # LABEL @60 $56bcc
+  0060. 14(01-D8-30-@6C-FF)            # If Flag D8 ($0799:01) NOT set then DON'T jump to @6C
+  0067. 2E(62)                         # Character Disappears
+  0069. 1C(@70)                        # Jump
+  # LABEL @6C $56bd8
+  006C. C0(62-00-F0)
+  # LABEL @70 $56bdc
+  0070. 14(01-D9-30-@7C-FF)            # If Flag D9 ($0799:02) NOT set then DON'T jump to @7C
+  0077. 2E(63)                         # Character Disappears
+  0079. 1C(@80)                        # Jump
+  # LABEL @7C $56be8
+  007C. C0(63-00-F0)
+  # LABEL @80 $56bec
+  0080. 14(01-DA-30-@8C-FF)            # If Flag DA ($0799:04) NOT set then DON'T jump to @8C
+  0087. 2E(64)                         # Character Disappears
+  0089. 1C(@90)                        # Jump
+  # LABEL @8C $56bf8
+  008C. C0(64-00-F0)
+  # LABEL @90 $56bfc
+  0090. 14(01-DB-30-@9C-FF)            # If Flag DB ($0799:08) NOT set then DON'T jump to @9C
+  0097. 2E(65)                         # Character Disappears
+  0099. 1C(@A0)                        # Jump
+  # LABEL @9C $56c08
+  009C. C0(65-00-F0)
+  # LABEL @A0 $56c0c
+  00A0. 30(53-01)                      # Teleport Character
+  00A3. 32(53-07)                      # Change NPC wander behavior (misc byte)
+  00A6. 00()                           # End Event
+
+EVENT 69-C-53
+  0000. 14(10-0B-00-20-@74-FF)         # If Variable 0B ($07a9) == 0 then jump to @74
+  0008. 08: Are you going to
+            leave your party?<END MESSAGE>
+  001E. 10(02-@31-@6F)                 # Set Up Branching Event
+  0024. 08: Yes.
+            No.<CHOICE>
+  002C. 08: Alright.<END EVENT>
+  # LABEL @31 $56ced
+  0031. 08: Alright. Would you step
+            outside? There are things
+            I have to do.<END MESSAGE>
+  0058. 1D(0B-00)                      # Set Variable 0B ($07a9)
+  005B. 1B(02)                         # Clear Event Flag 02 ($077e:04)
+  005D. 1B(03)                         # Clear Event Flag 03 ($077e:08)
+  005F. 1B(04)                         # Clear Event Flag 04 ($077e:10)
+  0061. 1B(05)                         # Clear Event Flag 05 ($077e:20)
+  0063. 1B(06)                         # Clear Event Flag 06 ($077e:40)
+  0065. 1B(07)                         # Clear Event Flag 07 ($077e:80)
+  0067. 33(12-00)                      # Move Character to Location
+  006A. 16(68-03-04)                   # Warp to Map & Event [68-B-03] (04)
+  006E. 00()                           # End Event
+  # LABEL @6F $56d2b
+  006F. 08: Alright.<END EVENT>
+  # LABEL @74 $56d30
+  0074. 08: Choose the party you're
+            going with to the cave.
+            Of course, you can
+            go by yourself.<END EVENT>
+
+EVENT 6A-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(15)                         # Preload Music
+  0006. 68(50-17)                      # Load NPC (09,0e) 50: 17 Maid
+  0009. 68(51-0D)                      # Load NPC (12,20) 51: 0d Yellow Woman
+  000C. 68(52-0D)                      # Load NPC (0c,19) 52: 0d Yellow Woman
+  000F. 68(53-0B)                      # Load NPC (11,13) 53: 0b Green Girl
+  0012. 68(54-0A)                      # Load NPC (21,20) 54: 0a Red Boy
+  0015. 68(55-0C)                      # Load NPC (20,16) 55: 0c Blue Man
+  0018. 68(56-1A)                      # Load NPC (11,22) 56: 1a Sailor
+  001B. 68(57-10)                      # Load NPC (1a,23) 57: 10 Bald Old Man
+  001E. 68(58-11)                      # Load NPC (0f,0e) 58: 11 Gray Old Woman
+  0021. 00()                           # End Event
+
+EVENT 6A-C-22
+  0000. 00()                           # End Event
+
+EVENT 6A-C-50
+  0000. 08: When we went to the
+            top of the tower, a
+            woman was talking
+            to that guy.<END MESSAGE>
+  002C. 08: The woman left soon,
+            but said she was
+            going to Karlloon.<END EVENT>
+
+EVENT 6A-C-51
+  0000. 08: You must be a
+            brave person.<END EVENT>
+
+EVENT 6A-C-52
+  0000. 08: Thank you so much
+            for saving me.<END EVENT>
+
+EVENT 6A-C-53
+  0000. 08: Thank you very much, sir.<END EVENT>
+
+EVENT 6A-C-54
+  0000. 08: You people are so
+            strong. I'll be strong
+            like you and protect Lulu.<END EVENT>
+
+EVENT 6A-C-55
+  0000. 08: It seems that the guy
+            who was in the tower
+            left for Karlloon.<END EVENT>
+
+EVENT 6A-C-56
+  0000. 08: You saved Marsa's life.
+            I don't know what to
+            say. I thank you.<END EVENT>
+
+EVENT 6A-C-57
+  0000. 08: I see all the girls
+            came back safely.
+            Good, very good.<END EVENT>
+
+EVENT 6A-C-58
+  0000. 08: I heard young women
+            were to be taken for
+            some evil purpose. So
+            why not me!?<END EVENT>
+
+EVENT 6A-D-01
+  0000. 00()                           # End Event
+
+EVENT 6B-C-50
+  0000. 08: This is to show my
+            appreciation for saving
+            the young women of the
+            city. Stay for free.<END MESSAGE>
+  003C. 10(02-@4B-@4A)                 # Set Up Branching Event
+  0042. 08: Yes.
+            No.<CHOICE>
+  # LABEL @4A $58013
+  004A. 00()                           # End Event
+  # LABEL @4B $58014
+  004B. 17(00)                         # Call Inn at Price
+  004D. 00()                           # End Event
+
+EVENT 6B-C-54
+  0000. 08: I heard that a crazy
+            man is boasting to
+            everyone in Karlloon that
+            the end is near.<END EVENT>
+
+EVENT 72-X-XX
+  0000. 74(0A)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(05)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT 72-D-01
+  0000. 00()                           # End Event
+
+EVENT 73-B-01
+  0000. 00()                           # End Event
+
+EVENT 73-C-50
+  0000. 08: The light really messed
+            up the small shrine in
+            the east, but I guess
+            it's fixed now.<END EVENT>
+
+EVENT 73-C-51
+  0000. 08: Even though the North
+            Shrine is gone, I
+            still feel the strong
+            power of a super being.<END EVENT>
+
+EVENT 73-C-52
+  0000. 08: You can't go anywhere
+            beyond the eastern port
+            town called Treadool
+            without a ship.<END EVENT>
+
+EVENT 73-C-53
+  0000. 08: I hear there's a genius
+            inventor in Treadool,
+            east through the small
+            shrine.<END EVENT>
+
+EVENT 73-C-54
+  0000. 08: What's wrong? You look
+            down. Did something
+            bad happen?<END EVENT>
+
+EVENT 73-C-55
+  0000. 08: The shrine was destroyed.<END EVENT>
+
+EVENT 74-C-54
+  0000. 08: Who was that woman
+            with you a little while
+            ago? There's something
+            spooky about her.<END EVENT>
+
+EVENT 75-X-XX
+  0000. 74(05)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(2F)                         # Preload Music
+  0008. 7B(51-B7)                      # Load Monster NPC (1a,1b) 51: b7 Lion
+  000B. 7B(52-81)                      # Load Monster NPC (27,21) 52: 81 Snail
+  000E. 7B(53-8A)                      # Load Monster NPC (0d,0d) 53: 8a Dog
+  0011. 00()                           # End Event
+
+EVENT 75-A-00
+  0000. 69(19)
+  0002. 00()                           # End Event
+
+EVENT 75-A-01
+  0000. 00()                           # End Event
+
+EVENT 75-C-50
+  0000. 08: The uneasiness has
+            vanished, but I sense
+            something very strong
+            from somewhere else.<END EVENT>
+
+EVENT 76-A-00
+  0000. 69(19)
+  0002. 00()                           # End Event
+
+EVENT 77-A-00
+  0000. 69(19)
+  0002. 00()                           # End Event
+
+EVENT 77-A-01
+  0000. 54(05)                         # Open locked door?
+  0002. 00()                           # End Event
+
+EVENT 77-C-12
+  0000. 00()                           # End Event
+
+EVENT 77-D-01
+  0000. 00()                           # End Event
+
+EVENT 77-D-02
+  0000. 00()                           # End Event
+
+EVENT 77-D-03
+  0000. 00()                           # End Event
+
+EVENT 78-A-00
+  0000. 69(19)
+  0002. 00()                           # End Event
+
+EVENT 78-D-01
+  0000. 00()                           # End Event
+
+EVENT 79-A-00
+  0000. C0(50-10-00)
+  0004. 00()                           # End Event
+
+EVENT 79-C-50
+  0000. 08: The port town of Treadool
+            is through here.<END EVENT>
+
+EVENT 7A-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 14(01-0A-30-@10-FF)            # If Flag 0A ($077f:04) NOT set then DON'T jump to @10
+  000B. 4B(06)                         # Preload Music
+  000D. 1C(@12)                        # Jump
+  # LABEL @10 $3a05c
+  0010. 4B(15)                         # Preload Music
+  # LABEL @12 $3a05e
+  0012. 14(00-0A-30-@3A-FF)            # If Flag 0A ($077f:04) set then DON'T jump to @3A
+  0019. 68(50-0C)                      # Load NPC (1a,16) 50: 0c Blue Man
+  001C. 68(51-0F)                      # Load NPC (10,14) 51: 0f Green Middle Woman
+  001F. 68(52-0A)                      # Load NPC (25,19) 52: 0a Red Boy
+  0022. 68(53-0B)                      # Load NPC (22,1d) 53: 0b Green Girl
+  0025. 68(54-0D)                      # Load NPC (0a,1c) 54: 0d Yellow Woman
+  0028. 68(55-1A)                      # Load NPC (15,23) 55: 1a Sailor
+  002B. 68(56-1A)                      # Load NPC (1c,1e) 56: 1a Sailor
+  002E. 68(57-10)                      # Load NPC (0d,23) 57: 10 Bald Old Man
+  0031. 68(5E-49)                      # Load NPC (14,24) 5e: 49 Big Boat
+  0034. 68(60-1A)                      # Load NPC (1a,26) 60: 1a Sailor
+  0037. 68(61-0D)                      # Load NPC (1c,21) 61: 0d Yellow Woman
+  # LABEL @3A $3a086
+  003A. 14(01-0A-30-@4D-FF)            # If Flag 0A ($077f:04) NOT set then DON'T jump to @4D
+  0041. 68(58-06)                      # Load NPC (19,26) 58: 06 Lex
+  0044. 68(59-1A)                      # Load NPC (19,1e) 59: 1a Sailor
+  0047. 68(5A-0D)                      # Load NPC (1d,1c) 5a: 0d Yellow Woman
+  004A. 68(5B-49)                      # Load NPC (0e,2a) 5b: 49 Big Boat
+  # LABEL @4D $3a099
+  004D. 68(62-71)                      # Load NPC (01,2b) 62: 71 Little Boat
+  0050. 00()                           # End Event
+
+EVENT 7A-A-00
+  0000. 2E(5E)                         # Character Disappears
+  0002. 00()                           # End Event
+
+EVENT 7A-B-03
+  0000. 00()                           # End Event
+
+EVENT 7A-C-24
+  0000. 00()                           # End Event
+
+EVENT 7A-C-2C
+  0000. 00()                           # End Event
+
+EVENT 7A-C-50
+  0000. 08: South lie Forfeit Island
+            and Dankirk and Auralio
+            Kingdoms. With a ship,
+            you can go anytime.<END MESSAGE>
+  0032. 08: Of course, to go to the
+            open sea, you have to go
+            through the watergate
+            in Auralio Kingdom.<END EVENT>
+
+EVENT 7A-C-52
+  0000. 08: Dr. Lexis' new
+            ship is great!<END EVENT>
+
+EVENT 7A-C-54
+  0000. 08: Your ship is just
+            amazing.<END EVENT>
+
+EVENT 7A-C-55
+  0000. 08: Excerion is superb!
+            I've never seen a
+            ship go so fast!<END EVENT>
+
+EVENT 7B-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 15(B5-@E)                      # Branch on Flag B5 ($0794:20)
+  0008. 4B(15)                         # Preload Music
+  000A. 1C(@13)                        # Jump
+  000D. 00()                           # End Event
+  # LABEL @E $3a0b2
+  000E. 72()
+  000F. 1C(@13)                        # Jump
+  0012. 00()                           # End Event
+  # LABEL @13 $3a0b7
+  0013. 68(50-0E)                      # Load NPC (20,10) 50: 0e Yellow Middle Man
+  0016. 68(51-0E)                      # Load NPC (10,04) 51: 0e Yellow Middle Man
+  0019. 68(52-32)                      # Load NPC (05,13) 52: 32 Priest
+  001C. 68(53-5C)                      # Load NPC (05,04) 53: 5c Bald Cleric
+  001F. 68(54-0E)                      # Load NPC (0e,11) 54: 0e Yellow Middle Man
+  0022. 68(55-1C)                      # Load NPC (0d,14) 55: 1c Brown Woman
+  0025. 68(56-0C)                      # Load NPC (12,12) 56: 0c Blue Man
+  0028. 68(57-1A)                      # Load NPC (14,14) 57: 1a Sailor
+  002B. 68(58-0D)                      # Load NPC (1d,06) 58: 0d Yellow Woman
+  002E. 68(59-0A)                      # Load NPC (18,1c) 59: 0a Red Boy
+  0031. 68(5A-0B)                      # Load NPC (1c,1c) 5a: 0b Green Girl
+  0034. 68(5D-66)                      # Load NPC (1c,1b) 5d: 66 Blue Flower (NPC)
+  0037. 00()                           # End Event
+
+EVENT 7B-A-00
+  0000. 00()                           # End Event
+
+EVENT 7B-A-01
+  0000. 6C(5D-00-F8)                   # Move Character by Distance
+  0004. 00()                           # End Event
+
+EVENT 7B-B-01
+  0000. 6F(11)                         # Change Music
+  0002. 30(59-02)                      # Teleport Character
+  0005. 30(5A-03)                      # Teleport Character
+  0008. 30(02-04)                      # Teleport Character
+  000B. 30(01-05)                      # Teleport Character
+  000E. 31(59-04)                      # Change Facing
+  0011. 31(5A-04)                      # Change Facing
+  0014. 31(02-04)                      # Change Facing
+  0017. 31(01-03)                      # Change Facing
+  001A. 31(00-04)                      # Change Facing
+  001D. 59(1F)                         # Luminosity
+  001F. 76()
+  0020. 13: <VOICE 59>Sis...<END MESSAGE>
+  0027. 62: She's ok. She's
+            just sleeping.<END MESSAGE>
+  003C. 63: What's wrong with her?<END MESSAGE>
+  004A. 62: She's just exhausted.
+            She'll be ok if she
+            rests for a couple
+            of days.<END MESSAGE>
+  0078. 13: <VOICE 59>She's always working
+            alone and...<END MESSAGE>
+  008D. 13: <VOICE 5A>If we could work, she
+            wouldn't be so
+            exhausted like this...<END MESSAGE>
+  00B2. 13: <VOICE 24>Aaah. Mmm.<END MESSAGE>
+  00BE. 13: <VOICE 59>Leefa!<END MESSAGE>
+  00C6. 13: <VOICE 24>Oh, you guys. <PAUSE 82>Huh...?
+            <PAUSE 82>Why am I here in bed?<END MESSAGE>
+  00EB. 62: You fainted.<END MESSAGE>
+  00F5. 13: <VOICE 24>You're the one who
+            bought flowers from me.
+            Did you bring me back
+            here? Thank you.<END MESSAGE>
+  0129. 62: Don't mention it. But
+            you should really look
+            after yourself better,
+            you know.<END MESSAGE>
+  0153. 13: <VOICE 24>I know, but...<END MESSAGE>
+  015F. 33(01-24)                      # Move Character to Location
+  0162. 33(02-59)                      # Move Character to Location
+  0165. 13: <VOICE 59>No, Leefa. You have
+            to stay in bed for
+            a while.<END MESSAGE>
+  0186. 13: <VOICE 24>Thanks. I'm alright now.
+            I have to get some
+            flowers for tomorrow.<END MESSAGE>
+  01AE. 13: <VOICE 24>Besides, I saw a beautiful
+            flower on the mountain.
+            I've never seen such
+            a beauty in all my life.<END MESSAGE>
+  01E2. 13: <VOICE 24>If I can get my
+            hands on it, I'm
+            sure it'll be a
+            big seller.<END MESSAGE>
+  020F. 31(24-04)                      # Change Facing
+  0212. 37(14)                         # Pause
+  0214. 31(24-02)                      # Change Facing
+  0217. 37(14)                         # Pause
+  0219. 6C(24-FF-00)                   # Move Character by Distance
+  021D. 37(0A)                         # Pause
+  021F. 6C(24-FE-01)                   # Move Character by Distance
+  0223. 37(0A)                         # Pause
+  0225. 6C(24-FD-02)                   # Move Character by Distance
+  0229. 37(0A)                         # Pause
+  022B. 6C(24-FC-03)                   # Move Character by Distance
+  022F. 37(0A)                         # Pause
+  0231. 6C(24-FB-02)                   # Move Character by Distance
+  0235. 37(0A)                         # Pause
+  0237. 6C(24-FA-01)                   # Move Character by Distance
+  023B. 37(0A)                         # Pause
+  023D. 6C(24-F9-02)                   # Move Character by Distance
+  0241. 37(0A)                         # Pause
+  0243. 6C(24-F8-01)                   # Move Character by Distance
+  0247. 37(0A)                         # Pause
+  0249. 13: <VOICE 59>Leefa!<END MESSAGE>
+  0251. 33(03-59)                      # Move Character to Location
+  0254. 33(04-24)                      # Move Character to Location
+  0257. 6C(24-FA-00)                   # Move Character by Distance
+  025B. 37(05)                         # Pause
+  025D. 6C(24-FC-00)                   # Move Character by Distance
+  0261. 37(05)                         # Pause
+  0263. 6C(24-FE-00)                   # Move Character by Distance
+  0267. 37(05)                         # Pause
+  0269. 6C(24-00-00)                   # Move Character by Distance
+  026D. 37(05)                         # Pause
+  026F. 47(10)                         # Thinking On/Off
+  0271. 13: <VOICE 24>Fl...<PAUSE 82>flower...<END MESSAGE>
+  027E. 47(00)                         # Thinking On/Off
+  0280. 63: We've got to do something.
+            Otherwise she'll
+            push herself to go
+            find the flower.<END MESSAGE>
+  02B0. 61: Selan, cast Drowsy on her.<END MESSAGE>
+  02C2. 62: Drowsy? Oh yes. We
+            could do that, couldn't
+            we?<END MESSAGE>
+  02E0. 37(1E)                         # Pause
+  02E2. 31(01-01)                      # Change Facing
+  02E5. 62: Drowsy!<END MESSAGE>
+  02ED. 37(14)                         # Pause
+  02EF. 95(50-00-6A)                   # Screen tint animation
+  02F3. C9(00-24-56-07-08-40-00)
+  02FB. 90(00-00-21)                   # Wave motion right-left
+  02FF. 8E(00-A0-21)
+  0303. 37(30)                         # Pause
+  0305. 90(00-00-11)                   # Wave motion right-left
+  0309. 37(14)                         # Pause
+  030B. 90(00-00-01)                   # Wave motion right-left
+  030F. 37(0A)                         # Pause
+  0311. 90(00-00-F1)                   # Wave motion right-left
+  0315. 37(14)                         # Pause
+  0317. 90(00-00-E1)                   # Wave motion right-left
+  031B. 8F(00-00-41)                   # Wave motion up-down
+  031F. 9F(00-84-F1)                   # Wave motion shrink
+  0323. A2(00)
+  0325. 97()
+  0326. 37(1E)                         # Pause
+  0328. 13: <VOICE 59>What did you do
+            to my sister!?<END MESSAGE>
+  033D. 31(01-03)                      # Change Facing
+  0340. 62: She'll be ok. Drowsy is
+            a spell to put someone to
+            sleep. When she's better,
+            she'll wake up naturally.<END MESSAGE>
+  0380. 13: <VOICE 59>Really?<END MESSAGE>
+  0386. 62: Yes.<END MESSAGE>
+  038B. 61: Well, shall we go
+            get some flowers now?<END MESSAGE>
+  03A3. 63: Yep. It'll make a nice
+            change from whacking
+            monsters, that's for sure.<END MESSAGE>
+  03CE. 62: We'll look for the
+            flower your sister saw.
+            You guys take good
+            care of her, ok?<END MESSAGE>
+  03FE. 13: <VOICE 59>We will!<END MESSAGE>
+  0406. 63: And where does your
+            sister usually pick
+            flowers?<END MESSAGE>
+  0424. 31(59-02)                      # Change Facing
+  0427. 37(0A)                         # Pause
+  0429. 13: <VOICE 59>On the mountain south
+            of here. There are
+            many pretty flowers there.<END MESSAGE>
+  044D. 63: The mountain south of
+            here, right? Ok
+            $MAXIM$, let's go!<END MESSAGE>
+  046B. 1B(B5)                         # Clear Event Flag B5 ($0794:20)
+  046D. 6F(15)                         # Change Music
+  046F. 33(0C-01)                      # Move Character to Location
+  0472. 3C()                           # Gather Behind Maxim
+  0473. 00()                           # End Event
+
+EVENT 7B-C-24
+  0000. 00()                           # End Event
+
+EVENT 7B-C-56
+  0000. 08: How was Lexis' cave?
+            I bet you had a hard time.<END EVENT>
+
+EVENT 7B-C-59
+  0000. 08: I heard you people
+            are really strong.<END EVENT>
+
+EVENT 7B-C-5A
+  0000. 08: Thank you.<END EVENT>
+
+EVENT 7D-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(1F)                         # Preload Music
+  0006. 00()                           # End Event
+
+EVENT 7D-A-00
+  0000. 00()                           # End Event
+
+EVENT 7D-C-22
+  0000. 00()                           # End Event
+
+EVENT 7D-C-2C
+  0000. 08: Good. Jyad is bringing
+            the ship, huh!? I'll
+            finish the engine
+            as fast as I can.<END MESSAGE>
+  0033. 08: $MAXIM$, please wait for
+            me in Treadool. I'll
+            go there as soon as
+            the engine's ready.<END EVENT>
+  0062. 08: I'm sorry but I'm so
+            busy with research. Can
+            we talk a little later?<END EVENT>
+
+EVENT 7E-X-XX
+  0000. 74(07)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 69(31)
+  0008. 4B(13)                         # Preload Music
+  000A. 14(01-0F-30-@14-FF)            # If Flag 0F ($077f:80) NOT set then DON'T jump to @14
+  0011. 68(52-CE)                      # Load NPC (12,0d) 52: ce Sully
+  # LABEL @14 $3a11a
+  0014. 00()                           # End Event
+
+EVENT 7E-D-01
+  0000. 00()                           # End Event
+
+EVENT 7E-D-02
+  0000. 00()                           # End Event
+
+EVENT 88-B-01
+  0000. 30(01-02)                      # Teleport Character
+  0003. 30(02-03)                      # Teleport Character
+  0006. 30(06-04)                      # Teleport Character
+  0009. 30(26-05)                      # Teleport Character
+  000C. 2E(52)                         # Character Disappears
+  000E. 2E(53)                         # Character Disappears
+  0010. 2E(55)                         # Character Disappears
+  0012. 31(26-03)                      # Change Facing
+  0015. 31(25-04)                      # Change Facing
+  0018. 59(15)                         # Luminosity
+  001A. 33(01-02)                      # Move Character to Location
+  001D. 76()
+  001E. 63: The signing ceremony ended
+            peacefully. This might
+            signal a new start for
+            Dankirk and Auralio.<END MESSAGE>
+  0054. 33(02-01)                      # Move Character to Location
+  0057. 37(0A)                         # Pause
+  0059. 62: It left me with a
+            somewhat uneasy
+            feeling, though.<END MESSAGE>
+  007A. 33(03-00)                      # Move Character to Location
+  007D. 33(04-06)                      # Move Character to Location
+  0080. 37(0A)                         # Pause
+  0082. 61: Well, I don't know.<END MESSAGE>
+  008F. 4B(2E)                         # Preload Music
+  0091. 41(22-0B)                      # Camera related (follow for X steps?)
+  0094. 41(00-FF)                      # Camera related (follow for X steps?)
+  0097. 41(42-04)                      # Camera related (follow for X steps?)
+  009A. 41(00-FF)                      # Camera related (follow for X steps?)
+  009D. 13: <VOICE 26>Prince Leon. Let me
+            give you back the
+            Ruby Icon.<END MESSAGE>
+  00BD. 13: <VOICE 25>Oh no. I gave it for
+            peace between our
+            countries. I'm sorry
+            but I can't accept it.<END MESSAGE>
+  00F0. 13: <VOICE 26>Please. It belongs to
+            Auralio. Besides, I just
+            switched it for an
+            imitation...our secret.<END MESSAGE>
+  0126. 13: <VOICE 25>I don't need it anymore.
+            There is something in this
+            country I want more.
+            But, I shouldn't say what...<END MESSAGE>
+  015F. 13: <VOICE 26>I beg your pardon?<END MESSAGE>
+  016E. 13: <VOICE 25>Princess Thea, what
+            I really want is...<END MESSAGE>
+  0186. 41(12-0B)                      # Camera related (follow for X steps?)
+  0189. 33(05-25)                      # Move Character to Location
+  018C. 41(00-FF)                      # Camera related (follow for X steps?)
+  018F. 41(02-00)                      # Camera related (follow for X steps?)
+  0192. 62: This peace will
+            probably last a very
+            long time.<END MESSAGE>
+  01AD. 61: I think so.<END MESSAGE>
+  01B6. 3C()                           # Gather Behind Maxim
+  01B7. 32(25-07)                      # Change NPC wander behavior (misc byte)
+  01BA. 32(26-08)                      # Change NPC wander behavior (misc byte)
+  01BD. 1B(B6)                         # Clear Event Flag B6 ($0794:40)
+  01BF. 00()                           # End Event
+
+EVENT 88-C-14
+  0000. 00()                           # End Event
+
+EVENT 88-C-15
+  0000. 00()                           # End Event
+
+EVENT 88-C-25
+  0000. 00()                           # End Event
+
+EVENT 88-C-26
+  0000. 08: How can I thank you
+            for what you've done!
+            I'll do all I can to
+            keep this peace eternally.<END EVENT>
+
+EVENT 88-C-50
+  0000. 08: In any case, I am so
+            relieved that the
+            signing ceremony has
+            ended without a hitch.<END EVENT>
+
+EVENT 88-C-52
+  0000. 08: Auralio Kingdom, home
+            to Prince Leon, is
+            southeast of here. It's
+            small, but very lovely.<END EVENT>
+
+EVENT 88-C-53
+  0000. 08: The Princess seems
+            so happy, behaving
+            like an ordinary
+            girl, don't you think?<END EVENT>
+
+EVENT 88-C-55
+  0000. 08: I just cannot believe
+            that James was the
+            one who stole the
+            Ruby Icon...<END EVENT>
+
+EVENT 88-D-01
+  0000. 00()                           # End Event
+
+EVENT 89-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(01)                         # Preload Music
+  0006. 68(50-0E)                      # Load NPC (15,13) 50: 0e Yellow Middle Man
+  0009. 68(51-0E)                      # Load NPC (03,04) 51: 0e Yellow Middle Man
+  000C. 68(52-32)                      # Load NPC (0a,05) 52: 32 Priest
+  000F. 68(53-19)                      # Load NPC (0f,1c) 53: 19 Red Man
+  0012. 68(54-10)                      # Load NPC (04,19) 54: 10 Bald Old Man
+  0015. 68(55-0B)                      # Load NPC (0f,14) 55: 0b Green Girl
+  0018. 68(56-18)                      # Load NPC (10,05) 56: 18 Armored Knight
+  001B. 68(57-17)                      # Load NPC (15,06) 57: 17 Maid
+  001E. 68(58-17)                      # Load NPC (06,31) 58: 17 Maid
+  0021. 68(5B-19)                      # Load NPC (0e,28) 5b: 19 Red Man
+  0024. 68(5E-12)                      # Load NPC (1e,2b) 5e: 12 King
+  0027. 68(5F-13)                      # Load NPC (1d,2b) 5f: 13 Queen
+  002A. 68(61-1A)                      # Load NPC (1e,10) 61: 1a Sailor
+  002D. 68(62-17)                      # Load NPC (21,13) 62: 17 Maid
+  0030. 68(63-17)                      # Load NPC (0d,31) 63: 17 Maid
+  0033. 68(64-10)                      # Load NPC (21,06) 64: 10 Bald Old Man
+  0036. 68(65-11)                      # Load NPC (04,10) 65: 11 Gray Old Woman
+  0039. 68(68-61)                      # Load NPC (18,00) 68: 61 Old Woman South
+  003C. 00()                           # End Event
+
+EVENT 89-A-00
+  0000. 30(68-0F)                      # Teleport Character
+  0003. 32(68-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 89-B-01
+  0000. 00()                           # End Event
+
+EVENT 89-C-25
+  0000. 08: I managed to bring
+            peace, but there is one
+            other thing I have
+            to find.<END EVENT>
+
+EVENT 89-C-27
+  0000. 08: I guess we can't
+            go on with the
+            ceremony without
+            the Ruby Icon.<END EVENT>
+
+EVENT 89-C-53
+  0000. 08: What a great job you
+            people have done. How
+            did you get so strong?<END EVENT>
+
+EVENT 89-C-54
+  0000. 08: A lot happened, but
+            thank goodness,
+            everything finally
+            settled down.<END EVENT>
+
+EVENT 89-C-55
+  0000. 08: I saw the Ruby Icon.
+            I didn't think it was
+            that great.<END EVENT>
+
+EVENT 89-C-56
+  0000. 08: Well, I guess everything
+            will get back to normal.
+            That's best after all,
+            don't you think?<END EVENT>
+
+EVENT 89-C-57
+  0000. 08: Even if the two countries
+            grow closer, that doesn't
+            make my job any easier.<END EVENT>
+
+EVENT 89-C-58
+  0000. 08: The Queen seems out
+            of it, like she's
+            sorry about something.<END EVENT>
+
+EVENT 89-C-59
+  0000. 08: I can finally go
+            back to my country.<END EVENT>
+
+EVENT 89-C-5A
+  0000. 08: You have superb skills.
+            Are you people famous
+            swordsmen or something?<END EVENT>
+
+EVENT 89-C-5B
+  0000. 08: How odd! I no longer
+            feel the power of the
+            Ruby Icon. Whatever
+            happened to it?<END EVENT>
+
+EVENT 89-C-5D
+  0000. 08: The ceremony went fine,
+            but now I'm more
+            concerned about the
+            Prince and Princess Thea.<END EVENT>
+
+EVENT 89-C-5E
+  0000. 08: My apologies. To make
+            amends, I give my
+            word we shall keep
+            this peace forever.<END EVENT>
+
+EVENT 89-C-5F
+  0000. 08: I've suddenly lost
+            interest in the Ruby Icon.
+            I wonder why I was
+            so attracted to it?<END EVENT>
+
+EVENT 89-C-61
+  0000. 08: If people have time to
+            spread rumors, they
+            can surely lend me
+            a hand.<END EVENT>
+
+EVENT 89-C-62
+  0000. 08: What a shame. Prince
+            Leon is leaving.<END EVENT>
+
+EVENT 89-C-63
+  0000. 08: Another Ruby Icon
+            legend's been born, I
+            guess. The legend of a
+            young Prince and Princess.<END EVENT>
+
+EVENT 89-D-01
+  0000. 00()                           # End Event
+
+EVENT 8A-C-50
+  0000. 08: Ferim Kingdom lies
+            beyond the watergate. The
+            tower northeast of it
+            is emitting something.<END MESSAGE>
+  0031. 08: This has caused quite
+            a stir in Ferim
+            Kingdom, I hear.<END EVENT>
+
+EVENT 8A-C-51
+  0000. 08: Good thing we became
+            friends with Dankirk.
+            They might have
+            attacked us, you know.<END EVENT>
+
+EVENT 8A-C-52
+  0000. 08: There's a country beyond
+            the watergate called
+            Ferim Kingdom.<END EVENT>
+
+EVENT 8A-C-53
+  0000. 08: I heard the Princess of
+            Ferim Kingdom is looking
+            for a husband. That's
+            hard if you're a Princess.<END EVENT>
+
+EVENT 8A-C-54
+  0000. 08: I guess we really did
+            it. We gave the Ruby
+            Icon to Dankirk...<END EVENT>
+
+EVENT 8A-C-55
+  0000. 08: That's our Prince Leon
+            for you. He pulled it
+            off with total success!<END EVENT>
+
+EVENT 8B-C-25
+  0000. 00()                           # End Event
+
+EVENT 8B-C-50
+  0000. 08: I heard the story from
+            our Prince. Stay as long
+            as you wish. Would you
+            like to stay over?<END MESSAGE>
+  0038. 10(02-@47-@46)                 # Set Up Branching Event
+  003E. 08: Yes.
+            No.<CHOICE>
+  # LABEL @46 $5f86b
+  0046. 00()                           # End Event
+  # LABEL @47 $5f86c
+  0047. 17(00)                         # Call Inn at Price
+  0049. 00()                           # End Event
+
+EVENT 8B-C-54
+  0000. 08: A lot has happened.
+            But now that we're
+            friends again, we
+            should let the past lie.<END EVENT>
+
+EVENT 8B-C-55
+  0000. 08: I see. The technique of
+            the Ruby Icon was
+            really passed onto
+            someone?<END EVENT>
+
+EVENT 8B-C-56
+  0000. 08: Prince Leon's been in
+            such a good mood. I
+            wonder if something
+            nice happened?<END EVENT>
+
+EVENT 8B-C-57
+  0000. 08: I wonder if the rumor
+            about our Prince and
+            the Princess of Dankirk
+            is really true?<END EVENT>
+
+EVENT 8B-C-58
+  0000. 08: I heard from Prince Leon
+            about your brilliant work.
+            I don't know how to thank
+            you.<END MESSAGE>
+  0032. 08: We'll open the watergate
+            right away. Please go
+            through freely.<END MESSAGE>
+  0057. 00()                           # End Event
+
+EVENT 8C-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(08)                         # Preload Music
+  0008. 7B(51-D8)                      # Load Monster NPC (11,26) 51: d8 Blue Crab
+  000B. 7B(52-96)                      # Load Monster NPC (10,12) 52: 96 Orange Flower
+  000E. 7B(53-AE)                      # Load Monster NPC (15,0e) 53: ae Lamia
+  0011. 7B(54-A8)                      # Load Monster NPC (1e,20) 54: a8 Mummy
+  0014. 7B(55-D8)                      # Load Monster NPC (22,16) 55: d8 Blue Crab
+  0017. 7B(56-96)                      # Load Monster NPC (04,08) 56: 96 Orange Flower
+  001A. 00()                           # End Event
+
+EVENT 8C-A-00
+  0000. 00()                           # End Event
+
+EVENT 8C-C-50
+  0000. 08: The attendant, James,
+            went inside. This is a
+            dangerous place. I
+            tried to stop him.<END EVENT>
+
+EVENT 90-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(08)                         # Preload Music
+  0008. 68(56-48)                      # Load NPC (00,00) 56: 48 Crown
+  000B. 7B(5A-9F)                      # Load Monster NPC (03,12) 5a: 9f Vampire
+  000E. 7B(5B-82)                      # Load Monster NPC (07,14) 5b: 82 Ninja
+  0011. 7B(5C-EF)                      # Load Monster NPC (0b,12) 5c: ef Green Dragonian
+  0014. 7B(5D-82)                      # Load Monster NPC (07,22) 5d: 82 Ninja
+  0017. 7B(5E-EF)                      # Load Monster NPC (16,25) 5e: ef Green Dragonian
+  001A. 7B(5F-B2)                      # Load Monster NPC (1d,0f) 5f: b2 Shade
+  001D. 7B(60-B2)                      # Load Monster NPC (19,1a) 60: b2 Shade
+  0020. 7B(61-B2)                      # Load Monster NPC (1b,16) 61: b2 Shade
+  0023. 7B(62-B2)                      # Load Monster NPC (17,10) 62: b2 Shade
+  0026. 7B(63-B2)                      # Load Monster NPC (15,1f) 63: b2 Shade
+  0029. 7B(64-9F)                      # Load Monster NPC (26,12) 64: 9f Vampire
+  002C. 7B(65-82)                      # Load Monster NPC (25,28) 65: 82 Ninja
+  002F. 7B(66-EF)                      # Load Monster NPC (32,2b) 66: ef Green Dragonian
+  0032. 00()                           # End Event
+
+EVENT 90-A-01
+  0000. 43(01-03)                      # Overwrite Map Tiles
+  0003. 43(05-04)                      # Overwrite Map Tiles
+  0006. 54(05)                         # Open locked door?
+  0008. 00()                           # End Event
+
+EVENT 90-B-01
+  0000. 00()                           # End Event
+
+EVENT 90-D-01
+  0000. 00()                           # End Event
+
+EVENT 90-D-02
+  0000. 00()                           # End Event
+
+EVENT 91-C-50
+  0000. 08: I saw a ball of light fly
+            to Treble Village from
+            Agurio. Treble is south,
+            beyond the ocean.<END EVENT>
+
+EVENT 91-C-51
+  0000. 08: I wonder if the guy
+            they say landed
+            on the tower destroyed
+            Agurio?<END EVENT>
+
+EVENT 91-C-52
+  0000. 08: Whew, a lot is going on
+            around here and nobody
+            can really think about
+            the marriage, you know.<END EVENT>
+
+EVENT 92-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(01)                         # Preload Music
+  0006. 68(50-0A)                      # Load NPC (08,1b) 50: 0a Red Boy
+  0009. 68(51-19)                      # Load NPC (14,16) 51: 19 Red Man
+  000C. 68(52-17)                      # Load NPC (0a,17) 52: 17 Maid
+  000F. 68(53-0B)                      # Load NPC (0a,0d) 53: 0b Green Girl
+  0012. 68(54-19)                      # Load NPC (15,0e) 54: 19 Red Man
+  0015. 68(55-0D)                      # Load NPC (10,1b) 55: 0d Yellow Woman
+  0018. 68(56-0E)                      # Load NPC (04,12) 56: 0e Yellow Middle Man
+  001B. 68(57-0E)                      # Load NPC (05,04) 57: 0e Yellow Middle Man
+  001E. 68(58-17)                      # Load NPC (06,28) 58: 17 Maid
+  0021. 68(59-1A)                      # Load NPC (0d,05) 59: 1a Sailor
+  0024. 68(5A-18)                      # Load NPC (05,31) 5a: 18 Armored Knight
+  0027. 68(5B-0D)                      # Load NPC (11,2e) 5b: 0d Yellow Woman
+  002A. 68(5C-16)                      # Load NPC (24,07) 5c: 16 Knight
+  002D. 68(5D-12)                      # Load NPC (21,05) 5d: 12 King
+  0030. 68(5E-15)                      # Load NPC (17,1d) 5e: 15 Princess
+  0033. 68(5F-32)                      # Load NPC (22,2e) 5f: 32 Priest
+  0036. 68(62-18)                      # Load NPC (20,11) 62: 18 Armored Knight
+  0039. 68(63-10)                      # Load NPC (22,21) 63: 10 Bald Old Man
+  003C. 00()                           # End Event
+
+EVENT 92-C-28
+  0000. 08: I'll come back for
+            the Princess when I
+            feel comfortable with
+            my swordsmanship.<END EVENT>
+
+EVENT 92-C-50
+  0000. 08: Agurio Village is
+            farther north of the
+            Northeast Tower.<END EVENT>
+
+EVENT 92-C-52
+  0000. 08: Sir Eric was raging
+            mad when he left
+            for his country.<END EVENT>
+
+EVENT 92-C-53
+  0000. 08: I guess Princess Jerit
+            isn't getting married for
+            a while. Gee, I guess I
+            can't have any cake.<END EVENT>
+
+EVENT 92-C-54
+  0000. 08: I heard she dumped
+            Eric. It serves him right.<END EVENT>
+
+EVENT 92-C-55
+  0000. 08: Agurio's been decimated!
+            I can't believe it.<END EVENT>
+
+EVENT 92-C-59
+  0000. 08: Since Eric's gone back
+            I can go back to
+            my regular cooking.<END EVENT>
+
+EVENT 92-C-5A
+  0000. 08: Did you hear about Agurio?
+            Monsters attacked it!<END EVENT>
+
+EVENT 92-C-5B
+  0000. 08: I wonder what
+            treasure it was she
+            was talking about?<END EVENT>
+
+EVENT 92-C-5C
+  0000. 08: I'm so worried about
+            Agurio. I wonder what's
+            happening over there?<END EVENT>
+
+EVENT 92-C-5D
+  0000. 08: Agurio is a small city
+            north of the Northeast
+            Tower. Small...but can
+            a single man destroy it?<END EVENT>
+
+EVENT 92-C-5E
+  0000. 08: I'll wait patiently
+            for Hans. I have
+            already been waiting
+            for several years.<END EVENT>
+
+EVENT 92-C-60
+  0000. 08: Thank goodness! I'll
+            just wait for Hans to
+            come back.<END EVENT>
+
+EVENT 92-C-61
+  0000. 47(10)                         # Thinking On/Off
+  0002. 08: Let Hans face danger.
+            Reward him well and
+            he should be fine. He's
+            just a soldier after all.<END MESSAGE>
+  003C. 47(00)                         # Thinking On/Off
+  003E. 08: Oh, it's you. I didn't
+            know you were there.
+            Is there something I
+            can do for you?<END EVENT>
+
+EVENT 92-C-62
+  0000. 08: I heard a golden man
+            appeared from the sky
+            and destroyed Agurio
+            in a flash...<END MESSAGE>
+  002E. 08: Most people in the city
+            couldn't even escape.<END EVENT>
+
+EVENT 92-D-01
+  0000. 00()                           # End Event
+
+EVENT 94-D-01
+  0000. 54(01)                         # Open locked door?
+  0002. 1C(@10)                        # Jump
+  0005. B8()
+  0006. 9E: <POSITION 07>It's locked.<END MESSAGE>
+  # LABEL @10 $6191a
+  0010. 00()                           # End Event
+
+EVENT 98-X-XX
+  0000. 74(0A)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(05)                         # Preload Music
+  0008. 7B(52-B0)                      # Load Monster NPC (0b,22) 52: b0 Samurai
+  000B. 7B(53-B0)                      # Load Monster NPC (09,20) 53: b0 Samurai
+  000E. 00()                           # End Event
+
+EVENT 98-C-28
+  0000. 00()                           # End Event
+
+EVENT 99-A-00
+  0000. 30(50-01)                      # Teleport Character
+  0003. 32(50-05)                      # Change NPC wander behavior (misc byte)
+  0006. 00()                           # End Event
+
+EVENT 99-C-50
+  0000. 08: I see. People in
+            Agurio were...<END EVENT>
+
+EVENT 9A-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(11)                         # Preload Music
+  0006. 00()                           # End Event
+
+EVENT 9A-C-12
+  0000. 00()                           # End Event
+
+EVENT 9B-C-50
+  0000. 08: What was that ball of
+            light? It went into the
+            sea and that's where
+            I hope it stays!<END EVENT>
+
+EVENT 9B-C-51
+  0000. 08: I've never seen such a
+            weird light in my entire
+            life. It must be a sign...
+            the end of the world.<END EVENT>
+
+EVENT 9B-C-52
+  0000. 08: When I think of that
+            ball of light hidden
+            in the sea, I can't
+            get near the water.<END EVENT>
+
+EVENT 9B-C-53
+  0000. 08: Is it true that Agurio
+            was destroyed by this
+            spooky man?<END MESSAGE>
+  0022. 08: That ball of light also
+            came from the direction
+            of Agurio. Is there
+            a connection to Agurio?<END EVENT>
+
+EVENT 9B-C-54
+  0000. 08: The ball of light flew
+            into the southwestern
+            sea from the north. People
+            are freakin' really bad!<END EVENT>
+
+EVENT 9B-C-55
+  0000. 08: Is it really true that
+            a ship can go under
+            the sea?<END EVENT>
+
+EVENT 9C-C-54
+  0000. 08: Do you know what
+            that ball of light was?
+            My grandpa says it
+            must be a super being!<END EVENT>
+
+EVENT 9C-C-55
+  0000. 08: That ball of light must
+            be a super being.
+            Although I sense a
+            somewhat evil energy, too.<END MESSAGE>
+  0034. 08: I hope the ball of
+            light that went under
+            the sea will never return
+            to this side of life.<END EVENT>
+
+EVENT 9C-C-56
+  0000. 08: My boyfriend is a sailor
+            in Portravia. He said
+            he saw that ball of
+            light really up close.<END MESSAGE>
+  0035. 08: He said the way that
+            ball of light went into
+            the sea was divine, yet
+            mysterious and scary.<END EVENT>
+
+EVENT A0-B-03
+  0000. 00()                           # End Event
+
+EVENT A0-B-04
+  0000. 00()                           # End Event
+
+EVENT A0-B-05
+  0000. 2E(00)                         # Character Disappears
+  0002. 2E(01)                         # Character Disappears
+  0004. 2E(02)                         # Character Disappears
+  0006. 2E(03)                         # Character Disappears
+  0008. 2E(50)                         # Character Disappears
+  000A. 2E(51)                         # Character Disappears
+  000C. 2E(52)                         # Character Disappears
+  000E. 2E(53)                         # Character Disappears
+  0010. 2E(54)                         # Character Disappears
+  0012. 2E(55)                         # Character Disappears
+  0014. 2E(56)                         # Character Disappears
+  0016. 2E(57)                         # Character Disappears
+  0018. 2E(58)                         # Character Disappears
+  001A. 30(1D-0F)                      # Teleport Character
+  001D. 6C(5B-F8-00)                   # Move Character by Distance
+  0021. 59(11)                         # Luminosity
+  0023. 76()
+  0024. 43(04-03)                      # Overwrite Map Tiles
+  0027. 43(02-01)                      # Overwrite Map Tiles
+  002A. 41(21-0A)                      # Camera related (follow for X steps?)
+  002D. 33(25-5B)                      # Move Character to Location
+  0030. 13: <VOICE 1D>I'll take care of the
+            monsters on this side!
+            You just go ahead
+            and get up there!<END MESSAGE>
+  0062. 1B(BB)                         # Clear Event Flag BB ($0795:08)
+  0064. 1B(BC)                         # Clear Event Flag BC ($0795:10)
+  0066. 4B(09)                         # Preload Music
+  0068. 5B(04-0D)                      # Play Cutscene
+  006B. 1A(C6)                         # Set Event Flag C6 ($0796:40)
+  006D. 16(EB-03-01)                   # Warp to Map & Event [EB-B-03] (01)
+  0071. 00()                           # End Event
+
+EVENT A0-B-06
+  0000. 3B(10)                         # Move Camera
+  0002. 30(00-10)                      # Teleport Character
+  0005. 30(00-11)                      # Teleport Character
+  0008. 30(51-12)                      # Teleport Character
+  000B. 30(52-13)                      # Teleport Character
+  000E. 30(53-14)                      # Teleport Character
+  0011. 2E(02)                         # Character Disappears
+  0013. 2E(03)                         # Character Disappears
+  0015. A7(00)
+  0017. 41(02-00)                      # Camera related (follow for X steps?)
+  001A. 59(11)                         # Luminosity
+  001C. 76()
+  001D. 54(02)                         # Open locked door?
+  001F. 33(2A-00)                      # Move Character to Location
+  0022. 33(2B-01)                      # Move Character to Location
+  0025. 37(1E)                         # Pause
+  0027. 62: What's wrong, $MAXIM$?<END MESSAGE>
+  0031. 61: You should stay
+            here and...<END MESSAGE>
+  0043. 31(01-04)                      # Change Facing
+  0046. 62: $MAXIM$, just stop there,
+            or I won't be able to
+            respect you as long
+            as I live!<END MESSAGE>
+  0076. 31(00-03)                      # Change Facing
+  0079. 61: Selan...<END MESSAGE>
+  007F. 62: Just don't talk like
+            that to me. It hurts.<END MESSAGE>
+  009A. 61: ......<END MESSAGE>
+  009F. 6C(01-01-00)                   # Move Character by Distance
+  00A3. 37(0A)                         # Pause
+  00A5. 6C(01-02-00)                   # Move Character by Distance
+  00A9. 37(0A)                         # Pause
+  00AB. 6C(01-03-00)                   # Move Character by Distance
+  00AF. 37(0A)                         # Pause
+  00B1. 6C(01-04-00)                   # Move Character by Distance
+  00B5. 37(0A)                         # Pause
+  00B7. 6C(01-05-00)                   # Move Character by Distance
+  00BB. 37(0A)                         # Pause
+  00BD. 34(01-21)                      # Change Character Sprite
+  00C0. 37(0A)                         # Pause
+  00C2. 62: Do you think I can let
+            you go without me? No
+            matter what happens to
+            me, I'm going with you.<END MESSAGE>
+  00FB. 61: Selan...<END MESSAGE>
+  0101. 62: Let's go together. And
+            come back together.
+            Let's go back to our
+            son, Jeros, together.<END MESSAGE>
+  012D. 61: Yeah.<END MESSAGE>
+  0132. 34(01-01)                      # Change Character Sprite
+  0135. 37(0A)                         # Pause
+  0137. 6C(01-04-00)                   # Move Character by Distance
+  013B. 37(0A)                         # Pause
+  013D. 6C(01-03-00)                   # Move Character by Distance
+  0141. 37(0A)                         # Pause
+  0143. 6C(01-02-00)                   # Move Character by Distance
+  0147. 37(0A)                         # Pause
+  0149. 6C(01-01-00)                   # Move Character by Distance
+  014D. 37(0A)                         # Pause
+  014F. 6C(01-00-00)                   # Move Character by Distance
+  0153. 37(0A)                         # Pause
+  0155. 2D(02)                         # Character Appears
+  0157. 2D(03)                         # Character Appears
+  0159. 30(02-15)                      # Teleport Character
+  015C. 30(03-16)                      # Teleport Character
+  015F. 41(12-0B)                      # Camera related (follow for X steps?)
+  0162. 41(00-FF)                      # Camera related (follow for X steps?)
+  0165. 37(1E)                         # Pause
+  0167. 33(2C-03)                      # Move Character to Location
+  016A. 64: Listening in is not
+            such a good hobby,
+            Guy.<END MESSAGE>
+  0186. 63: The next battle is heavy,
+            you know. They have
+            a kid. I was just
+            concerned about them.<END MESSAGE>
+  01BC. 64: They know very well
+            what they have to do
+            and who they have to
+            protect. They'll be fine.<END MESSAGE>
+  01F2. 31(02-03)                      # Change Facing
+  01F5. 37(0A)                         # Pause
+  01F7. 63: Hey, you were
+            listening, too.<END MESSAGE>
+  020C. 64: Elves have good ears.
+            I didn't overhear...
+            I simply heard.<END MESSAGE>
+  0232. 63: Pretty useful ears, huh!<END MESSAGE>
+  0245. 64: By the way, Guy. I
+            thought you had someone
+            very dear to you.<END MESSAGE>
+  026B. 31(02-02)                      # Change Facing
+  026E. 37(14)                         # Pause
+  0270. 63: Yeah, I do. She's
+            waiting for me back
+            in my hometown.<END MESSAGE>
+  028F. 64: You must return
+            unharmed, then.<END MESSAGE>
+  02A3. 63: Yeah... <PAUSE 82>But even if I
+            didn't make it back,
+            she'd chase me as far as
+            purgatory, you know!<END MESSAGE>
+  02DE. 64: She sounds very strong.
+            I'd like to meet her
+            sometime.<END MESSAGE>
+  0300. 31(02-03)                      # Change Facing
+  0303. 63: Let's have dinner tomorrow
+            night at my place then.
+            Invite everyone and
+            let's have a party.<END MESSAGE>
+  0337. 64: Sounds like a lot of
+            fun. Yes, let's have a
+            party with all our
+            friends!<END MESSAGE>
+  0363. 63: Yeah, with everyone...<END MESSAGE>
+  036F. 33(2D-00)                      # Move Character to Location
+  0372. 33(2E-01)                      # Move Character to Location
+  0375. 31(02-02)                      # Change Facing
+  0378. 31(03-02)                      # Change Facing
+  037B. 63: Are you through
+            with your talk?<END MESSAGE>
+  038F. 61: Yeah.<END MESSAGE>
+  0394. 64: Looks like Excerion
+            is fixed.<END MESSAGE>
+  03A6. 62: Lexis is really a
+            genius!<END MESSAGE>
+  03B7. 63: Well, now it's our turn
+            to show our stuff.<END MESSAGE>
+  03D4. 61: Yeah, I know. Let's go!<END MESSAGE>
+  03E3. 41(02-00)                      # Camera related (follow for X steps?)
+  03E6. 3C()                           # Gather Behind Maxim
+  03E7. 00()                           # End Event
+
+EVENT A0-C-50
+  0000. 08: What in the world is that
+            island!? It just appeared
+            in the sky and shot a
+            sharp light down to earth!<END MESSAGE>
+  003F. 08: And who the heck is Daos!?
+            He said he's a Sinistral.
+            Aaah, I don't know
+            what's going on.<END EVENT>
+
+EVENT A0-C-51
+  0000. 08: Shivers run down my
+            spine whenever I look at
+            that island. I don't know
+            why, but it terrifies me.<END EVENT>
+
+EVENT A0-C-52
+  0000. 08: An island is floating in
+            the air. Am I having
+            a dream or what!?<END EVENT>
+
+EVENT A0-C-53
+  0000. 08: The sea current seems
+            normal now, but I can't
+            sleep with a floating
+            island overhead.<END EVENT>
+
+EVENT A0-C-54
+  0000. 08: My elf friend stopped
+            coming here. I wonder
+            what happened to her?<END EVENT>
+
+EVENT A0-C-55
+  0000. 08: Oh, no! Look at the
+            island floating in the
+            sky! It's the end of
+            the world!<END EVENT>
+
+EVENT A0-C-56
+  0000. 08: I never thought I would
+            see such an awful island.
+            Whatever for have I
+            lived this long..?<END EVENT>
+
+EVENT A0-D-01
+  0000. 00()                           # End Event
+
+EVENT A0-D-02
+  0000. 00()                           # End Event
+
+EVENT A0-D-03
+  0000. 00()                           # End Event
+
+EVENT A1-C-53
+  0000. 08: As long as that island
+            exists, my powers are
+            weak. I'm sorry but I
+            can't help you right now.<END EVENT>
+
+EVENT A1-C-54
+  0000. 08: Doom Island stopped
+            moving. I wonder
+            what happened?<END EVENT>
+
+EVENT A1-C-55
+  0000. 08: Where in the world is
+            that island going anyway?
+            Not here, I hope.<END EVENT>
+
+EVENT A2-A-01
+  0000. 00()                           # End Event
+
+EVENT A2-B-01
+  0000. 00()                           # End Event
+
+EVENT A2-B-02
+  0000. 30(5E-02)                      # Teleport Character
+  0003. 30(5D-03)                      # Teleport Character
+  0006. 30(2C-01)                      # Teleport Character
+  0009. 30(00-04)                      # Teleport Character
+  000C. 30(01-05)                      # Teleport Character
+  000F. 30(02-06)                      # Teleport Character
+  0012. 30(03-07)                      # Teleport Character
+  0015. 59(11)                         # Luminosity
+  0017. 76()
+  0018. 61: Lexis, what do you think?
+            Can you repair Excerion?<END MESSAGE>
+  0035. 31(2C-01)                      # Change Facing
+  0038. 13: <VOICE 2C>It's pretty bad, but
+            fortunately the engine
+            was undamaged. Yes, I
+            can repair it right away.<END MESSAGE>
+  0072. 61: Is there anything we
+            can do to help?<END MESSAGE>
+  0088. 13: <VOICE 2C>What you have to do
+            right now is rest.
+            This is my job.<END MESSAGE>
+  00AE. 61: I understand.<END MESSAGE>
+  00B5. 31(00-04)                      # Change Facing
+  00B8. 37(14)                         # Pause
+  00BA. 31(01-03)                      # Change Facing
+  00BD. 37(0A)                         # Pause
+  00BF. 61: Selan, can I see you
+            for a second?<END MESSAGE>
+  00D7. 62: ......? <PAUSE 82>Alright.<END MESSAGE>
+  00E3. A7(00)
+  00E5. 33(36-03)                      # Move Character to Location
+  00E8. 33(37-00)                      # Move Character to Location
+  00EB. 33(38-00)                      # Move Character to Location
+  00EE. 33(39-01)                      # Move Character to Location
+  00F1. 4C(18)                         # Play Sound
+  00F3. 58(11)                         # Fadeout
+  00F5. 76()
+  00F6. 3B(0A)                         # Move Camera
+  00F8. 30(00-0A)                      # Teleport Character
+  00FB. 41(02-00)                      # Camera related (follow for X steps?)
+  00FE. 82()
+  00FF. 59(11)                         # Luminosity
+  0101. 76()
+  0102. 33(3A-00)                      # Move Character to Location
+  0105. 33(3B-00)                      # Move Character to Location
+  0108. 33(3C-01)                      # Move Character to Location
+  010B. 16(A0-06-10)                   # Warp to Map & Event [A0-B-06] (10)
+  010F. 00()                           # End Event
+
+EVENT A2-C-2C
+  0000. 00()                           # End Event
+
+EVENT A2-C-56
+  0000. 08: Excerion has already
+            been repaired.<END EVENT>
+
+EVENT A2-C-57
+  0000. 08: Please go ahead
+            and go down stairs.<END EVENT>
+
+EVENT A2-C-58
+  0000. 08: All we have left to
+            do is to trust you,
+            to leave everything
+            on your shoulders.<END EVENT>
+
+EVENT A2-C-59
+  0000. 08: We've repaired
+            Excerion. The rest
+            is up to you.<END EVENT>
+
+EVENT A2-C-5A
+  0000. 08: I'm sure you'll succeed.<END EVENT>
+
+EVENT A2-C-5B
+  0000. 08: Please go quickly!<END EVENT>
+
+EVENT A2-C-5C
+  0000. 08: You're going to that
+            island, aren't you? And
+            you're going to defeat
+            all the Sinistrals, right?<END EVENT>
+
+EVENT A2-C-5D
+  0000. 08: Excerion is completely
+            repaired. See? You
+            CAN trust me!<END EVENT>
+
+EVENT A3-A-00
+  0000. 2E(5B)                         # Character Disappears
+  0002. 00()                           # End Event
+
+EVENT A3-D-02
+  0000. 00()                           # End Event
+
+EVENT A6-B-01
+  0000. 00()                           # End Event
+
+EVENT A6-C-2A
+  0000. 00()                           # End Event
+
+EVENT A6-C-51
+  0000. 08: Karyn died? No, no!
+            That can't be true!
+            No, I won't believe it!<END EVENT>
+
+EVENT A6-C-52
+  0000. 08: I saw the ball of light
+            fly into the sea again.<END EVENT>
+
+EVENT A6-C-53
+  0000. 08: Artea, please
+            avenge Karyn.<END EVENT>
+
+EVENT A6-C-54
+  0000. 08: The ball of light blazed
+            out of the shrine and
+            into the northwestern
+            sea. It took Karyn...<END EVENT>
+
+EVENT A6-C-55
+  0000. 08: So you couldn't save
+            Karyn after all...aahh!<END EVENT>
+
+EVENT A6-C-56
+  0000. 08: Karyn released her power
+            in the Divine Shrine and
+            still couldn't defeat him.
+            I just don't get it.<END EVENT>
+
+EVENT A6-C-57
+  0000. 08: I don't understand.
+            Why Karyn...?<END EVENT>
+
+EVENT A6-C-58
+  0000. 08: Why does the ball of
+            light go to the sea?
+            Is there a secret in
+            the sea?<END EVENT>
+
+EVENT A6-D-01
+  0000. 00()                           # End Event
+
+EVENT A7-C-54
+  0000. 08: I can't believe that
+            Karyn died. Elves are
+            not used to death.<END EVENT>
+
+EVENT A7-C-55
+  0000. 08: Even Artea couldn't
+            defeat that enemy.
+            What kind of enemy
+            was it?<END EVENT>
+
+EVENT A8-D-01
+  0000. 00()                           # End Event
+
+EVENT AA-X-XX
+  0000. 74(05)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(2F)                         # Preload Music
+  0008. 68(52-70)                      # Load NPC (08,2b) 52: 70 Nothing
+  000B. 7B(53-C4)                      # Load Monster NPC (07,42) 53: c4 Gargoyle
+  000E. 7B(54-A1)                      # Load Monster NPC (09,35) 54: a1 Stone Golem
+  0011. 7B(55-B8)                      # Load Monster NPC (09,15) 55: b8 Tartona
+  0014. 7B(56-C4)                      # Load Monster NPC (1d,44) 56: c4 Gargoyle
+  0017. 7B(57-A1)                      # Load Monster NPC (0c,20) 57: a1 Stone Golem
+  001A. 7B(58-B8)                      # Load Monster NPC (03,31) 58: b8 Tartona
+  001D. 00()                           # End Event
+
+EVENT AA-A-00
+  0000. 43(02-01)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT AA-D-01
+  0000. 00()                           # End Event
+
+EVENT AA-D-02
+  0000. 00()                           # End Event
+
+EVENT AC-C-12
+  0000. 00()                           # End Event
+
+EVENT AC-C-50
+  0000. 08: Is it true that
+            Chaed's gone?<END EVENT>
+
+EVENT AC-C-51
+  0000. 08: Who is Daos!? Is that
+            island really going to
+            destroy the world?<END EVENT>
+
+EVENT AC-C-52
+  0000. 08: The island's flying!
+            What's happening?<END EVENT>
+
+EVENT AC-C-53
+  0000. 08: So what if the island flew
+            in the sky!? It's not like
+            that makes my life any
+            easier or anything.<END EVENT>
+
+EVENT AC-C-54
+  0000. 08: The Master of Terror,
+            Daos...This might be
+            the end of the world.<END EVENT>
+
+EVENT AC-C-55
+  0000. 08: Is this city going to be
+            attacked next? Where
+            can we run to?<END EVENT>
+
+EVENT AC-C-56
+  0000. 08: Are you fighting with
+            the men on that
+            island? I can't
+            believe it!<END EVENT>
+
+EVENT AC-C-57
+  0000. 08: Hey, don't do anything
+            to throw your lives
+            away, ok!?<END EVENT>
+
+EVENT AD-C-54
+  0000. 08: I hear there once lived
+            those who served super
+            beings. They lived
+            isolated from the world.<END EVENT>
+
+EVENT AD-C-55
+  0000. 08: I never believed in the
+            Sinistrals. Master of
+            Fortune is nice, but
+            Master of Terror? Ooh!<END EVENT>
+
+EVENT AD-C-56
+  0000. 08: I can't figure out why
+            such an evil thing
+            would come out!<END EVENT>
+
+EVENT AD-C-57
+  0000. 08: Ever since that island
+            appeared in the sky, I
+            can't sleep at night and
+            get tired during the day.<END EVENT>
+
+EVENT B2-X-XX
+  0000. 74(05)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(2F)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT B2-D-01
+  0219. 00()                           # End Event
+  021A. A5()                           # Call Game Load Screen
+  021B. 00()                           # End Event
+
+EVENT B5-C-50
+  0000. 08: Is Chaed really gone?
+            It's hard to believe...<END EVENT>
+
+EVENT B5-C-51
+  0000. 08: I wonder which city
+            that island is going to
+            destroy next?<END EVENT>
+
+EVENT B5-C-52
+  0000. 08: I wish it'd just end
+            instead of this slow
+            destruction.<END EVENT>
+
+EVENT B5-C-53
+  0000. 08: I don't want to die
+            this young. I have a
+            lot of things I still
+            want to do.<END EVENT>
+
+EVENT B5-C-54
+  0000. 08: You're going to defeat
+            Daos, aren't you? I know
+            you will 'cause you
+            people look so strong.<END EVENT>
+
+EVENT B5-C-55
+  0000. 08: I guess super beings
+            really exist. But I
+            hate to imagine them.<END EVENT>
+
+EVENT B6-C-51
+  0000. 08: Hello, there. Please take
+            your time and look
+            around.<END MESSAGE>
+  001D. 18(37)                         # Call Shop
+  001F. 00()                           # End Event
+  0020. 08: I am sorry, but we're
+            out of stock right now.<END EVENT>
+
+EVENT B6-C-52
+  0000. 08: I'm still young, but
+            the magic we have
+            is all-powerful.<END MESSAGE>
+  0025. 18(38)                         # Call Shop
+  0027. 00()                           # End Event
+  0028. 08: I'm sorry. We're just
+            getting ready to display
+            new magic. Please come
+            back later.<END EVENT>
+
+EVENT B6-C-54
+  0000. 08: Where the heck is my
+            husband? We've got a
+            strange island floating
+            in the air here!<END EVENT>
+
+EVENT B6-C-55
+  0000. 08: Is there anyone who
+            can really stop that
+            island?<END EVENT>
+
+EVENT B6-C-56
+  0000. 08: I've lived enough, so
+            nothing would scare me.<END EVENT>
+
+EVENT B6-C-58
+  0000. 08: Even if the world
+            collapses tomorrow, as
+            long as I've got cider,
+            I'm happy! Ha, ha, ha!<END EVENT>
+
+EVENT B6-C-59
+  0000. 08: If only I'd known
+            disaster was in the wind,
+            I wouldn't have drunk
+            cider. Well, too late now.<END EVENT>
+
+EVENT B6-C-5A
+  0000. 08: I really wanted to<END EVENT>
+
+EVENT BD-X-XX
+  0000. 74(0A)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(05)                         # Preload Music
+  0008. 7B(57-EB)                      # Load Monster NPC (06,22) 57: eb Green Tartona
+  000B. 7B(58-EB)                      # Load Monster NPC (04,25) 58: eb Green Tartona
+  000E. 00()                           # End Event
+
+EVENT BD-A-00
+  0000. 2E(12)                         # Character Disappears
+  0002. 00()                           # End Event
+
+EVENT BD-C-12
+  0000. 00()                           # End Event
+
+EVENT BE-A-02
+  0000. 83(0A)
+  0002. 00()                           # End Event
+
+EVENT BE-B-01
+  0000. 63: But how come that
+            old man knows so
+            much about Preamarl?<END MESSAGE>
+  0022. 62: Yeah, it's kind of funny,
+            isn't it? We have
+            Excerion to get there,
+            but how did he get there?<END MESSAGE>
+  005A. 61: He can use spells, you
+            see. He probably had
+            his own way to get
+            there.<END MESSAGE>
+  0086. 62: Maybe...<END MESSAGE>
+  008D. 00()                           # End Event
+
+EVENT BE-C-50
+  0000. 08: Good! The mountain
+            in the south has
+            become so quiet.<END EVENT>
+
+EVENT BE-C-51
+  0000. 08: You defeated the dragon
+            on the mountain!? I never
+            imagined a human could
+            do such a great thing.<END EVENT>
+
+EVENT BE-C-52
+  0000. 08: Do you know about the
+            city under the sea? Our
+            elder went there once.
+            I think it's great!<END EVENT>
+
+EVENT BE-C-53
+  0000. 08: I'm so glad that the
+            elder's back alright.
+            The old man's pretty
+            popular, you see.<END EVENT>
+
+EVENT BE-C-54
+  0000. 08: I hear somewhere under
+            the sea is a land of
+            mermaids. My grandpa
+            often tells me that story.<END EVENT>
+
+EVENT BE-C-55
+  0000. 08: The smell of the mountain
+            breeze is sweet again.
+            Yes, this is the way
+            it should be, indeed.<END EVENT>
+
+EVENT BF-C-2D
+  0000. 08: North by northeast is
+            a crescent shaped island
+            with the entrance to
+            Preamarl under it.<END EVENT>
+
+EVENT BF-C-55
+  0000. 08: Is it true your ship
+            can go under the sea?<END MESSAGE>
+  001D. 08: With that ship, you can
+            even get to Preamarl, the
+            legendary place my grandpa
+            always talks about.<END EVENT>
+
+EVENT BF-C-56
+  0000. 08: Kids these days
+            can fight, too. I
+            guess they're not
+            all worthless.<END EVENT>
+
+EVENT BF-C-57
+  0000. 08: What did Fire Dragon
+            look like? Did he
+            shoot flames from
+            his mouth?<END EVENT>
+
+EVENT C7-X-XX
+  0000. 74(12)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(11)
+  0006. 4B(13)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT C7-C-2D
+  0000. 00()                           # End Event
+
+EVENT C9-C-50
+  0000. 08: Seems like something
+            horrible is happening
+            up above.<END EVENT>
+
+EVENT C9-C-51
+  0000. 08: Your ship might be
+            able to make it in
+            that sea current.<END EVENT>
+
+EVENT C9-C-52
+  0000. 08: I suggest you not get
+            too close to that shrine.
+            How shall I put it?
+            It's...strange.<END EVENT>
+
+EVENT C9-C-53
+  0000. 08: I feel like something bad
+            is going to happen. We
+            mermaids can sense that!<END EVENT>
+
+EVENT CA-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(21)                         # Preload Music
+  0006. 68(50-42)                      # Load NPC (09,13) 50: 42 Blue Mermaid
+  0009. 68(51-43)                      # Load NPC (1c,07) 51: 43 Merman
+  000C. 68(53-42)                      # Load NPC (16,1c) 53: 42 Blue Mermaid
+  000F. 68(54-42)                      # Load NPC (1b,1a) 54: 42 Blue Mermaid
+  0012. 68(55-43)                      # Load NPC (04,08) 55: 43 Merman
+  0015. 68(56-42)                      # Load NPC (07,07) 56: 42 Blue Mermaid
+  0018. 68(57-43)                      # Load NPC (10,05) 57: 43 Merman
+  001B. 68(59-42)                      # Load NPC (17,18) 59: 42 Blue Mermaid
+  001E. 00()                           # End Event
+
+EVENT CA-A-00
+  0000. 00()                           # End Event
+
+EVENT CA-C-2E
+  0000. 08: You couldn't find
+            Dual Blade? But I'm
+            sure you'll find
+            your way to it.<END EVENT>
+
+EVENT CA-C-53
+  0000. 08: I'm glad that the Queen
+            and Princess are ok,
+            but I can't totally relax
+            with that island there.<END EVENT>
+
+EVENT CA-C-54
+  0000. 08: I see the legendary
+            sword really exists!<END EVENT>
+
+EVENT CA-C-55
+  0000. 08: I guess something
+            crazy is happening on
+            land.<END EVENT>
+
+EVENT CA-C-56
+  0000. 08: I wonder if this
+            submarine world
+            will also be destroyed?<END EVENT>
+
+EVENT CB-D-01
+  0000. 15(FA-@10)                     # Branch on Flag FA ($079d:04)
+  0004. 43(01-02)                      # Overwrite Map Tiles
+  0007. 37(0A)                         # Pause
+  0009. 43(01-03)                      # Overwrite Map Tiles
+  000C. 37(0A)                         # Pause
+  000E. 1A(FA)                         # Set Event Flag FA ($079d:04)
+  # LABEL @10 $6c2de
+  0010. 00()                           # End Event
+
+EVENT CB-D-02
+  0000. 15(FA-@10)                     # Branch on Flag FA ($079d:04)
+  0004. 43(01-02)                      # Overwrite Map Tiles
+  0007. 37(0A)                         # Pause
+  0009. 43(01-03)                      # Overwrite Map Tiles
+  000C. 37(0A)                         # Pause
+  000E. 1A(FA)                         # Set Event Flag FA ($079d:04)
+  # LABEL @10 $6c2f4
+  0010. 00()                           # End Event
+
+EVENT CC-X-XX
+  0000. 74(01)                         # Set Battle BG
+  0002. 69(41)
+  0004. 69(D1)
+  0006. 4B(20)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT CC-A-01
+  0000. 43(08-09)                      # Overwrite Map Tiles
+  0003. 43(0A-0B)                      # Overwrite Map Tiles
+  0006. 43(02-01)                      # Overwrite Map Tiles
+  0009. 43(06-01)                      # Overwrite Map Tiles
+  000C. 43(03-01)                      # Overwrite Map Tiles
+  000F. 43(02-01)                      # Overwrite Map Tiles
+  0012. 43(04-01)                      # Overwrite Map Tiles
+  0015. 43(07-01)                      # Overwrite Map Tiles
+  0018. 00()                           # End Event
+
+EVENT CC-D-01
+  0000. 00()                           # End Event
+
+EVENT CC-D-02
+  0000. 00()                           # End Event
+
+EVENT CC-D-03
+  0000. 00()                           # End Event
+
+EVENT CC-D-04
+  0000. 00()                           # End Event
+
+EVENT CC-D-05
+  0000. 00()                           # End Event
+
+EVENT CC-D-06
+  0000. 00()                           # End Event
+
+EVENT CC-D-07
+  0000. 00()                           # End Event
+
+EVENT CC-D-08
+  0000. 00()                           # End Event
+
+EVENT CD-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(2F)                         # Preload Music
+  0006. 00()                           # End Event
+
+EVENT CD-A-01
+  0000. 43(08-09)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT CD-C-2E
+  0000. 00()                           # End Event
+
+EVENT CD-C-50
+  0000. 08: I sense the current, so
+            the exit must be around
+            somewhere. We'll
+            be fine, so please go.<END EVENT>
+
+EVENT CF-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(2C)                         # Preload Music
+  0006. 00()                           # End Event
+
+EVENT CF-A-01
+  0000. 00()                           # End Event
+
+EVENT CF-D-01
+  0000. 00()                           # End Event
+
+EVENT D0-B-01
+  0000. 30(00-01)                      # Teleport Character
+  0003. 30(01-02)                      # Teleport Character
+  0006. 30(02-03)                      # Teleport Character
+  0009. 30(03-04)                      # Teleport Character
+  000C. 31(00-01)                      # Change Facing
+  000F. 31(01-01)                      # Change Facing
+  0012. 31(02-01)                      # Change Facing
+  0015. 31(03-01)                      # Change Facing
+  0018. 59(11)                         # Luminosity
+  001A. 76()
+  001B. 62: Oh no!<END MESSAGE>
+  0021. 63: Did he bring us here
+            just to make a point!?<END MESSAGE>
+  003F. 64: I won't forgive him
+            for this! He won't
+            get away with this!<END MESSAGE>
+  0066. 9E: <POSITION 04><PAUSE 00>Do you understand now
+            how powerless you
+            people are?<END MESSAGE>
+  0087. 33(01-00)                      # Move Character to Location
+  008A. 61: Daos! If you want to
+            fight, fight us! Only a
+            coward attacks powerless,
+            innocent people!<END MESSAGE>
+  00C0. 9E: <POSITION 04><PAUSE 00>Ha, ha, ha! You have
+            something to say? Come
+            up here! We will
+            talk then.<END MESSAGE>
+  00F1. 61: Be sure of it!
+            If I could only...<END MESSAGE>
+  0106. 64: $MAXIM$. What shall we
+            do? The island is in
+            the sky!<END MESSAGE>
+  0126. 63: Man! Can't we
+            do anything!?<END MESSAGE>
+  0138. 61: What...what shall I do..?<END MESSAGE>
+  0149. 7E(00)                         # Set Ship Exists/Unexists
+  014B. 7D(E4)                         # Relocate Ship
+  014D. 7F(00)                         # Set Party On/Off Ship
+  014F. 3C()                           # Gather Behind Maxim
+  0150. B9(00)                         # Fill IP Bar
+  0152. B9(01)                         # Fill IP Bar
+  0154. B9(02)                         # Fill IP Bar
+  0156. B9(03)                         # Fill IP Bar
+  0158. 00()                           # End Event
+
+EVENT D5-X-XX
+  0000. 74(09)                         # Set Battle BG
+  0002. 69(01)
+  0004. 69(09)
+  0006. 69(19)
+  0008. 4B(08)                         # Preload Music
+  000A. 68(54-1B)                      # Load NPC (13,07) 54: 1b Bandana Sailor
+  000D. 68(55-1B)                      # Load NPC (14,0a) 55: 1b Bandana Sailor
+  0010. 68(56-1B)                      # Load NPC (0c,07) 56: 1b Bandana Sailor
+  0013. 68(57-1B)                      # Load NPC (0c,0a) 57: 1b Bandana Sailor
+  0016. 00()                           # End Event
+
+EVENT D5-D-01
+  0000. 00()                           # End Event
+
+EVENT D6-X-XX
+  0000. 69(08)
+  0002. 69(98)
+  0004. 4B(01)                         # Preload Music
+  0006. 68(50-18)                      # Load NPC (16,1a) 50: 18 Armored Knight
+  0009. 68(51-18)                      # Load NPC (1a,1a) 51: 18 Armored Knight
+  000C. 68(52-18)                      # Load NPC (0c,10) 52: 18 Armored Knight
+  000F. 68(53-18)                      # Load NPC (0e,10) 53: 18 Armored Knight
+  0012. 68(56-18)                      # Load NPC (15,10) 56: 18 Armored Knight
+  0015. 68(57-18)                      # Load NPC (15,12) 57: 18 Armored Knight
+  0018. 68(58-18)                      # Load NPC (15,14) 58: 18 Armored Knight
+  001B. 68(59-18)                      # Load NPC (16,11) 59: 18 Armored Knight
+  001E. 68(5A-18)                      # Load NPC (16,13) 5a: 18 Armored Knight
+  0021. 68(5B-18)                      # Load NPC (16,15) 5b: 18 Armored Knight
+  0024. 68(5C-19)                      # Load NPC (1a,11) 5c: 19 Red Man
+  0027. 68(5D-19)                      # Load NPC (1a,13) 5d: 19 Red Man
+  002A. 68(5E-19)                      # Load NPC (1a,15) 5e: 19 Red Man
+  002D. 68(5F-19)                      # Load NPC (1b,10) 5f: 19 Red Man
+  0030. 68(60-19)                      # Load NPC (1b,12) 60: 19 Red Man
+  0033. 68(61-19)                      # Load NPC (1b,14) 61: 19 Red Man
+  0036. 68(64-19)                      # Load NPC (17,0c) 64: 19 Red Man
+  0039. 68(65-19)                      # Load NPC (19,0c) 65: 19 Red Man
+  003C. 68(66-14)                      # Load NPC (17,0e) 66: 14 Prince
+  003F. 68(67-C7)                      # Load NPC (18,0e) 67: c7 Monster Tank
+  0042. 00()                           # End Event
+
+EVENT D6-D-02
+  0000. 00()                           # End Event
+
+EVENT D9-C-30
+  0000. 08: I see Lisa has completed
+            her mission as she
+            had wished.<END EVENT>
+
+EVENT D9-C-31
+  0000. 08: I see Marie has completed
+            her mission as she had
+            wished. It is my turn
+            to be of help.<END EVENT>
+
+EVENT D9-C-54
+  0000. 08: The final battle nears. If
+            there's anything you
+            have forgotten, now
+            is the time.<END MESSAGE>
+  0031. 08: Please look after Clare
+            for me, $MAXIM$.<END MESSAGE>
+  0048. 08: Did the super beings who
+            gave our ancestors special
+            armor expect that someone
+            like Daos would appear?<END EVENT>
+
+EVENT D9-C-5B
+  0000. 08: I see Lisa stayed in the
+            tower. I feel exactly
+            what Lisa's feeling
+            right now.<END EVENT>
+
+EVENT D9-C-5C
+  0000. 08: We've been waiting.
+            Everything has been
+            prepared.<END EVENT>
+
+EVENT DC-A-00
+  0000. 00()                           # End Event
+
+EVENT DC-C-2F
+  0000. 00()                           # End Event
+
+EVENT DC-D-01
+  0000. 00()                           # End Event
+
+EVENT E0-A-00
+  0000. 00()                           # End Event
+
+EVENT E0-C-30
+  0000. 00()                           # End Event
+
+EVENT E0-D-01
+  0000. 00()                           # End Event
+
+EVENT E4-A-00
+  0000. 00()                           # End Event
+
+EVENT E4-B-01
+  0000. 3D(00)                         # Hide Behind Maxim
+  0002. 30(31-05)                      # Teleport Character
+  0005. 31(31-02)                      # Change Facing
+  0008. 33(01-00)                      # Move Character to Location
+  000B. 33(02-01)                      # Move Character to Location
+  000E. 33(03-02)                      # Move Character to Location
+  0011. 33(04-03)                      # Move Character to Location
+  0014. 79()
+  0015. 59(11)                         # Luminosity
+  0017. 76()
+  0018. 13: <VOICE 31>We've stopped Doom
+            Island, but I don't
+            know how long it
+            will stay put.<END MESSAGE>
+  0044. 13: <VOICE 31>I vaguely felt that
+            Doom Island had
+            attacked something. It
+            may have been your ship.<END MESSAGE>
+  0078. 63: What!? Excerion!?<END MESSAGE>
+  0083. 64: It never occurred to me
+            that they would attack our
+            ship. I wasn't paying
+            attention to the ship.<END MESSAGE>
+  00C0. 63: Ok, you weren't paying
+            attention to the ship.
+            Please pay attention now
+            to what we should do!<END MESSAGE>
+  00FB. 61: I guess we have to go
+            to Portravia and have
+            Lexis fix the ship.<END MESSAGE>
+  0122. 13: <VOICE 31>Please go fast! We
+            have trapped Doom
+            Island at the center
+            of the three towers.<END MESSAGE>
+  0154. 61: Alright. But if you feel
+            any danger, any danger
+            at all, please flee, ok!?<END MESSAGE>
+  0184. 13: <VOICE 31>Th...thank you. Please
+            go now. I will try to
+            control the power as
+            long as my strength lasts.<END MESSAGE>
+  01BB. 13: <VOICE 31>$MAXIM$. Remember, you've
+            been chosen by Dual
+            Blade, the blade that
+            can defeat the Sinistrals.<END MESSAGE>
+  01EF. 61: I know.<END MESSAGE>
+  01F6. 31(00-04)                      # Change Facing
+  01F9. 37(0A)                         # Pause
+  01FB. 61: Selan, let's get
+            to Portravia!<END MESSAGE>
+  020B. 62: Warp!<END MESSAGE>
+  0211. A3(00-85)                      # Play NPC focused animation
+  0214. A3(02-85)                      # Play NPC focused animation
+  0217. A3(01-85)                      # Play NPC focused animation
+  021A. A3(03-85)                      # Play NPC focused animation
+  021D. 89(03)
+  021F. 16(A2-02-04)                   # Warp to Map & Event [A2-B-02] (04)
+  0223. 00()                           # End Event
+
+EVENT E4-C-31
+  0000. 00()                           # End Event
+
+EVENT E4-D-01
+  0000. 00()                           # End Event
+
+EVENT E7-B-62
+  0000. 00()                           # End Event
+
+EVENT E7-D-01
+  0000. 00()                           # End Event
+
+EVENT E9-A-00
+  0000. 2E(29)                         # Character Disappears
+  0002. 1C(@9)                         # Jump
+  0005. 8B(29-F8-00)
+  # LABEL @9 $7058d
+  0009. 00()                           # End Event
+
+EVENT E9-D-01
+  0000. 00()                           # End Event
+
+EVENT EA-X-XX
+  0000. 74(08)                         # Set Battle BG
+  0002. 69(D9)
+  0004. 00()                           # End Event
+
+EVENT EA-A-00
+  0000. 4B(38)                         # Preload Music
+  0002. 00()                           # End Event
+
+EVENT EA-A-01
+  0000. 43(02-01)                      # Overwrite Map Tiles
+  0003. 00()                           # End Event
+
+EVENT EA-D-01
+  0000. 00()                           # End Event
+
+EVENT EB-X-XX
+  0000. 74(08)                         # Set Battle BG
+  0002. 69(D9)
+  0004. 68(55-69)                      # Load NPC (00,00) 55: 69 Fallen Selan
+  0007. 00()                           # End Event
+
+EVENT EB-A-00
+  0000. 4B(38)                         # Preload Music
+  0002. 00()                           # End Event
+  0003. 4B(16)                         # Preload Music
+  0005. 00()                           # End Event
+  0006. 4B(09)                         # Preload Music
+  0008. 00()                           # End Event
+
+EVENT EB-A-01
+  0000. 43(01-1A)                      # Overwrite Map Tiles
+  0003. 30(55-09)                      # Teleport Character
+  0006. 1C(@D)                         # Jump
+  0009. 8B(50-F8-00)
+  # LABEL @D $70aef
+  000D. 00()                           # End Event
+
+EVENT EB-D-01
+  0000. 00()                           # End Event
+
+EVENT EB-D-02
+  0000. 5E(01)
+  0002. 00()                           # End Event
+
+EVENT EC-A-01
+  0000. AE(00)
+  0002. 54(01)                         # Open locked door?
+  0004. AE(FF)
+  0006. B4(05-04-02)
+  000A. AE(00)
+  000C. 54(02)                         # Open locked door?
+  000E. AE(FF)
+  0010. B4(06-04-02)
+  0014. 00()                           # End Event
+
+EVENT EC-D-01
+  0000. 00()                           # End Event
+
+EVENT EC-D-02
+  0000. 00()                           # End Event
+
+EVENT EC-D-03
+  0000. 00()                           # End Event

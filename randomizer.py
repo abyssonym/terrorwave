@@ -3426,7 +3426,11 @@ class MapEventObject(TableObject):
         meo_index, el_index, script_index = signature.split('-')
         meo = MapEventObject.get(int(meo_index, 0x10))
         el = meo.get_eventlist_by_index(el_index)
-        script = el.get_script_by_index(int(script_index, 0x10))
+        if script_index == 'XX':
+            assert el.index == 'X'
+            script = el.get_script_by_index(None)
+        else:
+            script = el.get_script_by_index(int(script_index, 0x10))
         return script
 
     @property
@@ -3715,12 +3719,11 @@ class MapEventObject(TableObject):
                 [str(meo) for meo in MapEventObject.every])
         for meo in MapEventObject.every:
             for el in meo.event_lists:
-                if el.index not in 'CD':
-                    continue
                 for script in list(el.scripts):
-                    find_sig = '[{0}]'.format(script.signature)
-                    if find_sig not in MapEventObject._cleanup_text:
-                        el.scripts.remove(script)
+                    if el.index == 'C':
+                        find_sig = '[{0}]'.format(script.signature)
+                        if find_sig not in MapEventObject._cleanup_text:
+                            el.scripts.remove(script)
 
     def cleanup(self):
         for el in self.event_lists:
@@ -4610,6 +4613,8 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
             name = m.name
             if name[-1] in 'sxz' or name.endswith('sh') or name.endswith('ch'):
                 name += 'e'
+            if name[-1] == 'y':
+                name = name[:-1] + 'ie'
             location_hint = 'in a place where {0}s dwell'.format(name)
 
         elif hint_type == 'chests':
@@ -4652,6 +4657,9 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
 
 
 def make_open_world():
+    patch_events('max_world_clock')
+    patch_events('open_world_base')
+
     for clo in CharLevelObject.every:
         clo.level = 1
 
@@ -4803,7 +4811,7 @@ def make_open_world():
     parameters['final_boss_sprite_index'] = final_boss.guess_sprite()
 
     # Apply base patches BEFORE procedural modifications
-    patch_with_template('opening', parameters)
+    patch_with_template('open_world_events', parameters)
 
     boss_events = []
     assert len(sorted_bosses) == len(sorted_locations)
@@ -4902,9 +4910,6 @@ if __name__ == '__main__':
             print('NOTHING PERSONNEL KID.')
 
         patch_events()
-        patch_events('max_world_clock')
-        patch_events('max_world_clock_manual')
-        patch_events('open_world_base')
         MapEventObject.roaming_comments = set()
 
         make_open_world()

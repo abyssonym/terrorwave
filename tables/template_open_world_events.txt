@@ -1,100 +1,9 @@
-!exit +1 (40) 00:c8,20->d6:18,23 2x2
-
-EVENT 03-X-XX  # $39179:39179
-0027. 68(50-0C)                      # Load NPC (15,1a) 50: 0c Blue Man
-002A. 68(51-0A)                      # Load NPC (1e,11) 51: 0a Red Boy
-002D. 68(52-0F)                      # Load NPC (0d,15) 52: 0f Green Middle Woman
-0030. 68(53-19)                      # Load NPC (13,15) 53: 19 Red Man
-0033. 68(56-0D)                      # Load NPC (21,23) 56: 0d Yellow Woman
-0036. 68(57-0B)                      # Load NPC (1e,1e) 57: 0b Green Girl
-0039. 68(58-0E)                      # Load NPC (19,13) 58: 0e Yellow Middle Man
-0049. 68(5C-70)                      # Load NPC (14,25) 5c: 70 Nothing
-004C. 00()                           # End Event
-
 EVENT 03-B-02
 1010. 70()
 1020. 2B({{starting_character_index}})
 1030. 2C(00)
 1040. 16(A2-0A-04)
 1050. 00()
-
-EVENT 0E-X-XX
-0000. 69(08)
-0002. 69(98)
-0004. 4B(14)                         # Preload Music
-0006. 68(50-0D)                      # Load NPC (0f,16) 50: 0d Yellow Woman
-000C. 00()                           # End Event
-
-EVENT 0E-D-01
-0000. 00()
-
-EVENT 27-X-XX  # $3964a:3964a
-0000. 74(12)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(17)                         # Preload Music
-0008. 7B(50-89)                      # Load Monster NPC (16,20) 50: 89 Spider
-000B. 7B(51-98)                      # Load Monster NPC (14,0f) 51: 98 Hornet
-000E. 7B(52-8F)                      # Load Monster NPC (28,09) 52: 8f Bat
-0011. 7B(53-98)                      # Load Monster NPC (28,1a) 53: 98 Hornet
-001E. 00()                           # End Event
-
-!exit +1 (F1) 42:0a,0c->43:08,15
-EVENT 42-D-0A
-0000. 43(01-02)
-0010. 00()
-
-EVENT 43-X-XX  # $39a09:39a09
-0000. 74(0B)                         # Set Battle BG
-0002. 69(01)
-0004. 69(09)
-0006. 69(19)
-0008. 4B(17)                         # Preload Music
-000D. 00()                           # End Event
-
-!exit +1 (F1) 43:08,11->44:06,25
-!tile 0a 43:08,11
-EVENT 43-D-0A
-0000. 43(01-02)
-7FFF. 00()
-
-EVENT 44-X-XX  # $399b2:399b2
-0000. 74(0B)                         # Set Battle BG
-0002. 69(01)
-0004. 69(09)
-0006. 69(99)
-0100. 68(50-37)
-1008. 4B(17)                         # Preload Music
-100A. 00()                           # End Event
-
-EVENT 44-A-00
-0000. 54(00)
-7FFF. 00()
-
-EVENT 44-A-01
-0000. 00()
-
-EVENT 44-C-50
-0000. 08: Sorry, if I let
-          you touch this orb,
-          it will crash the
-          game.
-7FFF. 00()
-
-EVENT 44-D-01
-0000. 00()
-
-EVENT 49-X-XX
-0000. 74(09)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(08)                         # Preload Music
-0008. 7B(50-E4)                      # Load Monster NPC (05,16) 50: e4 Sand Golem
-000B. 7B(51-90)                      # Load Monster NPC (0c,1b) 51: 90 Sword
-000E. 7B(52-9E)                      # Load Monster NPC (0b,17) 52: 9e Lizardman
-0011. 7B(53-A5)                      # Load Monster NPC (05,09) 53: a5 Hobgoblin
-001E. 68(55-70)                      # Load NPC (13,05) 55: 70 Nothing
-0021. 00()                           # End Event
 
 !npc 1e (05) 69:02,10
 EVENT 69-X-XX  # $39d83:39d83
@@ -232,44 +141,6 @@ EVENT 69-C-6D
 7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 7FFF. 00()
 
-EVENT 70-X-XX  # $39f36:39f36
-0000. 74(0A)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 4B(05)                         # Preload Music
-0008. 68(50-70)                      # Load NPC (14,04) 50: 70 Nothing
-000B. 7B(51-B0)                      # Load Monster NPC (1f,16) 51: b0 Samurai
-000E. 7B(52-81)                      # Load Monster NPC (1e,22) 52: 81 Snail
-0011. 7B(53-80)                      # Load Monster NPC (1b,27) 53: 80 Octopus
-0014. 7B(54-B0)                      # Load Monster NPC (09,16) 54: b0 Samurai
-0017. 7B(55-81)                      # Load Monster NPC (07,20) 55: 81 Snail
-001A. 7B(56-80)                      # Load Monster NPC (0d,20) 56: 80 Octopus
-0027. 00()                           # End Event
-
-EVENT 7E-X-XX  # $3a106:3a106
-0000. 74(07)                         # Set Battle BG
-0002. 69(01)
-0004. 69(11)
-0006. 69(31)
-0008. 4B(13)                         # Preload Music
-002C. 00()
-
-EVENT 90-A-01  # $5fda5:5fdd6
-0000. 14(C2-01C0-0001-30-@1B-FF)
-0001. 14(C2-01C1-0001-30-@1B-FF)
-0007. 43(01-03)
-001B. 54(05)
-001D. 00()                           # End Event
-
-EVENT 90-D-03
-0000. 00()
-
-EVENT 90-D-04
-0000. 00()
-
-EVENT 90-D-05
-0000. 00()
-
 !npc 0f (05) a2:0d,21
 !tile 1f a2:08,18 15x15
 EVENT A2-X-XX  # $3a5f1:3a5f1
@@ -299,10 +170,6 @@ EVENT A2-B-0A
 0330. 1D(0B-00)
 0340. 1A(95)
 {{starting_item_reward_event}}
-#7000. 1A(1A)
-#7010. 1A(1B)
-#7020. 1A(1C)
-#7030. 21(C1-01)
 7FE0. 4B(1F)
 7FF0. 1A(0A)
 7FFF. 00()
@@ -351,18 +218,6 @@ EVENT A2-D-0A
 1200. 5E(03)
 7FFF. 00()
 
-EVENT D6-X-XX
-0000. 69(08)
-0002. 69(98)
-0004. 4B(01)                         # Preload Music
-7FFF. 00()
-
-EVENT D6-D-01
-0000. 00()
-
-EVENT D6-D-02
-0000. 00()
-
 EVENT E6-B-63  # $701c2:701ce
 0000. 2E(00)                         # Character Disappears
 0001. 2E(01)                         # Character Disappears
@@ -382,15 +237,6 @@ EVENT E6-B-63  # $701c2:701ce
 1017. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 101B. 00()                           # End Event
 
-EVENT E7-B-62
-0000. 59(11)
-0010. 1A(71)
-7FFF. 00()
-
-EVENT E9-B-0A
-0000. 59(11)
-0010. 00()
-
 !exit 01 (00) ea:0,0->ea:0,0
 !tile 0a ea:10,12
 EVENT EA-A-01
@@ -409,7 +255,6 @@ EVENT EA-D-0A
 1000. 16(EB-0A-07)
 7FFF. 00()
 
-#!npc 0f (05) a2:0d,21
 !tile 02 eb:00,00
 !npc 01 (05) eb:0f,1e
 !npc 02 (05) eb:0f,1e
@@ -551,14 +396,3 @@ EVENT EB-B-0A
 40E0. 5B(05-00)
 40F0. BB()
 7FFF. 00()
-
-EVENT ED-X-XX  # $3adf5:3adf5
-0000. 69(98)
-0002. 4B(14)                         # Preload Music
-000E. 00()                           # End Event
-
-EVENT EF-X-XX  # $3ae0d:3ae0d
-0000. 69(01)
-0002. 69(91)
-0004. 4B(14)                         # Preload Music
-0010. 00()
