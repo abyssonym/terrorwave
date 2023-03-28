@@ -18,7 +18,6 @@ MonsterMoveObject   struct_monster_move.txt     27f6b5  112
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
-.patch.no_verify    patch_skip_tutorial.txt
 .patch              patch_spekkio.txt
 .patch              patch_clear_initial_spells.txt
 .option             patch_ac_music_hack.txt

@@ -1621,8 +1621,8 @@ class MonsterMoveObject(TableObject):
 
 
 class MapMetaObject(TableObject):
-    #FREE_SPACE = [(0x8a807, 0xa713d), (0x280000, 0x2a0000)]
-    FREE_SPACE = [(0x280000, 0x2a0000)]
+    FREE_SPACE = [(0x3e8000, 0x3ec000)]
+    IGNORE_EXISTING_DATA = set()
 
     class NPCPosition:
         def __init__(self, data):
@@ -2020,6 +2020,7 @@ class MapMetaObject(TableObject):
         blocksize = int.from_bytes(f.read(2), byteorder='little')
         f.seek(pointer)
         data = f.read(blocksize)
+        self.deallocate((pointer, pointer+blocksize))
         self.old_bytecode = {}
 
         offsets = []
@@ -2095,10 +2096,42 @@ class MapMetaObject(TableObject):
         super().full_cleanup()
 
     @classmethod
+    def deallocate(self, to_deallocate):
+        if isinstance(to_deallocate, tuple):
+            to_deallocate = {to_deallocate}
+        old_free_space = set(self.FREE_SPACE)
+        temp = sorted(set(self.FREE_SPACE) | to_deallocate)
+        while True:
+            temp = sorted(temp)
+            for ((a1, b1), (a2, b2)) in zip(temp, temp[1:]):
+                assert a1 <= a2
+                assert a1 < b1
+                assert a2 < b2
+                if a1 <= a2 <= b1:
+                    temp.remove((a1, b1))
+                    temp.remove((a2, b2))
+                    temp.append((min(a1, a2), max(b1, b2)))
+                    break
+            else:
+                break
+
+        self.FREE_SPACE = sorted(temp)
+        self.IGNORE_EXISTING_DATA |= (set(self.FREE_SPACE) - old_free_space)
+
+    @classmethod
     def separate_free_space_banks(self):
+        f = get_open_file(get_outfile())
         free_space = []
         for (a, b) in self.FREE_SPACE:
             assert b > a
+            if not any(a >= a2 and b <= b2
+                       for (a2, b2) in self.IGNORE_EXISTING_DATA):
+                f.seek(a)
+                old_data = f.read(b-a)
+                if tuple(set(old_data)) not in {(0,), (0xff,)}:
+                    print('WARNING: Address range {0:0>6X}-{1:0>6X} '
+                          'designated as free space, but appears to '
+                          'be occupied.'.format(a, b))
             while (b & 0xFF8000) > (a & 0xFF8000):
                 new_a = (a & 0xFF8000) + 0x8000
                 free_space.append((a, new_a))
@@ -2236,7 +2269,7 @@ class MapEventObject(TableObject):
 
     END_NPC_POINTER = 0x3ae4d
     END_EVENT_POINTER = 0x7289e
-    FREE_SPACE = [(0x3aed8, 0x3af4c)]
+    FREE_SPACE = []
 
     roaming_comments = set()
 
@@ -3739,6 +3772,14 @@ class MapEventObject(TableObject):
                         and find_sig not in self._cleanup_text):
                     print('WARNING: Orphaned event {0}.'.format(find_sig))
 
+        s = str(self)
+        for tile in list(self.map_meta.tiles):
+            signature = 'EVENT {0:0>2X}-D-{1:0>2X}'.format(self.index,
+                                                           tile.index)
+            if signature not in s:
+                self.map_meta.tiles.remove(tile)
+
+
     def write_data(self, filename=None, pointer=None):
         f = get_open_file(get_outfile())
         self.set_eventlists_pointer(self.allocate(14, npc_loader=False))
@@ -4673,6 +4714,7 @@ def make_open_world():
         rno.map_index = 0xff
 
     final_gades = BossFormationObject.get(0x21)
+    assert 'Gades x1' in str(final_gades)
     dummied_gades = 0xde
     final_gades.monster_indexes = [dummied_gades, 0xff, 0xff, 0xff, 0xff, 0xff]
 
@@ -4887,7 +4929,6 @@ if __name__ == '__main__':
                'randomizer version %s.\n' % VERSION)
 
         codes = {
-            'airship': ['airship'],
             'anywhere': ['anywhere'],
             #'everywhere': ['everywhere'],
             'personnel': ['nothingpersonnelkid', 'nothing.personnel.kid',
@@ -4898,13 +4939,6 @@ if __name__ == '__main__':
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         numify = lambda x: '{0: >3}'.format(x)
         minmax = lambda x: (min(x), max(x))
-
-        if 'airship' in get_activated_codes():
-            print('AIRSHIP CODE ACTIVATED')
-            if '_JP' in get_global_label():
-                write_patch(get_outfile(), 'patch_start_airship_jp.txt')
-            else:
-                write_patch(get_outfile(), 'patch_start_airship.txt')
 
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')

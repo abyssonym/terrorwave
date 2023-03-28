@@ -3,3 +3,10 @@
 : ea ea
 .label is_leader
 01cb84: a2 07 00
+
+VALIDATION
+
+01cb73: bd
+01cb74: fa 05
+01cb76: f0 0c
+01cb84: a2 07 00

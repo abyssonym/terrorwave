@@ -19,6 +19,5 @@ $capsule_end        beead
 $rng1               63
 $rng2               2f4
 .patch              patch_unlock_gift_mode.txt
-.patch.no_verify    patch_skip_tutorial.txt
 .patch              patch_clear_initial_spells.txt
 .option             patch_ac_music_hack.txt

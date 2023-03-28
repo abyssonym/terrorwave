@@ -230,8 +230,8 @@ EVENT 9F-C-50
               is nothing else I can do.<END MESSAGE>
     0219. 48(04-03)
     021C. 10(02-@241-@24D)               # Set Up Branching Event
-    0222. 08: Go back. Battle
-              with the Egg Dragon!<CHOICE>
+    0222. 08: Go back.
+              Fight the Egg Dragon!<CHOICE>
     023A. 08: So long.<END EVENT>
     # LABEL @241
     0241. 08: So...so long...<END EVENT>
@@ -257,11 +257,11 @@ EVENT 9F-C-50
               appreciation, let me
               give you this.<END MESSAGE>
     02E4. 4B(33)                         # Preload Music
-    02E6. 8C(04-0A-00)                   # Load animation frame 0A-00 for sprite 04
+    02E6. 8C(04-0A-01)                   # Load animation frame 0A-01 for sprite 04
     02EA. 86(04-40)                      # Character Movement?
     02ED. 49(C8)
     02EF. 9E: <POSITION 06>Gets the Egg Sword
-              and Egg Rings.<END MESSAGE>
+              and Egg Ring.<END MESSAGE>
     0308. 89(00)
     030A. 49(00)
     030C. 20(70-01)                      # Get Item 0XX (Egg sword x1)

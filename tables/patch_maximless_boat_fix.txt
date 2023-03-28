@@ -3,3 +3,10 @@
 : ea ea
 .label is_leader
 01caf7: af 16 e3 7f
+
+VALIDATION
+
+01cae3: bd
+01cae4: fa 05
+01cae6: f0 0f
+01caf7: af 16 e3 7f
