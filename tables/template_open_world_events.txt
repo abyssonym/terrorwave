@@ -1,9 +1,47 @@
-EVENT 03-B-02
+EVENT A0-X-XX  # $3a428:3a428
+0000. 6A(0A-@7B)
+0001. 15(BF-@1E)                     # Branch on Flag BF ($0795:80)
+0004. 15(BC-@18)                     # Branch on Flag BC ($0795:10)
+0008. 15(BB-@12)                     # Branch on Flag BB ($0795:08)
+000C. 4B(15)                         # Preload Music
+000E. 1C(@24)                        # Jump
+# LABEL @11 $3a439
+0011. 00()                           # End Event
+# LABEL @12 $3a43a
+0012. 4B(16)                         # Preload Music
+0014. 1C(@24)                        # Jump
+0017. 00()                           # End Event
+# LABEL @18 $3a440
+0018. 4B(32)                         # Preload Music
+001A. 1C(@24)                        # Jump
+001D. 00()                           # End Event
+# LABEL @1E $3a446
+001E. 4B(11)                         # Preload Music
+0020. 1C(@24)                        # Jump
+0023. 00()                           # End Event
+# LABEL @24 $3a44c
+0024. 69(08)
+0026. 69(98)
+002F. 68(50-0C)                      # Load NPC (1e,0b) 50: 0c Blue Man
+0032. 68(51-0B)                      # Load NPC (15,1d) 51: 0b Green Girl
+0035. 68(52-1A)                      # Load NPC (14,24) 52: 1a Sailor
+0038. 68(53-1A)                      # Load NPC (22,25) 53: 1a Sailor
+003B. 68(54-0A)                      # Load NPC (27,1e) 54: 0a Red Boy
+003E. 68(55-11)                      # Load NPC (27,11) 55: 11 Gray Old Woman
+0041. 68(56-10)                      # Load NPC (10,17) 56: 10 Bald Old Man
+0044. 68(57-49)                      # Load NPC (16,28) 57: 49 Big Boat
+0047. 68(58-49)                      # Load NPC (21,29) 58: 49 Big Boat
+004A. 68(5B-71)                      # Load NPC (1c,2f) 5b: 71 Little Boat
+004D. 68(68-70)                      # Load NPC (17,14) 68: 70 Nothing
+007B. 00()                           # End Event
+
+EVENT A0-B-0F
 1010. 70()
 1020. 2B({{starting_character_index}})
 1030. 2C(00)
-1040. 16(A2-0A-04)
-1050. 00()
+1040. 20(2A-10)
+1050. 16(A2-0A-04)
+1060. 00()
 
 !npc 1e (05) 69:02,10
 EVENT 69-X-XX  # $39d83:39d83

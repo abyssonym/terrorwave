@@ -4935,6 +4935,7 @@ def make_open_world():
     write_patch(get_outfile(), 'patch_maximless_boat_fix.txt')
     write_patch(get_outfile(), 'patch_zero_gold_command.txt')
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
+    write_patch(get_outfile(), 'patch_start_portravia.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
     #OpenNPCGenerator.create_boss_npc('test_location', 'gades4',
