@@ -33,6 +33,13 @@ MapMetaObject       struct_3pointer.txt         27fcbc  242
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
+$credits            89aff
+$credits_pointer1   73449
+$credits_pointer2   73496
+$credits_pointer3   7349d
+$credits_pointer4   734b3
+$credits_pointer5   73503
+$credits_pointer6   73511
 $sprites            names_sprites.txt
 .patch              patch_unlock_gift_mode.txt
 .patch              patch_fix_ac_items.txt

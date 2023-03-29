@@ -21,6 +21,7 @@ from traceback import format_exc
 
 
 VERSION = '3.0b'
+TEXT_VERSION = 'Three Beta'
 ALL_OBJECTS = None
 DEBUG_MODE = False
 
@@ -2380,8 +2381,9 @@ class MapEventObject(TableObject):
 
         def read_scripts(self):
             self.scripts = []
+            all_pointers = sorted(MapEventObject.ALL_POINTERS)
             for index, p1 in sorted(self.script_pointers):
-                p2 = min(p for p in MapEventObject.ALL_POINTERS if p > p1)
+                p2 = next(p for p in all_pointers if p > p1)
                 script = MapEventObject.Script(p1, p2-p1, self, index=index)
                 script.deallocate()
                 self.scripts.append(script)
@@ -2644,6 +2646,12 @@ class MapEventObject(TableObject):
             return script_text
 
         def prettify_script(self, script):
+            if not hasattr(MapEventObject, '_script_cache'):
+                MapEventObject._script_cache = {}
+            key = str(script)
+            if key in MapEventObject._script_cache:
+                return MapEventObject._script_cache[key]
+
             pretty = ''
             for line_number, opcode, parameters in script:
                 line = ''
@@ -2823,7 +2831,9 @@ class MapEventObject(TableObject):
                     else:
                         line = '{0:0>4X}. {1}'.format(line_number, line)
                 pretty += line.rstrip() + '\n'
-            return pretty.rstrip()
+
+            MapEventObject._script_cache[key] = pretty.rstrip()
+            return self.prettify_script(script)
 
         def make_pointer(self, data):
             assert len(data) == 2
@@ -3759,8 +3769,9 @@ class MapEventObject(TableObject):
         for (a, b) in self.FREE_SPACE:
             f.seek(a)
             f.write(b'\x00' * (b-a))
-        self._cleanup_text = '\n'.join(
-            [str(meo) for meo in MapEventObject.every])
+        if DEBUG_MODE:
+            self._cleanup_text = '\n'.join(
+                [str(meo) for meo in MapEventObject.every])
         super().full_cleanup()
 
     @classmethod
@@ -4620,10 +4631,16 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
             map_index = wild_jelly_map
             hint_target = "The Master Jelly"
 
+        if hint_target == 'Maxim':
+            hint_target = '$MAXIM$'
         meo = MapEventObject.get(map_index)
         zone_maps = meo.neighbors
         old_zone_text = '\n\n'.join([m.old_pretty for m in zone_maps])
-        new_zone_text = '\n\n'.join([str(m) for m in zone_maps])
+        if hint_topic in boss_events:
+            new_zone_text = MapEventObject.get_script_by_signature(
+                hint_topic).pretty
+        else:
+            new_zone_text = ''
         bgs = bg_matcher.findall(old_zone_text)
         formations = formation_matcher.findall(old_zone_text)
         monsters = [m for f in formations
@@ -4634,10 +4651,7 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
         chest_items = [i for i in chest_items if i.rank > 0]
         bosses = boss_matcher.findall(new_zone_text)
         bosses = [BossFormationObject.get(int(b, 0x10)) for b in bosses]
-        if len(bosses) != 1:
-            bosses = [b for b in bosses if 'Master x1' not in str(b)]
-        if len(bosses) != 1:
-            bosses = None
+        assert len(bosses) < 2
 
         candidates = []
         if bgs:
@@ -4729,6 +4743,261 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
         npc_script = ('EVENT {0}\n'
                       '0000. 08: {1}<END EVENT>').format(npc, message)
         patch_game_script(npc_script, warn_double_import=False)
+
+
+def read_credits():
+    f = get_open_file(get_outfile())
+    f.seek(addresses.credits)
+    s = ''
+    lines = []
+    while True:
+        line = ''
+        while True:
+            peek = ord(f.read(1))
+            if peek == 2:
+                double_peek = ord(f.read(1))
+                line += '\n' * double_peek
+            elif peek == 1:
+                line += '->'
+                break
+            elif peek == 4:
+                line += hexify(b'\x04' + f.read(9))
+                break
+            elif peek == 5:
+                line += '<-'
+                break
+            else:
+                import pdb; pdb.set_trace()
+        while True:
+            if peek == 4:
+                break
+            c = f.read(1)
+            if ord(c) == 0:
+                break
+            line += c.decode('ascii')
+        lines.append(line)
+        if peek == 4:
+            break
+    lines = [l2 for l in lines for l2 in l.split('\n')]
+    new_lines = []
+    for line in lines:
+        if line.startswith('<-'):
+            line = line[2:].strip()
+        elif line.startswith('->'):
+            line = '{0:>28}'.format(line[2:])
+        new_lines.append(line)
+    return '\n'.join(new_lines)
+
+
+def write_credits(boss_events, blue_chests, wild_jelly_map):
+    def center(line):
+        assert len(line) <= 28
+        line = '{0:^28}'.format(line)
+        return line.rstrip()
+
+    def right_justify(line):
+        assert len(line) <= 28
+        line = '{0:>28}'.format(line)
+        return line
+
+    def num_to_text(value):
+        digits = 'pqrstvwxyz'
+        s = ''
+        for c in str(value):
+            s += digits[int(c)]
+        return s.lower()
+
+    s1 = ''
+    s1 += center('Abyssonym Presents')
+    s1 += '\n\n'
+    s1 += center('LUFIA II  CRESTING WAVE')
+    s1 += '\n'
+    s1 += center('Open World Randomizer')
+    s1 += '\n\n'
+    s1 += center('version {0}'.format(TEXT_VERSION))
+    s1 += '\n\n\n'
+    s1 += center('A Terror Wave Production')
+
+    s2 = ''
+    s2 += 'SEED    {0}\n'.format(num_to_text(get_seed()))
+    s2 += 'FLAGS   {0}\n'.format(get_flags())
+    randomness = {o.random_degree for o in ALL_OBJECTS}
+    if len(randomness) == 1:
+        randomness = int(round((sorted(randomness)[0]**0.5) * 100))
+        s2 += 'CHAOS   {0}\n'.format(num_to_text(randomness))
+    else:
+        s2 += 'CHAOS   custom\n'.format(num_to_text(randomness))
+    codes = get_activated_codes()
+    if codes:
+        codes = '\n        '.join(sorted(codes))
+        s2 += 'CODES   {0}'.format(codes)
+    s2 = '  ' + s2.replace('\n', '\n  ')
+
+    boss_texts = {MapEventObject.get_script_by_signature(sig).pretty: sig
+                  for sig in boss_events}
+
+    def extract_location_boss(findstr):
+        candidates = [b for b in boss_texts if findstr in b]
+        if len(candidates) != 1:
+            return None, None
+        key = candidates[0]
+        sig = boss_texts[key]
+        map_index, _, _ = sig.split('-')
+        map_index = int(map_index, 0x10)
+        location = MapEventObject.get(map_index).zone_name
+        boss = boss_matcher.findall(key)
+        assert len(boss) == 1
+        boss = BossFormationObject.get(int(boss[0], 0x10))
+        return location, boss
+
+    reward_item_order = [0x1a8, 0x1a7, 0x1aa, 0x1ab, 0x1c0, 0x1c1]
+    reward_item_order += list(range(0x1b0, 0x1c0))
+
+    boss_matcher = re.compile('\. 53\((..)\)')
+    s3 = center('ITEM LOCATIONS')
+    s3 += '\n\n\n'
+    for item in reward_item_order:
+        findstr = '. 2{0}({1:0>2X}-01)'.format(item >> 8, item & 0xFF)
+        candidates = [b for b in boss_texts if findstr in b]
+        assert len(candidates) <= 1
+        if candidates:
+            location, boss = extract_location_boss(findstr)
+            s3 += ItemObject.get(item).name + '\n'
+            s3 += right_justify(location) + '\n'
+            s3 += right_justify(boss.boss.name) + '\n'
+            s3 += '\n'
+
+    s3 += '\n\n'
+
+    maidens = ['Lisa', 'Marie', 'Clare']
+    for maiden in maidens:
+        findstr = 'My name is {0}'.format(maiden)
+        location, boss = extract_location_boss(findstr)
+        s3 += maiden + '\n'
+        s3 += right_justify(location) + '\n'
+        s3 += right_justify(boss.boss.name) + '\n'
+        s3 += '\n'
+
+    s3 += '\n\n'
+
+    for character_index in range(7):
+        findstr = '. 2B({0:0>2X})'.format(character_index)
+        location, boss = extract_location_boss(findstr)
+        if location is None or boss is None:
+            continue
+        s3 += CharacterObject.get(character_index).name + '\n'
+        s3 += right_justify(location) + '\n'
+        s3 += right_justify(boss.boss.name) + '\n'
+        s3 += '\n'
+
+    s3 += '\n\n'
+
+    for capsule_index in range(7):
+        findstr = '. 81({0:0>2X})'.format(capsule_index)
+        location, boss = extract_location_boss(findstr)
+        s3 += CapsuleObject.get(capsule_index*5).name + '\n'
+        s3 += right_justify(location) + '\n'
+        s3 += right_justify(boss.boss.name) + '\n'
+        s3 += '\n'
+
+    s3 += '\n\n'
+
+    CONFLICT_ITEMS = [0x1c2, 0x1c5,
+                      0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
+                      0x1a1, 0x1a2, 0x1a3, 0x1a4]
+
+    for item in CONFLICT_ITEMS:
+        candidates = [c for c in blue_chests if c.item.index == item]
+        assert len(candidates) == 1
+        map_index = candidates[0].map_index
+        location = MapEventObject.get(map_index).zone_name
+        s3 += ItemObject.get(item).name + '\n'
+        s3 += right_justify(location) + '\n'
+        s3 += '\n'
+
+    location = MapEventObject.get(wild_jelly_map).zone_name
+    s3 += 'Master Jelly' + '\n'
+    s3 += right_justify(location) + '\n'
+    s3 += '\n'
+
+    item = ItemObject.get(0x2b)
+    candidates = [c for c in blue_chests if c.item is item]
+    map_indexes = sorted([c.map_index for c in candidates])
+    s3 += 'Dragon egg\n'
+    for map_index in map_indexes:
+        location = MapEventObject.get(map_index).zone_name
+        s3 += right_justify(location) + '\n'
+    s3 += '\n'
+
+    s4 = center('STAFF')
+    s4 += '\n\n\n\n'
+    roles = ['Creative Director', 'Game Experience Planning',
+             'Reverse Engineering', 'Tools Development',
+             'Testing and Debugging', 'Standards and Compliance',
+             'Documentation', 'Assistant']
+
+    for role in roles:
+        s4 += role + '\n'
+        s4 += right_justify('Abyssonym') + '\n\n\n'
+
+    s4 += '\n\n\n'
+    roles = [
+        ('Fixxxer Patch Author', 'Relnqshd'),
+        ('Legacy Documentation', 'Relnqshd'),
+        ('Background Listening', 'Two Tone Tony'),
+        ('Special Thanks', 'Lufia II Speedrun Community'),
+        ]
+
+    for role, person in roles:
+        s4 += role + '\n'
+        s4 += right_justify(person) + '\n\n\n'
+
+    s4 += '\n\n\n\n\n\n\n'
+    s4 += center('AND YOU')
+    s4 = s4.rstrip()
+
+    s = '\n\n\n\n\n\n\n'.join([s1, s2, s3, s4])
+
+    final_string = b'\x02\x1d\x04\x03\x00\x01\x03\x20\x01\x02\x0f\x00'
+    data = b'\x02\x01'
+    newline_count = 0
+    s = s.rstrip('\n')
+    for line in s.split('\n'):
+        if not line.strip():
+            newline_count += 1
+        else:
+            if newline_count > 0:
+                data += b'\x02' + bytes([newline_count])
+            if len(line) >= 28:
+                assert line[-1] != ' '
+                data += b'\x01'
+                line = line.lstrip()
+            else:
+                data += b'\x05'
+                line = line.rstrip()
+            data += line.encode('ascii') + b'\x00'
+            newline_count = 0
+
+    data += final_string
+    #MAX_LENGTH = 1749
+    #assert len(data) <= MAX_LENGTH
+
+    old_credits_address = addresses.credits
+    new_credits_address = 0x3ee100
+    f = get_open_file(get_outfile())
+    for i in range(1, 7):
+        credits_pointer = getattr(addresses, 'credits_pointer%s' % i)
+        f.seek(credits_pointer)
+        temp = int.from_bytes(f.read(3), byteorder='little')
+        assert map_from_lorom(temp) == old_credits_address
+        f.seek(credits_pointer)
+        f.write(int.to_bytes(map_to_lorom(new_credits_address),
+                             length=3, byteorder='little'))
+    f.seek(new_credits_address)
+    test = f.read(len(data))
+    assert len(set(test)) == 1
+    f.seek(new_credits_address)
+    f.write(data)
 
 
 def make_open_world():
@@ -4929,6 +5198,7 @@ def make_open_world():
 
     wild_jelly_map = make_wild_jelly(jelly_flag)
     generate_hints(boss_events, conflict_chests, wild_jelly_map)
+    write_credits(boss_events, conflict_chests, wild_jelly_map)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
