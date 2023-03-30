@@ -39,9 +39,8 @@ EVENT A0-B-0F
 1010. 70()
 1020. 2B({{starting_character_index}})
 1030. 2C(00)
-1040. 20(2A-10)
-1050. 16(A2-0A-04)
-1060. 00()
+1040. 16(A2-0A-04)
+1050. 00()
 
 !npc 1e (05) 69:02,10
 EVENT 69-X-XX  # $39d83:39d83
@@ -143,10 +142,12 @@ EVENT 69-C-6D
           be yours.<END MESSAGE>
 1030. 00()
 2000. 08: Hark.<PAUSE 82>.<PAUSE 82>.<PAUSE 82> HARK!!<PAUSE 82>
-          Reunited at last are
-          the Iris treasures of
-          old!<END MESSAGE>
-2010. 08: Now go, adventurer,
+          Doth mine eyes behold
+          a trickery? <PAUSE 82>An ILLUSION??<END MESSAGE>
+2010. 08: 'Tis not! Reunited at
+          last are the Iris
+          treasures of old!<END MESSAGE>
+2020. 08: Now go, adventurer,
           and seize the prize
           befitting your long
           hunt!<END MESSAGE>
@@ -202,6 +203,7 @@ EVENT A2-B-0A
 0050. 76()
 0140. 59(11)
 0200. 23({{starting_character_index}}-26)                      # Learn Spell
+0210. 23({{starting_character_index}}-24)                      # Learn Spell
 0300. 7E(00)                         # Set Ship Exists/Unexists
 0310. 7D(E0)                         # Relocate Ship
 0320. 7C(00)                         # Change Ship Type

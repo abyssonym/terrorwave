@@ -1623,14 +1623,16 @@ class ItemNameObject(TableObject): pass
 
 
 class MonsterMoveObject(TableObject):
-    flag = 'm'
+    flag = 'o'
+    flag_description = 'monster movements'
+    custom_random_enable = True
 
     def mutate(self):
         movements = [mm.old_data['movement']
                      for mm in MonsterMoveObject.every]
         movements.append(0x1F)
         movements_unique = sorted(set(movements))
-        if random.random() <= get_random_degree():
+        if random.random() <= self.random_degree:
             self.movement = random.choice(movements_unique)
         else:
             self.movement = random.choice(movements)
@@ -5049,6 +5051,10 @@ def make_open_world():
     dual_blade.equipability = 0
     dual_blade.set_bit(starting_character.name, True)
 
+    warp = SpellObject.get(0x24)
+    warp.characters |= 0x7f
+    warp.mp_cost = 0
+
     starting_item_reward_event = OpenNPCGenerator.REWARD_EVENT_ITEM
     item_index = int(starting_item.item_index, 0x10)
     item_acquire_opcode = '21' if item_index >= 0x100 else '20'
@@ -5226,6 +5232,11 @@ def dump_events(filename):
     return s
 
 
+class VanillaObject(TableObject):
+    flag = 'v'
+    flag_description = 'nothing'
+
+
 ALL_OBJECTS = [g for g in globals().values()
                if isinstance(g, type) and issubclass(g, TableObject)
                and g not in [TableObject]]
@@ -5243,6 +5254,7 @@ if __name__ == '__main__':
                           'nothing personnel kid', 'nothing_personnel_kid'],
             'easymodo': ['easymodo'],
             'holiday': ['holiday'],
+            'open': ['open', 'openworld']
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         numify = lambda x: '{0: >3}'.format(x)
@@ -5254,7 +5266,8 @@ if __name__ == '__main__':
         patch_events()
         MapEventObject.roaming_comments = set()
 
-        make_open_world()
+        if 'open' in get_activated_codes():
+            make_open_world()
 
         if 'holiday' in get_activated_codes():
             for meo in MapEventObject.every:
