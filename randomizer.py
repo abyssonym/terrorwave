@@ -5276,6 +5276,7 @@ if __name__ == '__main__':
                         new_script = [(l, o, p) for (l, o, p) in script.script
                                       if o != 0x7b]
                         script.script = new_script
+                        script.realign_addresses()
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
