@@ -46,4 +46,5 @@ $sprites            names_sprites.txt
 .patch              patch_unlock_gift_mode.txt
 .patch              patch_fix_ac_items.txt
 .patch              patch_clear_initial_spells.txt
+.patch              patch_zero_gold_command.txt
 .option             patch_ac_music_hack.txt

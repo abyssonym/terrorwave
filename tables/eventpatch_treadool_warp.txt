@@ -1,0 +1,26 @@
+!npc 0f (05) 79:18,05
+
+EVENT 79-X-XX
+0000. 69(08)
+0002. 69(98)
+0004. 4B(1E)                         # Preload Music
+0006. 68(50-18)                      # Load NPC (08,11) 50: 18 Armored Knight
+1000. 14(C2-002A-0001-20-@7FFF-FF)
+1010. 68(5E-37)
+7FFF. 00()                           # End Event
+
+EVENT 79-C-5E
+0000. 14(C2-002A-0001-20-@3000-FF)
+1000. 08: Are you stuck?
+          I'll sell you a
+          Warp for all of
+          your gold.<END MESSAGE>
+1010. 10(02-@1030-@1100)
+1020. 08: No.
+          Yes.<CHOICE>
+1030. 08: Fine then.<END EVENT>
+1100. 22(0000)
+1110. 20(2A-01)
+3000. 08: Pleasure doing
+          business with you!<END MESSAGE>
+7FFF. 00()
