@@ -3795,7 +3795,8 @@ class MapEventObject(TableObject):
             if el.index == 'X':
                 continue
             for script in list(el.scripts):
-                if {o for (l, o, p) in script.script} == {0}:
+                if (el.index != 'C' and
+                        {o for (l, o, p) in script.script} == {0}):
                     el.scripts.remove(script)
                     continue
 
