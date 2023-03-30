@@ -1,7 +1,8 @@
 # Start Sundletan quest immediately
+# Skip tutorial and learn Reset at Elcid
 EVENT 03-D-01  # $3b430:3b61d
-0000. 6A(01-@1E1)                    # Branch on Not Flag
-0004. 15(96-@1E1)                    # Branch on Flag?
+0000. 6A(01-@11E1)                   # Branch on Not Flag
+0004. 15(96-@11E1)                   # Branch on Flag?
 0008. 30(53-01)                      # Teleport Character
 000B. 33(0B-00)                      # Move Character to Location
 000E. 70()                           # Silence
@@ -86,14 +87,70 @@ EVENT 03-D-01  # $3b430:3b61d
 01D8. 32(11-07)                      # Character Stands Still?
 01DB. 32(53-08)                      # Character Stands Still?
 01DE. 1A(96)                         # Set Event Flag
-01E0. 00()                           # End Event
-# LABEL @1E1 $3b7fe
-01E1. 00()                           # End Event
+0200. 23(00-26)                      # Learn Spell
+0210. 1A(77)                         # Set Event Flag
+0220. 1A(AC)                         # Set Event Flag
+# LABEL @11E1 $3b7fe
+11E1. 00()                           # End Event
 
-# Skip tutorial and learn Reset at Elcid
 EVENT 03-D-02  # $3b430:3bd88
-0000. 23(00-26)                      # Learn Spell
-0003. 35(11-05-01)
-0007. 1A(77)                         # Set Event Flag
-0008. 1A(AC)                         # Set Event Flag
 0009. 00()                           # End Event
+
+EVENT 05-X-XX
+  0000. 74(0B)                         # Set Battle BG
+  0002. 69(09)
+  0004. 69(19)
+  0006. 4B(17)                         # Preload Music
+  0008. 7B(52-83)                      # Load Monster NPC (1a,06) 52: 83 Lizard
+  000B. 7B(53-94)                      # Load Monster NPC (21,07) 53: 94 Jelly
+  000E. 7B(54-94)                      # Load Monster NPC (1c,23) 54: 94 Jelly
+  0011. 00()                           # End Event
+
+EVENT 05-B-01
+0000. 00()
+
+EVENT 05-C-11
+0000. 00()
+
+EVENT 05-D-01
+0000. 00()
+
+EVENT 05-D-02
+0000. 00()
+
+EVENT 05-D-03
+0000. 00()
+
+EVENT 05-D-04
+  0000. 15(FA-@8)                      # Branch on Flag FA ($079d:04)
+  0004. 54(05)                         # Open locked door?
+  0006. 1A(FA)                         # Set Event Flag FA ($079d:04)
+  # LABEL @8 $3dba6
+  0008. 00()                           # End Event
+
+EVENT 05-D-05
+0000. 00()
+
+EVENT 05-D-06
+0000. 00()
+
+EVENT 05-D-07
+0000. 00()
+
+EVENT 05-D-08
+0000. 00()
+
+EVENT 05-D-0B
+0000. 00()
+
+EVENT 05-D-0D
+0000. 00()
+
+EVENT 05-D-11
+0000. 00()
+
+EVENT 05-D-12
+0000. 00()
+
+EVENT 05-D-13
+0000. 00()

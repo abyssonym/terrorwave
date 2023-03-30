@@ -286,8 +286,7 @@ EVENT 05-D-0B
   0000. 00()                           # End Event
 
 EVENT 05-D-0D
-  0000. 23(00-26)                      # Learn Spell (Maxim: Reset)
-  0003. 00()                           # End Event
+  0000. 00()                           # End Event
 
 EVENT 05-D-11
   0000. 00()                           # End Event
