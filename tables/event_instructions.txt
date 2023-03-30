@@ -48,7 +48,7 @@
 3b  1           Move Camera
 3c  0           Gather Behind Maxim
 3d  1           Hide Behind Maxim
-40  0
+40  2           Key check? (Only used in Ancient Cave lobby)
 42  0           DUPLICATE - 00 End Event
 41  1,1         Camera related (follow for X steps?)
 43  1,1         Overwrite Map Tiles
