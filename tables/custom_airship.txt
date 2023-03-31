@@ -1,0 +1,2 @@
+# This custom open world randomization starts with the airship unlocked.
+starting_item       engine

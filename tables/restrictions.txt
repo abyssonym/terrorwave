@@ -16,4 +16,3 @@ divine_shrine1      keys
 vengeance_shrine1   keys
 truth_tower1        keys
 daos_shrine         victory
-ancient_cave        characters,capsules

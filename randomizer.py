@@ -5007,7 +5007,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map):
     f.write(data)
 
 
-def make_open_world():
+def make_open_world(custom=None):
     patch_events('max_world_clock')
     patch_events('open_world_base')
 
@@ -5035,6 +5035,17 @@ def make_open_world():
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                     path.join(tblpath, 'restrictions.txt'))
+    if custom is not None:
+        custom_assignments = {}
+        for line in read_lines_nocomment(custom):
+            while '  ' in line:
+                line = line.replace('  ', ' ')
+            line = line.strip()
+            if not line:
+                continue
+            location, item = line.split(' ')
+            custom_assignments[location] = item
+        ir.set_custom_assignments(custom_assignments)
     ir.assign_everything()
     if 'starting_item' not in ir.assignments:
         ir.assignments['starting_item'] = 'dragon_egg'
@@ -5043,6 +5054,7 @@ def make_open_world():
     print(ir.report)
 
     assigned_item_indexes = {}
+
     name = ir.assignments['starting_item']
     starting_item = OpenNPCGenerator.get_properties_by_name(name)
     index = int(starting_item.item_index, 0x10)
@@ -5260,7 +5272,9 @@ if __name__ == '__main__':
                           'nothing personnel kid', 'nothing_personnel_kid'],
             'easymodo': ['easymodo'],
             'holiday': ['holiday'],
-            'open': ['open', 'openworld']
+            'open': ['open', 'openworld'],
+            'custom': ['custom'],
+            'airship': ['airship'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         numify = lambda x: '{0: >3}'.format(x)
@@ -5272,8 +5286,16 @@ if __name__ == '__main__':
         patch_events()
         MapEventObject.roaming_comments = set()
 
-        if 'open' in get_activated_codes():
-            make_open_world()
+        if any(code in get_activated_codes()
+                for code in {'open', 'airship', 'custom'}):
+            if 'airship' in get_activated_codes():
+                custom = path.join(tblpath, 'custom_airship.txt')
+            elif 'custom' in get_activated_codes():
+                custom = input(
+                    'Please enter the filepath of your custom seed: ')
+            else:
+                custom = None
+            make_open_world(custom=custom)
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')

@@ -31,7 +31,7 @@ starting_item       *
 skill_cave          party0
 foomy_woods         party0
 darbi_shrine        party0
-zeppy_cave          submarine
+zeppy_cave          submarine&party0
 sundletan_cave      party0
 catfish_cave        lake_key
 alunze_cave         party0
@@ -75,4 +75,3 @@ shuman              airship&all_tools_or_keys&party4
 stradha             airship&all_tools_or_keys&party4
 kamirno             airship&all_tools&all_keys&party4
 daos_shrine         lisa&marie&clare&all_tools&all_keys&party5
-#ancient_cave        party3

@@ -1,0 +1,49 @@
+# This is an example template for a custom seed
+starting_character      tia
+starting_item           engine
+#skill_cave
+foomy_woods             lisa
+darbi_shrine            marie
+zeppy_cave              clare
+#sundletan_cave
+#catfish_cave
+#alunze_cave
+#alunze_basement
+#tanbel_tower1
+#tanbel_tower2
+#ruby_cave
+#ruby_capsule
+#tsword_shrine1
+#tsword_shrine2
+#gordovan_tower1
+#gordovan_tower2
+#cave_bridge
+#north_dungeon
+#north_capsule
+#ancient_tower1
+#ancient_tower2
+#lighthouse
+#phantom_mountain
+#sacrifice_tower1
+#sacrifice_tower2
+#sacrifice_capsule
+#karlloon_shrine1
+#karlloon_shrine2
+#flower_mountain
+#flower_capsule
+#dankirk_dungeon
+#northeast_tower1
+#northeast_tower2
+#no_return_mountain
+#divine_shrine1
+#divine_shrine2
+#vengeance_shrine1
+#vengeance_shrine2
+#truth_tower1
+#truth_tower2
+#dragon_mountain
+#underwater_shrine
+#gratze_basement
+#shuman
+#stradha
+#kamirno
