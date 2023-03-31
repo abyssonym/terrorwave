@@ -22,6 +22,7 @@ phantom_mountain,67,08,1b,01,13
 sacrifice_tower,72,0e,08,0a,05
 sacrifice_capsule,70,14,16,0a,05
 karlloon_shrine,78,0e,1e,05,2f
+lexis_lab,7d,03,08,16,1f
 flower_mountain,7e,34,26,07,13
 flower_capsule,7e,12,0d,07,13
 dankirk_dungeon,90,34,23,09,08

@@ -1402,7 +1402,7 @@ class ShopObject(TableObject):
 
     @cached_property
     def zone_indexes(self):
-        findstr = '. 18({0:0>2X})'.format(self.index+4)
+        findstr = '. 18({0:0>2X})'.format(self.index)
         zone_indexes = set()
         for meo in MapEventObject.every:
             if findstr in meo.old_pretty:
@@ -1462,15 +1462,27 @@ class ShopObject(TableObject):
         return [ItemObject.get(i)
                 for i in sorted(ShopObject.vanilla_buyable_indexes)]
 
+    @property
+    def data_pointer(self):
+        return ShopObject.specs.pointer + self.reference_pointer
+
     def read_data(self, filename=None, pointer=None):
         super(ShopObject, self).read_data(filename, pointer)
+
+        if 'shop_type' not in ShopObject.specs.bitnames:
+            ShopObject.specs.bitnames['shop_type'] = [
+                'pawn', 'coin', 'item', 'weapon', 'armor',
+                'spell', 'unk16', 'sell']
         filename = filename or self.filename
 
         if not hasattr(ShopObject, 'vanilla_buyable_indexes'):
             ShopObject.vanilla_buyable_indexes = set([])
 
         f = get_open_file(filename)
-        f.seek(self.pointer+3)
+        f.seek(self.data_pointer)
+        self.unknown0 = f.read(1)
+        self.shop_type = ord(f.read(1))
+        self.unknown2 = f.read(1)
         self.wares = {}
         for menu in ['coin', 'item', 'weapon', 'armor']:
             self.wares[menu] = []
@@ -1498,7 +1510,10 @@ class ShopObject(TableObject):
         filename = filename or self.filename
 
         f = get_open_file(filename)
-        f.seek(self.pointer+3)
+        f.seek(self.data_pointer)
+        f.write(self.unknown0)
+        f.write(bytes([self.shop_type]))
+        f.write(self.unknown2)
         for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
                 assert self.wares[menu]
@@ -4328,7 +4343,7 @@ class OpenNPCGenerator:
         a = MapEventObject.Script.shift_line_numbers(
             offer_acceptance_events[second_offer[0]], 0x4000)
         b = MapEventObject.Script.shift_line_numbers(
-            offer_acceptance_events[second_offer[1]], 0x4400)
+            offer_acceptance_events[second_offer[1]], 0x4600)
         karl_second_offer_accept = '\n'.join([a, b])
 
         parameters['karl_first_offer'] = karl_first_offer
@@ -4761,7 +4776,7 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
                 0x13: 'in a hot place',
                 0x14: 'in a hot place',
                 0x15: 'in a tower',
-                0x16: 'in a castle',
+                0x16: 'in a dungeon',
                 }
             bg = int(random.choice(bgs), 0x10)
             if bg not in bg_hints:

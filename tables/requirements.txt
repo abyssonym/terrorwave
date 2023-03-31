@@ -56,6 +56,7 @@ sacrifice_tower2    hook&bomb&narcysus_key&party3
 sacrifice_capsule   hook&bomb&narcysus_key
 karlloon_shrine1    hook&bomb&party3
 karlloon_shrine2    hook&bomb&party3
+lexis_lab           party0
 flower_mountain     hammer&flower_key&party3
 flower_capsule      hammer&flower_key&hook&party3
 dankirk_dungeon     dankirk&party3

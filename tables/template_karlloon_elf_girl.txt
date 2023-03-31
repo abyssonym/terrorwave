@@ -20,24 +20,24 @@ EVENT 78-C-5E
 1800. 10(02-@1820-@2000)
 1810. 08: No.
           Yes.<CHOICE>
-1820. 1C(@2800)
+1820. 1C(@2C00)
 {{karl_first_offer_accept}}
-27FF. 1C(@4800)
-2800. 08: No? Then how
+2BFF. 1C(@4c00)
+2C00. 08: No? Then how
           about...<END MESSAGE>
 {{karl_second_offer}}
 3800. 10(02-@3820-@4000)
 3810. 08: No.
           Yes.<CHOICE>
-3820. 1C(@4c00)
+3820. 1C(@4e00)
 {{karl_second_offer_accept}}
-4800. 08: Great! Pleasure doing
+4C00. 08: Great! Pleasure doing
           business with you!<END MESSAGE>
-4810. 1B({{jelly_flag}})
-4820. A3({{starting_character_index}}-85)
-4830. 16(75-0A-01)
-4840. 00()
-4c00. 08: Fine. Enjoy the rest
+4C10. 1B({{jelly_flag}})
+4C20. A3({{starting_character_index}}-85)
+4C30. 16(75-0A-01)
+4C40. 00()
+4E00. 08: Fine. Enjoy the rest
           of your life at the
           bottom of the majestic
           Karlloon shrine.<END EVENT>
