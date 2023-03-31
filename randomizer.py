@@ -1640,6 +1640,8 @@ class MonsterMoveObject(TableObject):
     def cleanup(self):
         if 'personnel' in get_activated_codes():
             self.movement = 0x1F
+        if 'holiday' in get_activated_codes():
+            self.movement = 0x1B
 
 
 class MapMetaObject(TableObject):
@@ -4937,6 +4939,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map):
     s4 += '\n\n\n\n'
     roles = ['Creative Director', 'Game Experience Planning',
              'Reverse Engineering', 'Tools Development',
+             'Director of Making Tia the\nProtagonist of the Game',
              'Testing and Debugging', 'Standards and Compliance',
              'Documentation', 'Assistant']
 
@@ -5077,12 +5080,14 @@ def make_open_world():
         assert starting_character.name in {'maxim', 'guy', 'dekar'}
         candidates = male_titles | unisex_titles
     ending_title = random.choice(sorted(candidates))
+    starting_character_index = int(starting_character.character_index, 0x10)
     parameters = {
         'reward_id': '',
         'item_icon_code': starting_item.item_icon_code,
         'item_display_name': starting_item.item_display_name,
         'item_acquire_opcode': item_acquire_opcode,
-        'starting_character_index': starting_character.character_index,
+        'starting_character_index': starting_character_index,
+        'starting_character_flag': starting_character_index+1,
         'starting_item_reward_event': starting_item_reward_event,
         'final_boss_flag': final_boss_flag,
         'iris_ending_flag': iris_ending_flag,
@@ -5269,15 +5274,6 @@ if __name__ == '__main__':
 
         if 'open' in get_activated_codes():
             make_open_world()
-
-        if 'holiday' in get_activated_codes():
-            for meo in MapEventObject.every:
-                for el in meo.event_lists:
-                    for script in el.scripts:
-                        new_script = [(l, o, p) for (l, o, p) in script.script
-                                      if o != 0x7b]
-                        script.script = new_script
-                        script.realign_addresses()
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')

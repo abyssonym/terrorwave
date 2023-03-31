@@ -42,10 +42,50 @@ EVENT A0-B-0F
 1040. 16(A2-0A-04)
 1050. 00()
 
+EVENT 68-B-02
+  0000. 2B({{starting_character_index}})
+  0010. 2C(00)
+  0020. 1A({{starting_character_flag}})
+  1000. 59(11)                         # Luminosity
+  1002. 33(09-53)                      # Move Character to Location
+  1005. 13: <VOICE 53>Amazing you got this far!
+            You can play this
+            {Bonus Game} only
+            in the Ancient Cave.<END MESSAGE>
+  103D. 13: <VOICE 53>You should go to the
+            Cafe before you go to
+            the cave. Good luck!<END MESSAGE>
+  1069. 1A(C4)                         # Set Event Flag C4 ($0796:10)
+  106B. 00()                           # End Event
+
+EVENT 68-B-03  # $56796:56b0d
+1000. 2C(00)
+1002. 2C(01)                         # Character Leaves party
+1004. 2C(02)                         # Character Leaves party
+1006. 2C(03)                         # Character Leaves party
+1008. 2C(04)                         # Character Leaves party
+100A. 2C(05)                         # Character Leaves party
+100C. 2C(06)                         # Character Leaves party
+1080. 2B({{starting_character_index}})
+2000. 2C(06)
+2002. 2C(05)                         # Character Leaves party
+2004. 2C(04)                         # Character Leaves party
+2006. 2C(03)                         # Character Leaves party
+2008. 2C(02)                         # Character Leaves party
+200A. 2C(01)                         # Character Leaves party
+200C. 2C(00)                         # Character Leaves party
+2800. 2B({{starting_character_index}})
+300C. 59(11)                         # Luminosity
+300E. 00()                           # End Event
+
+!npc 04 (00) 69:04,04
+!npc 1d (00) 69:09,06
 !npc 1e (05) 69:02,10
 EVENT 69-X-XX  # $39d83:39d83
 0000. 69(08)
 0002. 69(98)
+0100. 15(C4-@1800)
+0110. 68(6D-6D)
 1000. 14(C2-019C-0001-40-C8-30-@1800-FF)
 1010. 14(C2-019D-0001-40-C9-30-@1800-FF)
 1020. 14(C2-019E-0001-40-CA-30-@1800-FF)
@@ -81,8 +121,22 @@ EVENT 69-X-XX  # $39d83:39d83
 203F. 68(63-F8)                      # Load NPC (09,14) 63: f8 Vase
 2042. 68(64-F9)                      # Load NPC (08,14) 64: f9 Circlet
 2045. 68(65-94)                      # Load NPC (07,14) 65: 94 Jelly
-3000. 68(6D-6D)
-7FFF. 00()                           # End Event
+3000. 6A(C4-@7FFF)
+3100. 15(02-@3200)
+3110. 68(66-01)
+3200. 15(03-@3300)
+3210. 68(67-02)
+3300. 15(04-@3400)
+3310. 68(68-03)
+3400. 15(05-@3500)
+3410. 68(69-04)
+3500. 15(06-@3600)
+3510. 68(6A-05)
+3600. 15(07-@3700)
+3610. 68(6B-06)
+3700. 15(01-@7FFF)
+3710. 68(6C-00)
+7FFF. 00()
 
 EVENT 69-A-02
 #0000. 21(9C-01)
@@ -118,13 +172,55 @@ EVENT 69-A-02
 1140. 2E(53)
 7FFF. 00()
 
-EVENT 69-C-53
-0000. 08: Oh, sorry, I'll move
-          out of your way.<END MESSAGE>
-0010. A3(53-85)
-0020. 37(10)
-0030. 2E(53)
-0040. 00()
+EVENT 69-C-53  # $56b32:56cbc
+0000. 15(C4-@3A)                     # Branch on Flag C4 ($0796:10)
+0004. 08: You came here for the
+          Ancient Cave too, right?
+          There are so many like
+          you in the back.<END EVENT>
+# LABEL @3A $56cf6
+003A. 14(10-0B-00-20-@AE-FF)         # If Variable 0B ($07a9) == 0 then jump to @AE
+0042. 08: Are you going to
+          leave your party?<END MESSAGE>
+0058. 10(02-@6B-@A9)                 # Set Up Branching Event
+005E. 08: Yes.
+          No.<CHOICE>
+0066. 08: Alright.<END EVENT>
+# LABEL @6B $56d27
+006B. 08: Alright. Would you step
+          outside? There are things
+          I have to do.<END MESSAGE>
+0092. 1D(0B-00)                      # Set Variable 0B ($07a9)
+0094. 1B(01)                         # Clear Event Flag 01 ($077e:02)
+0095. 1B(02)                         # Clear Event Flag 02 ($077e:04)
+0097. 1B(03)                         # Clear Event Flag 03 ($077e:08)
+0099. 1B(04)                         # Clear Event Flag 04 ($077e:10)
+009B. 1B(05)                         # Clear Event Flag 05 ($077e:20)
+009D. 1B(06)                         # Clear Event Flag 06 ($077e:40)
+009F. 1B(07)                         # Clear Event Flag 07 ($077e:80)
+00A0. 1A({{starting_character_flag}})
+00A1. 33(12-00)                      # Move Character to Location
+00A4. 16(68-03-04)                   # Warp to Map & Event [68-B-03] (04)
+00A8. 00()                           # End Event
+# LABEL @A9 $56d65
+00A9. 08: Alright.<END EVENT>
+# LABEL @AE $56d6a
+00AE. 08: Choose the party you're
+          going with to the cave.
+          Of course, you can
+          go by yourself.<END EVENT>
+
+EVENT 69-C-6C
+0000. 14(12-0B-03-20-@39-FF)         # If Variable 0B ($07a9) >= 3 then jump to @39
+0008. 08: I'm the protagonist.<END MESSAGE>
+0028. 1E(0B-01)                      # Add Value to Variable 0B ($07a9)
+0031. 3C()                           # Gather Behind Maxim
+0032. 2B(00)                         # Character Joins Party
+0034. 2E(6C)                         # Character Disappears
+0036. 1A(01)                         # Set Event Flag 01 ($077e:02)
+0038. 00()                           # End Event
+# LABEL @39 $576b2
+0039. 08: .<PAUSE 82>.<PAUSE 82>.<PAUSE 82>I'm the protagonist.<END EVENT>
 
 EVENT 69-C-6D
 0000. 14(12-0E-0A-20-@2000-FF)
@@ -160,8 +256,12 @@ EVENT 69-C-6D
 2095. 37(1E)
 20a0. 4C(32)
 2100. A3({{starting_character_index}}-9B)
-2110. 1A({{final_boss_flag}})
-2120. 1A({{iris_ending_flag}})
+2110. 76()
+2120. 89(00)
+2130. 37(20)
+2140. 4C(7E)
+2200. 1A({{final_boss_flag}})
+2210. 1A({{iris_ending_flag}})
 3010. 6A(01-@3030)
 3020. 2C(00)
 3030. 6A(02-@3050)
@@ -174,14 +274,19 @@ EVENT 69-C-6D
 30A0. 2C(04)
 30B0. 6A(06-@30D0)
 30C0. 2C(05)
-30D0. 6A(07-@30F0)
+30D0. 6A(07-@3100)
 30E0. 2C(06)
-30F0. 1A(0A)
+3100. 1B(01)
+3110. 1B(02)
+3120. 1B(03)
+3130. 1B(04)
+3140. 1B(05)
+3150. 1B(06)
+3160. 1B(07)
 7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 7FFF. 00()
 
 !npc 0f (05) a2:0d,21
-!tile 1f a2:08,18 15x15
 EVENT A2-X-XX  # $3a5f1:3a5f1
 0000. 6A(0A-@1031)
 0010. 14(00-1A-80-1B-80-1C-30-@80-FF)
@@ -436,3 +541,65 @@ EVENT EB-B-0A
 40E0. 5B(05-00)
 40F0. BB()
 7FFF. 00()
+
+!tile 0a f0:0d,07
+EVENT F0-D-0A
+0000. 15(93-@7FFF)
+0010. A8(00)
+0020. A8(01)
+7FFF. 00()
+
+!npc 02 (00) f0:0c,0d
+EVENT F0-C-51
+0000. 15(93-@1024)                     # Branch on Flag 93 ($0790:08)
+0010. 08: I can hold your
+          items and levels for
+          safekeeping.<END MESSAGE>
+0020. 08: Otherwise, items you
+          use will be lost
+          permanently. Leave
+          your items with me?<END MESSAGE>
+0030. 10(02-@50-@1004)
+0040. 08: No.
+          Yes.<CHOICE>
+0050. 08: As you wish. You
+          may keep your items.<END MESSAGE>
+0060. 1C(@101D)
+1004. 08: I will keep your
+          items here.<END MESSAGE>
+1018. A8(00)                         # Ancient Cave Item Management
+101A. 1A(93)                         # Set Event Flag 93 ($0790:08)
+# LABEL @101D
+101D. 33(01-51)                      # Move Character to Location
+101F. 1A(FA)                         # Set Event Flag FA ($079d:04)
+1021. 1B(FB)                         # Clear Event Flag FB ($079d:08)
+1023. 00()                           # End Event
+# LABEL @24 $72369
+1024. 08: I wish you good luck!<END EVENT>
+
+EVENT F0-C-52
+0000. 15(FB-@143)                    # Branch on Flag FB ($079d:08)
+0008. 6A(93-@72)                     # Branch on NOT Flag 93 ($0790:08)
+000C. 08: Oh, it's you. You're
+          back safe and sound!
+          Let me return your
+          items to you.<END MESSAGE>
+003A. 08: You may now return to
+          the city with your
+          head held high!<END MESSAGE>
+0060. A8(01)                         # Ancient Cave Item Management
+0062. 14(00-C3-30-@6C-FF)            # If Flag C3 ($0796:08) set then DON'T jump to @6C
+0069. 21(C2-01)                      # Get Item 1XX (Ancient key x1)
+# LABEL @6C $723e4
+006C. 1B(93)                         # Clear Event Flag 93 ($0790:08)
+006E. 33(02-52)                      # Move Character to Location
+0071. 00()                           # End Event
+# LABEL @72 $723ea
+0072. 08: Want to watch me take
+          one step to the right?<END MESSAGE>
+0080. 33(02-52)                      # Move Character to Location
+0090. 00()
+# LABEL @143 $724bb
+0143. 08: I have returned all the
+          items. Please come
+          again!<END EVENT>
