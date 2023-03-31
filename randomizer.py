@@ -1380,7 +1380,7 @@ class ShopObject(TableObject):
     custom_random_enable = True
 
     def __repr__(self):
-        s = 'SHOP %x\n' % self.index
+        s = 'SHOP %x (%s)\n' % (self.index, self.zone_name)
         for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
                 s += '%s\n' % menu.upper()
@@ -1399,6 +1399,23 @@ class ShopObject(TableObject):
         for menu in ['item', 'weapon', 'armor']:
             flat.extend(self.wares[menu])
         return [ItemObject.get(v) for v in flat]
+
+    @cached_property
+    def zone_indexes(self):
+        findstr = '. 18({0:0>2X})'.format(self.index+4)
+        zone_indexes = set()
+        for meo in MapEventObject.every:
+            if findstr in meo.old_pretty:
+                zone_indexes.add(meo.zone_index)
+        return zone_indexes
+
+    @property
+    def zone_name(self):
+        if not self.zone_indexes:
+            return 'NONE'
+        if len(self.zone_indexes) > 1:
+            return 'VARIOUS'
+        return MapEventObject.zone_names[list(self.zone_indexes)[0]]
 
     @classproperty
     def after_order(self):
@@ -2266,6 +2283,9 @@ class RoamingNPCObject(TableObject):
 class EventInstObject(TableObject): pass
 
 class MapEventObject(TableObject):
+    flag = 'w'
+    flag_description = 'an open world seed'
+
     TEXT_PARAMETERS = {
         0x04: 1,
         0x05: 1,
@@ -4564,7 +4584,42 @@ def make_wild_jelly(jelly_flag):
     return meo.index
 
 
-def generate_hints(boss_events, blue_chests, wild_jelly_map):
+def assign_iris_shop(iris_item):
+    item_types = {
+        'sword': 'weapon',
+        'shield': 'armor',
+        'helmet': 'armor',
+        'armor': 'armor',
+        'ring': 'armor',
+        'jewel': 'armor',
+        'staff': 'weapon',
+        'pot': 'item',
+        'tiara': 'armor',
+        }
+    keys = [k for k in item_types if k in ItemObject.get(iris_item).name]
+    assert len(keys) == 1
+    shop_type = item_types[keys[0]]
+    candidates = [s for s in ShopObject.every
+                  if s.zone_name not in ('NONE', 'VARIOUS')
+                  and len(s.wares[shop_type]) > 0]
+    assert candidates
+    shop = random.choice(candidates)
+    replace_item = random.choice(shop.wares[shop_type])
+    shop.wares[shop_type].remove(replace_item)
+    shop.wares[shop_type] = [iris_item] + shop.wares[shop_type]
+
+    prices = sorted([i.price for i in ItemObject.every if i.price > 0])
+    max_index = len(prices) - 1
+    index = random.randint(random.randint(0, max_index), max_index)
+    ItemObject.get(iris_item).price = prices[index]
+
+    return shop.index
+
+
+def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
+    iris_shop_item, iris_shop = iris_iris
+    iris_shop = ShopObject.get(iris_shop)
+
     hint_npcs = []
     for meo in MapEventObject.every:
         npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
@@ -4587,11 +4642,12 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
     capsule_matcher = re.compile('\. 81\((..)\) ')
     maiden_matcher = re.compile('My name is (\S*)\.')
 
-    hint_topics = (boss_events * 4) + blue_chests + [wild_jelly_map]
+    hint_topics = (boss_events * 4) + blue_chests + [wild_jelly_map, iris_shop]
     for npc in hint_npcs:
         hint_topic = random.choice(hint_topics)
         hint_target = None
         event_boss = None
+        map_index = None
         if hint_topic in boss_events:
             map_index, _, _ = hint_topic.split('-')
             map_index = int(map_index, 0x10)
@@ -4632,6 +4688,10 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
             else:
                 hint_target = 'The {0}'.format(hint_topic.item.name)
 
+        elif hint_topic is iris_shop:
+            map_index = None
+            hint_target = 'The {0}'.format(ItemObject.get(iris_shop_item).name)
+
         else:
             assert hint_topic == wild_jelly_map
             map_index = wild_jelly_map
@@ -4639,42 +4699,48 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map):
 
         if hint_target == 'Maxim':
             hint_target = '$MAXIM$'
-        meo = MapEventObject.get(map_index)
-        zone_maps = meo.neighbors
-        old_zone_text = '\n\n'.join([m.old_pretty for m in zone_maps])
-        if hint_topic in boss_events:
-            new_zone_text = MapEventObject.get_script_by_signature(
-                hint_topic).pretty
-        else:
-            new_zone_text = ''
-        bgs = bg_matcher.findall(old_zone_text)
-        formations = formation_matcher.findall(old_zone_text)
-        monsters = [m for f in formations
-                    for m in FormationObject.get(int(f, 0x10)).monsters]
-        monsters = [m for m in monsters if m is not None]
-        chests = chest_matcher.findall(old_zone_text)
-        chest_items = [ChestObject.get(int(c, 0x10)).old_item for c in chests]
-        chest_items = [i for i in chest_items if i.rank > 0]
-        bosses = boss_matcher.findall(new_zone_text)
-        bosses = [BossFormationObject.get(int(b, 0x10)) for b in bosses]
-        assert len(bosses) < 2
 
-        candidates = []
-        if bgs:
-            candidates.append('bg')
-        if monsters:
-            candidates.append('monsters')
-        else:
-            candidates.append(None)
-        if chests:
-            candidates.append('chests')
-        candidates = candidates * 2
-        if bosses and hint_target != event_boss:
-            candidates.append('bosses')
-        hint_type = random.choice(candidates)
+        hint_type = None
+        if map_index:
+            meo = MapEventObject.get(map_index)
+            zone_maps = meo.neighbors
+            old_zone_text = '\n\n'.join([m.old_pretty for m in zone_maps])
+            if hint_topic in boss_events:
+                new_zone_text = MapEventObject.get_script_by_signature(
+                    hint_topic).pretty
+            else:
+                new_zone_text = ''
+            bgs = bg_matcher.findall(old_zone_text)
+            formations = formation_matcher.findall(old_zone_text)
+            monsters = [m for f in formations
+                        for m in FormationObject.get(int(f, 0x10)).monsters]
+            monsters = [m for m in monsters if m is not None]
+            chests = chest_matcher.findall(old_zone_text)
+            chest_items = [ChestObject.get(int(c, 0x10)).old_item
+                           for c in chests]
+            chest_items = [i for i in chest_items if i.rank > 0]
+            bosses = boss_matcher.findall(new_zone_text)
+            bosses = [BossFormationObject.get(int(b, 0x10)) for b in bosses]
+            assert len(bosses) < 2
+
+            candidates = []
+            if bgs:
+                candidates.append('bg')
+            if monsters:
+                candidates.append('monsters')
+            else:
+                candidates.append(None)
+            if chests:
+                candidates.append('chests')
+            candidates = candidates * 2
+            if bosses and hint_target != event_boss:
+                candidates.append('bosses')
+            hint_type = random.choice(candidates)
 
         location_hint = None
-        if hint_type == 'bg':
+        if isinstance(hint_topic, ShopObject):
+            location_hint = 'in a shop in {0}'.format(iris_shop.zone_name)
+        elif hint_type == 'bg':
             bg_hints = {
                 0x01: 'in or near a mountain',
                 0x02: 'in a tower',
@@ -4773,7 +4839,7 @@ def read_credits():
                 line += '<-'
                 break
             else:
-                import pdb; pdb.set_trace()
+                raise Exception('Unknown credits opcode')
         while True:
             if peek == 4:
                 break
@@ -4795,7 +4861,10 @@ def read_credits():
     return '\n'.join(new_lines)
 
 
-def write_credits(boss_events, blue_chests, wild_jelly_map):
+def write_credits(boss_events, blue_chests, wild_jelly_map, iris_iris):
+    iris_shop_item, iris_shop = iris_iris
+    iris_shop = ShopObject.get(iris_shop)
+
     def center(line):
         assert len(line) <= 28
         line = '{0:^28}'.format(line)
@@ -4913,10 +4982,13 @@ def write_credits(boss_events, blue_chests, wild_jelly_map):
                       0x1a1, 0x1a2, 0x1a3, 0x1a4]
 
     for item in CONFLICT_ITEMS:
-        candidates = [c for c in blue_chests if c.item.index == item]
-        assert len(candidates) == 1
-        map_index = candidates[0].map_index
-        location = MapEventObject.get(map_index).zone_name
+        if item == iris_shop_item:
+            location = iris_shop.zone_name
+        else:
+            candidates = [c for c in blue_chests if c.item.index == item]
+            assert len(candidates) == 1
+            map_index = candidates[0].map_index
+            location = MapEventObject.get(map_index).zone_name
         s3 += ItemObject.get(item).name + '\n'
         s3 += right_justify(location) + '\n'
         s3 += '\n'
@@ -5213,6 +5285,10 @@ def make_open_world(custom=None):
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
+    IRIS_ITEMS = sorted(range(0x19c, 0x1a4))
+    iris_shop_item = random.choice(IRIS_ITEMS)
+    CONFLICT_ITEMS.remove(iris_shop_item)
+    iris_shop = assign_iris_shop(iris_shop_item)
     FILLER_ITEM = 0x2b
     conflict_items = sorted(CONFLICT_ITEMS)
     while len(conflict_items) < len(conflict_chests):
@@ -5222,8 +5298,10 @@ def make_open_world(custom=None):
         chest.set_item(item)
 
     wild_jelly_map = make_wild_jelly(jelly_flag)
-    generate_hints(boss_events, conflict_chests, wild_jelly_map)
-    write_credits(boss_events, conflict_chests, wild_jelly_map)
+    generate_hints(boss_events, conflict_chests, wild_jelly_map,
+                   (iris_shop_item, iris_shop))
+    write_credits(boss_events, conflict_chests, wild_jelly_map,
+                  (iris_shop_item, iris_shop))
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
@@ -5286,8 +5364,8 @@ if __name__ == '__main__':
         patch_events()
         MapEventObject.roaming_comments = set()
 
-        if any(code in get_activated_codes()
-                for code in {'open', 'airship', 'custom'}):
+        if any(code in get_activated_codes() for code in
+                {'open', 'airship', 'custom'}) or 'w' in get_flags():
             if 'airship' in get_activated_codes():
                 custom = path.join(tblpath, 'custom_airship.txt')
             elif 'custom' in get_activated_codes():
