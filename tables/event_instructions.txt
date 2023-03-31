@@ -107,7 +107,7 @@
 80  1           Set Ship Sprite
 81  1           Capsule Monster Joins & Renames
 82  0
-83  1
+83  1           Call Exit (Only used for Chaed)
 85  1,1
 86  1,1         Character Movement?
 87  1,1

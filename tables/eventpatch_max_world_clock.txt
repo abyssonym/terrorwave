@@ -3757,8 +3757,7 @@ EVENT BD-C-12
   0000. 00()                           # End Event
 
 EVENT BE-A-02
-  0000. 83(0A)
-  0002. 00()                           # End Event
+  0000. 00()                           # End Event
 
 EVENT BE-B-01
   0000. 63: But how come that
