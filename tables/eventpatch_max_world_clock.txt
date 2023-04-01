@@ -1279,13 +1279,9 @@ EVENT 2D-X-XX
   0032. 00()                           # End Event
 
 EVENT 2D-A-00
-  0000. 14(00-02-30-@9-FF)             # If Flag 02 ($077e:04) set then DON'T jump to @9
-  0007. 2E(19)                         # Character Disappears
-  # LABEL @9 $4962d
   0009. 00()                           # End Event
 
 EVENT 2D-A-01
-  0000. 6C(21-00-EE)                   # Move Character by Distance
   0004. 00()                           # End Event
 
 EVENT 2D-B-01
@@ -1461,67 +1457,9 @@ EVENT 33-A-01
   0004. 00()                           # End Event
 
 EVENT 33-C-50
-  0000. 13: <VOICE 50>I wonder if you can
-            really defeat me?<END MESSAGE>
-  0018. 4B(19)                         # Preload Music
-  001A. 53(09)                         # Invoke Battle (Pierre x1)
-  001C. 15(FF-@88)                     # Branch on Flag FF ($079d:80)
-  0020. 70()                           # Silence
-  0021. A4()                           # Screen Mosaic
-  0022. 76()
-  0023. 6F(2F)                         # Change Music
-  0025. 4C(32)                         # Play Sound
-  0027. 9D(50)
-  0029. 89(50)
-  002B. 38(01)                         # Pause (Longer)
-  002D. 4C(33)                         # Play Sound
-  002F. 95(FF-00-3C)                   # Screen tint animation
-  0033. 37(3C)                         # Pause
-  0035. 97()
-  0036. 4C(32)                         # Play Sound
-  0038. 98(50-03)                      # Thunder Warp
-  003B. 38(01)                         # Pause (Longer)
-  003D. 61: No! This can't be true!
-            I defeated you!?<END MESSAGE>
-  0057. 13: <VOICE 50>Ha, ha, ha! Your power
-            is not enough to defeat
-            me. Get out of my face!<END MESSAGE>
-  0083. 16(33-01-01)                   # Warp to Map & Event [33-B-01] (01)
-  0087. 00()                           # End Event
-  # LABEL @88 $4d795
-  0088. A5()                           # Call Game Load Screen
   0089. 00()                           # End Event
 
 EVENT 33-C-51
-  0000. 08: I wonder if you can
-            really defeat me?<END MESSAGE>
-  0017. 4B(19)                         # Preload Music
-  0019. 53(0A)                         # Invoke Battle (Daniele x1)
-  001B. 15(FF-@87)                     # Branch on Flag FF ($079d:80)
-  001F. 70()                           # Silence
-  0020. A4()                           # Screen Mosaic
-  0021. 76()
-  0022. 6F(2F)                         # Change Music
-  0024. 4C(32)                         # Play Sound
-  0026. 9D(51)
-  0028. 89(51)
-  002A. 38(01)                         # Pause (Longer)
-  002C. 4C(33)                         # Play Sound
-  002E. 95(FF-00-3C)                   # Screen tint animation
-  0032. 37(3C)                         # Pause
-  0034. 97()
-  0035. 4C(32)                         # Play Sound
-  0037. 98(51-04)                      # Thunder Warp
-  003A. 38(01)                         # Pause (Longer)
-  003C. 61: No! This can't be true!
-            I defeated you!?<END MESSAGE>
-  0056. 13: <VOICE 51>Ha, ha, ha! Your power
-            is not enough to defeat
-            me. Get out of my face!<END MESSAGE>
-  0082. 16(33-01-01)                   # Warp to Map & Event [33-B-01] (01)
-  0086. 00()                           # End Event
-  # LABEL @87 $4d822
-  0087. A5()                           # Call Game Load Screen
   0088. 00()                           # End Event
 
 EVENT 33-D-01
@@ -1606,16 +1544,7 @@ EVENT 3D-D-01
 EVENT 3E-C-50
   0000. 08: The bridge's fixed, huh?
             Good. That woman won't
-            have any problems then.<END MESSAGE>
-  0027. 61: What woman?<END MESSAGE>
-  002F. 08: Never seen her before.
-            Came a short while ago
-            and said she wanted to
-            go to Bound Kingdom.<END MESSAGE>
-  0066. 08: I told her she couldn't
-            because the bridge hadn't
-            been fixed. Didn't you
-            see her in the cave?<END EVENT>
+            have any problems then.<END EVENT>
 
 EVENT 3E-C-51
   0000. 08: Who is this man that
@@ -1995,7 +1924,18 @@ EVENT 5F-C-22
   0000. 00()                           # End Event
 
 EVENT 5F-C-50
-  0000. 00()                           # End Event
+  0004. 08: Hello! It's 10 gold
+            pieces a night. Would
+            you like to stay over?<END MESSAGE>
+  002B. 10(02-@3A-@3D)                 # Set Up Branching Event
+  0031. 08: Yes.
+            No.<CHOICE>
+  0039. 00()                           # End Event
+  # LABEL @3A $55b2d
+  003A. 17(0A)                         # Call Inn at Price
+  003C. 00()                           # End Event
+  # LABEL @3D $55b30
+  003D. 00()                           # End Event
 
 EVENT 5F-C-55
   0000. 08: Now the ship's done, I
@@ -2115,6 +2055,11 @@ EVENT 6B-C-54
             man is boasting to
             everyone in Karlloon that
             the end is near.<END EVENT>
+
+EVENT 6B-C-55
+  0000. 08: My dream is to
+            become a big
+            inventor like Lexis.<END EVENT>
 
 EVENT 72-X-XX
   0000. 74(0A)                         # Set Battle BG
@@ -3381,10 +3326,11 @@ EVENT A0-D-03
   0000. 00()                           # End Event
 
 EVENT A1-C-53
-  0000. 08: As long as that island
-            exists, my powers are
-            weak. I'm sorry but I
-            can't help you right now.<END EVENT>
+  0004. 08: Peace be with you.
+            What can I do for
+            you today?<END MESSAGE>
+  0025. 19()                           # Call Church
+  0026. 00()                           # End Event
 
 EVENT A1-C-54
   0000. 08: Doom Island stopped

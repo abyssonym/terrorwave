@@ -1126,6 +1126,8 @@ class MonsterObject(TableObject):
         self.drop_data = new_data | (rate << 9)
 
     def scale_stats(self, scale_amount):
+        if 'Jelly' in self.name:
+            return
         self._scaled = True
         for attr in sorted(self.mutate_attributes):
             value = int(round(getattr(self, attr) * scale_amount))
@@ -5407,7 +5409,8 @@ def scale_enemies(location_ranks, boss_events,
             boss_ranks[m.index].append(rank)
 
     pre_ranked = MonsterObject.ranked
-    for rankdict in (monster_ranks, boss_ranks):
+    done_monsters = set()
+    for rankdict in (boss_ranks, monster_ranks):
         if rankdict is boss_ranks:
             scale_weight = boss_scale_weight
         else:
@@ -5427,6 +5430,9 @@ def scale_enemies(location_ranks, boss_events,
 
         max_index = len(monsters)-1
         for m in monsters:
+            if m in done_monsters:
+                continue
+            done_monsters.add(m)
             expected = monsters_expected.index(m)
             actual = monsters_actual.index(m)
 
@@ -5665,11 +5671,14 @@ def make_open_world(custom=None):
                 assigned_item_indexes[location.name] = int(reward.item_index,
                                                            0x10)
 
-    scale_enemies(ir.location_ranks, boss_events)
+    if 'noscale' not in get_activated_codes():
+        scale_enemies(ir.location_ranks, boss_events)
 
+    EXTRA_CHESTS = [0x21]
     MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes.values()]
+    conflict_chests += [ChestObject.get(i) for i in EXTRA_CHESTS]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
@@ -5741,6 +5750,7 @@ if __name__ == '__main__':
             'open': ['open', 'openworld'],
             'custom': ['custom'],
             'airship': ['airship'],
+            'noscale': ['noscale'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
         numify = lambda x: '{0: >3}'.format(x)
