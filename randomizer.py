@@ -4457,6 +4457,21 @@ class OpenNPCGenerator:
         patch_with_template('karlloon_elf_girl', parameters)
 
     @staticmethod
+    def create_egg_girl(parameters):
+        loop_template = ('{0:0>4X}. 14(C0-002B-{1:0>4X}-30-@{2:0>4X}-FF)\n'
+                         '{3:0>4X}. 1C(@{4:0>4X})\n')
+        s = ''
+        for i in range(0, 99):
+            address = 0x2000 + (i*0x20)
+            character = random.randint(0, 6)
+            character_address = 0x6000 + (0x100 * character)
+            s += loop_template.format(address, i, address+0x20, address+0x10,
+                                      character_address)
+        s += '{0:0>4X}. 1A(0A)\n'.format(address+0x20)
+        parameters['egg_girl_event'] = s
+        patch_with_template('egg_girl', parameters)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None,
                         parameters=None):
         if parameters is not None:
@@ -5523,6 +5538,7 @@ def make_open_world(custom=None):
         int(starting_character.character_index, 0x10))
 
     OpenNPCGenerator.create_karlloon_elf_girl(parameters)
+    OpenNPCGenerator.create_egg_girl(parameters)
 
     MapEventObject.class_reseed('boss_route1')
     sorted_locations = []

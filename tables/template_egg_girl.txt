@@ -1,0 +1,136 @@
+!npc 0f (05) cf:14,0d
+
+EVENT CF-X-XX
+0000. 69(90)                         # Set Map Properties (escapable, etc.)
+0002. 4B(2C)                         # Play BGM
+0004. 68(5E-37)
+7FFF. 00()                           # End Event
+
+EVENT CF-C-5E
+0000. 08: Welcome to Dragon
+          Egg roulette!<END MESSAGE>
+0010. 08: For one Dragon Egg,
+          I will increase a
+          random character's
+          stats.<END MESSAGE>
+0020. 08: Would you like
+          to play?<END MESSAGE>
+0030. 10(02-@50-@1000)
+0040. 08: No.
+          Yes.<CHOICE>
+0050. 1C(@7800)
+
+1000. 14(C2-002B-0001-30-@7C00-FF)
+1010. 24(2B-01)
+1300. 4C(32)
+1301. 95(FF-00-10)
+1302. C9(00-{{starting_character_index}}-56-07-08-40-00)
+130A. 90(00-00-21)                   # Wave motion right-left
+130E. 8E(00-A0-21)
+
+1310. 37(C0)
+1320. 08: Round,<PAUSE 82> round,<PAUSE 82> round
+          it goes... where it
+          stops, nobody knows!<END MESSAGE>
+
+1326. 90(00-00-E1)                   # Wave motion right-left
+132A. 8F(00-00-41)                   # Wave motion up-down
+132E. 9F(00-84-F1)                   # Wave motion shrink
+1332. A2(00)
+1336. 95(FF-00-3C)
+1337. 4C(33)
+1338. 37(3C)
+1339. 97()
+
+
+{{egg_girl_event}}
+
+6000. 29(00-00-11)
+6010. 29(00-01-11)
+6020. 29(00-02-11)
+6030. 29(00-03-11)
+6040. 29(00-04-11)
+6050. 29(00-05-11)
+6060. 29(00-06-11)
+6070. 08: Congratulations!
+          $MAXIM$'s stats
+          have increased!<END MESSAGE>
+6080. 1C(@7000)
+6100. 29(01-00-11)
+6110. 29(01-01-11)
+6120. 29(01-02-11)
+6130. 29(01-03-11)
+6140. 29(01-04-11)
+6150. 29(01-05-11)
+6160. 29(01-06-11)
+6170. 08: Congratulations!
+          Selan's stats
+          have increased!<END MESSAGE>
+6180. 1C(@7000)
+6200. 29(02-00-11)
+6210. 29(02-01-11)
+6220. 29(02-02-11)
+6230. 29(02-03-11)
+6240. 29(02-04-11)
+6250. 29(02-05-11)
+6260. 29(02-06-11)
+6270. 08: Congratulations!
+          Guy's stats
+          have increased!<END MESSAGE>
+6280. 1C(@7000)
+6300. 29(03-00-11)
+6310. 29(03-01-11)
+6320. 29(03-02-11)
+6330. 29(03-03-11)
+6340. 29(03-04-11)
+6350. 29(03-05-11)
+6360. 29(03-06-11)
+6370. 08: Congratulations!
+          Artea's stats
+          have increased!<END MESSAGE>
+6380. 1C(@7000)
+6400. 29(04-00-11)
+6410. 29(04-01-11)
+6420. 29(04-02-11)
+6430. 29(04-03-11)
+6440. 29(04-04-11)
+6450. 29(04-05-11)
+6460. 29(04-06-11)
+6470. 08: Congratulations!
+          Tia's stats
+          have increased!<END MESSAGE>
+6480. 1C(@7000)
+6500. 29(05-00-11)
+6510. 29(05-01-11)
+6520. 29(05-02-11)
+6530. 29(05-03-11)
+6540. 29(05-04-11)
+6550. 29(05-05-11)
+6560. 29(05-06-11)
+6570. 08: Congratulations!
+          Dekar's stats
+          have increased!<END MESSAGE>
+6580. 1C(@7000)
+6600. 29(06-00-11)
+6610. 29(06-01-11)
+6620. 29(06-02-11)
+6630. 29(06-03-11)
+6640. 29(06-04-11)
+6650. 29(06-05-11)
+6660. 29(06-06-11)
+6670. 08: Congratulations!
+          Lexis's stats
+          have increased!<END MESSAGE>
+6680. 1C(@7000)
+7000. 08: Would you like
+          to play again?<END MESSAGE>
+7010. 10(2-@7800-@1000)
+7020. 08: No.
+          Yes.<CHOICE>
+7800. 08: Come on down anytime!
+          We're centrally
+          located for your
+          convenience!<END EVENT>
+7C00. 08: You need at least one
+          Dragon Egg to play.<END EVENT>
+7FFF. 00()
