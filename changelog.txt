@@ -1,3 +1,9 @@
+VERSION 3
+-Added open world mode, tons of new features
+-Implemented a dynamic event script parsing and editing utility, then integrated
+it into the randomizer. Unfortunately, this breaks compatibility with various
+mods until their table files can be updated.
+
 VERSION 2
 -Most shop prices are rounded to 0 on even-numbered versions.
 -Detailed randomness settings are available.
