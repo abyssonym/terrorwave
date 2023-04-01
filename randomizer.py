@@ -5342,12 +5342,20 @@ def scale_enemies(location_ranks, boss_events,
             monsters, key=lambda m: (rankdict[m.index], m.signature))
         monsters_actual = [m for m in pre_ranked if m in monsters]
 
+        max_index = len(monsters)-1
         for m in monsters:
-            expected = monsters_expected.index(m) + 1
-            actual = monsters_actual.index(m) + 1
+            expected = monsters_expected.index(m)
+            actual = monsters_actual.index(m)
+
+            difference = abs(expected-actual)
+            difference = min(difference, max_index-1)
+            factor = (max_index-difference) / (max_index+difference)
+            if expected > actual:
+                factor = 1 / factor
+
             a = scale_weight
             b = (1-scale_weight)
-            scale_amount = (a * (expected/actual)) + (b * 1)
+            scale_amount = (a * factor) + (b * 1)
             m.scale_stats(scale_amount)
 
 
