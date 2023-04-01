@@ -1,28 +1,18 @@
 Lufia 2 Terror Wave Randomizer
-Version:    2
-Date:       September 27, 2017
-URL:        www.abyssonym.com/2017/09/12/lufia-2-terror-wave-new-randomizer
+Version:    3
+Date:       April 1, 2023
+URL:        https://github.com/abyssonym/terrorwave/releases/latest/
 Contact:    https://twitter.com/abyssonym
+            https://discord.gg/Vzk2tsm92A
 
 --- HOW TO USE ---
 Running the randomizer:
-    Windows users may use the executable file, "l2_terror_wave.exe". Other users, please run "randomizer.py" using Python version 2.7.
+    Windows users may use the executable file, "l2_terror_wave.exe". Other users, please run "randomizer.py" using Python version 3.11 or above.
 
 Source rom file:
-    This randomizer requires a Lufia 2 (NA-SNES) or Estopolis 2 (J-SFC) rom with the MD5 hash listed below. The "Lufia 2 Fixxxer Deluxe" version is also supported; the IPS patch file is included in this repository.
+    This randomizer requires a Lufia 2 (NA-SNES) rom with the MD5 hash listed below. The "Lufia 2 Fixxxer Deluxe" version is also supported; vanilla Lufia 2 roms will automatically be patched with the "Fixxxer Deluxe" patch.
     MD5 - 6efc477d6203ed2b3b9133c1cd9e9c5d (NA)
-          18567d21df6a95a7b52029d250bac721 (J)
           026b649ed316448e038349e39a6fe579 (Fixxxer)
-
-    The following mods are also supported:
-        Frue Lufia                  38b9498ec568d08a1a4b6692d178b35e
-        Spekkio Lufia               5afddb3ba7788123c4cff6ee7fa83f3f
-        Kureji Lufia (4 versions)   faba981aa1f3831d1b065ae071ea555b
-                                    603f33033c185b38b89c066dbb1d5f94
-                                    1bbb110722e89b39c109794ef8c422ec
-                                    8a099fe9ae56c22d1ba829ddc2a9545e
-        The New Fierce Battle       6782948f762f050a045921191ebc67b5
-        The Wrath of Foomy          fa8d08fe8a988f9122766a67e6c4bf88
 
 Seed value:
     Input a seed value here, or leave it blank if you don't care.
@@ -32,25 +22,27 @@ Flags:
     i  Randomize items and equipment.
     l  Randomize learnable spells.
     m  Randomize monsters.
+    o  Randomize monster movements.
     p  Randomize capsule monsters.
     s  Randomize shops.
     t  Randomize treasure chests.
+    v  Randomize nothing. (dummy flag to create vanilla seeds)
+    w  Create an open-world seed.
 
 Secret Codes:
     Codes are entered in the "flags" section. The codes are:
 
     airship                 Start the game with the airship.
     anywhere                Equipment slots are randomized (breaks "Strongest")
+    custom                  Use a custom seed for open-world mode
+    easymodo                Every enemy dies in one hit
+    holiday                 Enemies run from the player
+    noscale                 Do not scale enemies in open-world mode
     nothingpersonnelkid     Extremely aggressive enemies.
-
-    These codes are not recommended for a first playthrough of the randomizer.
 
 Randomness:
     Terror Wave is the first Abyssonym randomizer to include a "randomness" option. This option controls how extreme the randomizations are. At 0.0, almost nothing will be randomized. At 1.0, enemies in the starting area will most likely have boss stats. I suggest leaving it at the default setting of 0.5 for your first run.
     It is possible to use different settings for different flags. Type "custom" to enable more detailed randomness settings. This is useful, for example, when you want to find high-level gear without fighting high-level enemies.
-
-Patches:
-    The English versions of the randomizer include an optional Ancient Cave music hack. This hack will randomize the music and tileset for each floor of the Ancient Cave. Additionally, it will disable the jingle that plays whenever you open a chest.
 
 Output files:
     The randomizer will output a new, randomized rom with the seed in the filename.
@@ -62,21 +54,7 @@ Credits:
     Rainponcho - Creator of the Ancient Cave item fix patch
 
 Like this randomizer? Be sure to check out my other projects:
-    FF6 Beyond Chaos Randomizer
-        https://github.com/abyssonym/beyondchaos
     FF Tactics Rumble Chaos Crashdown Randomizer
-        https://github.com/abyssonym/rumble_chaos_crashdown
-    Breath of Fire 2 Painsong Randomizer
-        https://github.com/abyssonym/painsong
-    Chrono Trigger Eternal Nightmare Randomizer
-        https://github.com/abyssonym/eternalnightmare
-    Final Fantasy Mystic Quest Terrible Secret Randomizer
-        https://github.com/abyssonym/terriblesecret
-    Super Mario RPG Gentle Beauty and Raw Power Randomizer
-        https://github.com/abyssonym/smrpg_gbarp
-    FF5 Grand Cross Randomizer
-        https://github.com/abyssonym/grand_cross
-    FF4 Beyond Babil Ancient Cave Randomizer
-        https://github.com/abyssonym/beyond_babil
-    Castlevania Aria of Sorrow Item Randomizer
-        https://github.com/abyssonym/aos_rando
+        https://github.com/abyssonym/fftrctcr/releases/latest
+    Breath of Fire 3 Vast Violence
+        https://github.com/abyssonym/vast_violence/releases/latest
