@@ -873,7 +873,7 @@ class CapsuleLevelObject(TableObject): pass
 
 class InitialEquipObject(TableObject):
     def __repr__(self):
-        s = '{0}\n'.format(CharacterObject.get(self.index).name)
+        s = '{0}\n'.format(self.character_name)
         for (attr, _, _) in self.specs.attributes:
             i = ItemObject.get(getattr(self, attr))
             s += '{0:6} - {1:0>2x} {2}\n'.format(attr, i.index, i.name)
@@ -884,9 +884,25 @@ class InitialEquipObject(TableObject):
         return [ItemObject.get(getattr(self, attr))
                 for (attr, _, _) in self.specs.attributes]
 
+    @property
+    def character_name(self):
+        return CharacterObject.get(self.index).name
+
     def clear_initial_equipment(self):
         for attr in self.old_data:
             setattr(self, attr, 0)
+
+    def set_appropriate_initial_equipment(self):
+        self.clear_initial_equipment()
+        items = [i for i in ItemObject.every if i.is_buyable
+                 and i.get_bit('equipable')
+                 and i.get_bit(self.character_name.lower())
+                 and not i.is_coin_item]
+        items = sorted(items, key=lambda i: (i.price, i.signature))
+        for attr in ['weapon', 'armor', 'shield', 'helmet']:
+            candidates = [i for i in items if i.get_bit(attr)]
+            if candidates:
+                setattr(self, attr, candidates[0].index)
 
 
 class CharGrowthObject(TableObject):
@@ -1156,6 +1172,10 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         return self.is_new_coin_item
 
     @property
+    def is_buyable(self):
+        return not self.is_unbuyable
+
+    @property
     def is_unbuyable(self):
         for s in ShopObject.every:
             for key in s.wares:
@@ -1227,6 +1247,7 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
 
             0x1ce: 0,
             0x1cf: 0,
+            0x1d0: -1,
             0x1d1: 0,
             0x1d2: 0,
         }
@@ -5373,7 +5394,7 @@ def make_open_world(custom=None):
         cxp.xp = 0
 
     for ieo in InitialEquipObject.every:
-        ieo.clear_initial_equipment()
+        ieo.set_appropriate_initial_equipment()
 
     for rno in RoamingNPCObject.every:
         rno.map_index = 0xff

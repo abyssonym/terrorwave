@@ -574,6 +574,9 @@ EVENT 10-D-01
 EVENT 10-D-02
   0000. 00()                           # End Event
 
+EVENT 10-D-03
+  0000. 00()                           # End Event
+
 EVENT 11-C-50
   0000. 08: What!? You took the
             crown back! Great! But...
