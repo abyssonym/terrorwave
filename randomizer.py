@@ -730,9 +730,35 @@ class ChestObject(TableObject):
         self.item_low_byte = item & 0xFF
 
     def mutate(self):
-        i = self.item.get_similar()
-        old_item = self.item
+        if self.item.rank < 0:
+            return
+        candidates = [
+            i for i in ItemObject.ranked if i.rank >= 0 and
+            i.get_bit('equipable') == self.item.get_bit('equipable')]
+        i = self.item.get_similar(candidates)
         self.set_item(i)
+
+    @classmethod
+    def intershuffle(cls, candidates=None, random_degree=None):
+        cls.class_reseed("inter")
+        zonedict = defaultdict(list)
+        dragon_egg = ItemObject.get(0x2b)
+        for c in ChestObject.every:
+            if c.item.rank >= 0 or c.item == dragon_egg:
+                meo = MapEventObject.get(c.map_index)
+                zonedict[meo.zone_index].append(c)
+
+        for zone_index in sorted(zonedict.keys()):
+            chests = zonedict[zone_index]
+            if len(chests) <= 1:
+                continue
+            shuffled_chests = list(chests)
+            random.shuffle(shuffled_chests)
+            for (a, b) in zip(chests, shuffled_chests):
+                a_index = a.item_index
+                b_index = b.item_index
+                a.set_item(b_index)
+                b.set_item(a_index)
 
     @classmethod
     def full_randomize(cls):
@@ -1128,6 +1154,15 @@ class MonsterObject(TableObject):
             self.set_drop(i)
 
     def cleanup(self):
+        for (attr, bytesize, _) in self.specs.attributes:
+            if attr in self.mutate_attributes:
+                minimum = 0
+                maximum = (1<<(bytesize*8))-1
+                value = getattr(self, attr)
+                if not minimum <= value <= maximum:
+                    value = min(maximum, max(minimum, value))
+                    setattr(self, attr, value)
+
         if self.is_boss and not hasattr(self, '_scaled'):
             for attr in self.mutate_attributes:
                 if getattr(self, attr) < self.old_data[attr]:
