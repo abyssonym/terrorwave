@@ -4703,6 +4703,10 @@ def make_wild_jelly(jelly_flag):
     else:
         raise Exception('No space for additional tiles.')
 
+    words = ['incredible', 'absurd', 'preposterous', 'unbelievable',
+             'inconceivable', 'impossible', 'ridiculous', 'bakana']
+    word = random.choice(sorted(words))
+    jelly_dialogue = '{0}-{1}'.format(word[0].upper(), word.lower())
     parameters = {
         'map_index': meo.index,
         'npc_index': map_npc_index,
@@ -4712,6 +4716,7 @@ def make_wild_jelly(jelly_flag):
         'width': str(width),
         'height': str(height),
         'jelly_flag': jelly_flag,
+        'jelly_dialogue': jelly_dialogue,
         'map_bgm': 0x1F,
         }
     patch_with_template('boss_jelly', parameters)

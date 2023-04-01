@@ -10,7 +10,7 @@ EVENT {{map_index}}-D-{{tile_index}}
 0060. A4()
 0070. 76()
 0080. 15(FE-@1000)
-0090. 9E: <POSITION 02>I-incredible...<END MESSAGE>
+0090. 9E: <POSITION 02>{{jelly_dialogue}}...<END MESSAGE>
 0100. 4B(33)
 0110. 8C(00-0A-0F)
 0120. 86(00-40)
