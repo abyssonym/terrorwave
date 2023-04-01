@@ -4292,6 +4292,7 @@ class OpenNPCGenerator:
 
     @staticmethod
     def create_karlloon_elf_girl(parameters):
+        MapEventObject.class_reseed('create_karlloon_elf_girl')
 
         def generate_item_remover_script(items):
             line_counter = 0
@@ -4458,6 +4459,7 @@ class OpenNPCGenerator:
 
     @staticmethod
     def create_egg_girl(parameters):
+        MapEventObject.class_reseed('create_egg_girl')
         loop_template = ('{0:0>4X}. 14(C0-002B-{1:0>4X}-30-@{2:0>4X}-FF)\n'
                          '{3:0>4X}. 1C(@{4:0>4X})\n')
         s = ''
@@ -4649,6 +4651,7 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
 
 
 def make_wild_jelly(jelly_flag):
+    MapEventObject.class_reseed('make_wild_jelly')
     JELLY_SPRITE_INDEX = 0x94
     JELLY_FORMATIONS = [0x03, 0x07, 0x13]
     jelly_formation = FormationObject.get(random.choice(JELLY_FORMATIONS))
@@ -4724,6 +4727,7 @@ def make_wild_jelly(jelly_flag):
 
 
 def assign_iris_shop(iris_item):
+    MapEventObject.class_reseed('assign_iris_shop')
     item_types = {
         'sword': 'weapon',
         'shield': 'armor',
@@ -4757,6 +4761,7 @@ def assign_iris_shop(iris_item):
 
 def generate_hints(boss_events, blue_chests, wild_jelly_map,
                    iris_iris, thieves):
+    MapEventObject.class_reseed('generate_hints')
     iris_shop_item, iris_shop = iris_iris
     iris_shop = ShopObject.get(iris_shop)
 
@@ -4967,6 +4972,7 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
 
 
 def generate_thieves(iris_item):
+    MapEventObject.class_reseed('generate_thieves')
     candidates = []
     for meo in MapEventObject.every:
         npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
@@ -5340,6 +5346,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
 
 def scale_enemies(location_ranks, boss_events,
                   normal_scale_weight=1.0, boss_scale_weight=1.0):
+    MapEventObject.class_reseed('scale_enemies')
     random.shuffle(boss_events)
     ranked_locations = []
     ranked_bosses = []
@@ -5435,9 +5442,27 @@ def scale_enemies(location_ranks, boss_events,
             m.scale_stats(scale_amount)
 
 
+def make_spoiler(ir):
+    outfilename = 'spoiler.{0}.txt'.format(get_outfile())
+    randomness = [o.random_degree for o in ALL_OBJECTS]
+    if len(set(randomness)) == 1:
+        randomness = list(set(randomness))
+    s = ('LUFIA 2 CRESTING WAVE OPEN WORLD RANDOMIZER',
+         'version: {}'.format(VERSION),
+         'seed: {}'.format(get_seed()),
+         'flags: {}'.format(get_flags()),
+         'codes: {}'.format(','.join(sorted(get_activated_codes()))),
+         'randomness: {}'.format(','.join(str(r) for r in randomness)),
+         )
+    header = '\n'.join(s)
+    footer = ir.report
+    with open(outfilename, 'w+') as f:
+        f.write('{0}\n\n{1}\n'.format(header, footer))
+
+
 def make_open_world(custom=None):
-    patch_events('max_world_clock')
-    patch_events('open_world_base')
+    patch_events('max_world_clock', warn_double_import=False)
+    patch_events('open_world_base', warn_double_import=False)
 
     for clo in CharLevelObject.every:
         clo.level = 1
@@ -5481,7 +5506,7 @@ def make_open_world(custom=None):
         ir.assignments['starting_item'] = 'dragon_egg'
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
-    print(ir.report)
+    make_spoiler(ir)
 
     assigned_item_indexes = {}
 
@@ -5642,6 +5667,7 @@ def make_open_world(custom=None):
 
     scale_enemies(ir.location_ranks, boss_events)
 
+    MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes.values()]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
@@ -5675,10 +5701,6 @@ def make_open_world(custom=None):
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
     write_patch(get_outfile(), 'patch_start_portravia.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
-
-    #OpenNPCGenerator.create_boss_npc('test_location', 'gades4',
-    #                                 reward1='engine', reward2='lisa',
-    #                                 parameters=parameters)
 
     MapEventObject.purge_orphans()
 
