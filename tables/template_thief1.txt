@@ -1,0 +1,28 @@
+EVENT {{signature}}
+0000. 14(C2-{{iris_item_index}}-0001-30-@1000-FF)
+0010. 08: Sorry, no backsies!<END EVENT>
+1000. 08: Huh? You want this
+          {{iris_item_name}}?<END MESSAGE>
+1010. 08: Okay, I'll give it to you
+          for {{trade_quantity_item}}.<END MESSAGE>
+1020. 10(02-@1040-@2000)
+1030. 08: No.
+          Yes.<CHOICE>
+1040. 08: Well, I'll be here
+          if you change your
+          mind.<END EVENT>
+2000. 14(C2-{{trade_item_index}}-{{quantity}}-30-@4000-FF)
+2010. {{remove_item_command}}
+2020. {{add_item_command}}
+2030. 08: Great! The {{iris_item_name}}
+          is all yours!<END MESSAGE>
+2040. 47(10)
+2050. 08: Heheh, sucker. Who
+          would trade for
+          something worthless
+          like that?<END MESSAGE>
+2060. 47(00)
+2070. 00()
+4000. 08: Hey! You don't have
+          it! You can't fool
+          me, buster.<END EVENT>

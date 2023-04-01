@@ -2305,6 +2305,7 @@ class EventInstObject(TableObject): pass
 class MapEventObject(TableObject):
     flag = 'w'
     flag_description = 'an open world seed'
+    custom_random_enable = True
 
     TEXT_PARAMETERS = {
         0x04: 1,
@@ -4673,7 +4674,8 @@ def assign_iris_shop(iris_item):
     return shop.index
 
 
-def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
+def generate_hints(boss_events, blue_chests, wild_jelly_map,
+                   iris_iris, thieves):
     iris_shop_item, iris_shop = iris_iris
     iris_shop = ShopObject.get(iris_shop)
 
@@ -4699,7 +4701,8 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
     capsule_matcher = re.compile('\. 81\((..)\) ')
     maiden_matcher = re.compile('My name is (\S*)\.')
 
-    hint_topics = (boss_events * 4) + blue_chests + [wild_jelly_map, iris_shop]
+    hint_topics = ((boss_events * 4) + blue_chests
+                   + [wild_jelly_map, iris_shop] + list(thieves))
     for npc in hint_npcs:
         hint_topic = random.choice(hint_topics)
         hint_target = None
@@ -4749,6 +4752,10 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
             map_index = None
             hint_target = 'The {0}'.format(ItemObject.get(iris_shop_item).name)
 
+        elif hint_topic in thieves:
+            map_index, _, _ = hint_topic.split('-')
+            map_index = int(map_index, 0x10)
+
         else:
             assert hint_topic == wild_jelly_map
             map_index = wild_jelly_map
@@ -4758,7 +4765,7 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
             hint_target = '$MAXIM$'
 
         hint_type = None
-        if map_index:
+        if hint_topic not in thieves and hint_topic != iris_shop:
             meo = MapEventObject.get(map_index)
             zone_maps = meo.neighbors
             old_zone_text = '\n\n'.join([m.old_pretty for m in zone_maps])
@@ -4856,7 +4863,11 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
         else:
             location_hint = 'somewhere strange'
 
-        hint = '{0} is {1}.'.format(hint_target, location_hint)
+        if hint_topic in thieves:
+            zone_name = MapEventObject.get(map_index).zone_name
+            hint = 'I saw a thief with rare treasure in {0}.'.format(zone_name)
+        else:
+            hint = '{0} is {1}.'.format(hint_target, location_hint)
         MINIMUM_LINE_LENGTH = 10
         target_line_length = len(hint) / 4
         target_line_length = max(target_line_length, MINIMUM_LINE_LENGTH)
@@ -4872,6 +4883,106 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map, iris_iris):
         npc_script = ('EVENT {0}\n'
                       '0000. 08: {1}<END EVENT>').format(npc, message)
         patch_game_script(npc_script, warn_double_import=False)
+
+
+def generate_thieves(iris_item):
+    candidates = []
+    for meo in MapEventObject.every:
+        npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
+        for (index, misc, x, y, event, sprite, formation) in npcs:
+            if formation or '-C-' not in event or int(misc, 0x10) != 0:
+                continue
+            if '<=' not in x or '<=' not in y:
+                continue
+            script = MapEventObject.get_script_by_signature(event)
+            opcodes = {o for (l, o, p) in script.script}
+            if 8 in opcodes and opcodes <= {0, 8} and event in meo.old_pretty:
+                candidates.append(event)
+
+    buyable_items = {i for s in ShopObject.every for i in s.wares_flat}
+    rare_items = [i for i in ItemObject.every
+                  if i.price > 0 and i.rank > 0 and i not in buyable_items]
+    rare_items = sorted(rare_items, key=lambda i: i.rank)
+    max_index = len(rare_items)-1
+    index = random.randint(random.randint(1, max_index), max_index)
+    iris_exchange_item = rare_items[index]
+    iris_exchange_quantity = 1
+    while random.choice([True, False]):
+        iris_exchange_quantity += 1
+    iris_exchange_quantity = min(iris_exchange_quantity, 99)
+
+    buyable_items = sorted(buyable_items, key=lambda i: i.price)
+    max_index = len(buyable_items)-1
+    index = random.randint(random.randint(1, max_index), max_index)
+    second_exchange_item = buyable_items[index]
+    second_exchange_quantity = 1
+    while True:
+        if (second_exchange_item.rank * second_exchange_quantity
+                > iris_exchange_item.rank):
+            break
+        second_exchange_quantity += 1
+    while random.choice([True, False]):
+        second_exchange_quantity += 1
+    second_exchange_quantity = min(second_exchange_quantity, 99)
+
+    def get_add_item_command(item_index, quantity):
+        return '{0:0>2X}({1:0>2X}-{2:0>2X})'.format(
+            0x20 + (item_index >> 8), item_index & 0xFF, quantity)
+
+    def get_remove_item_command(item_index, quantity):
+        return '{0:0>2X}({1:0>2X}-{2:0>2X})'.format(
+            0x24 + (item_index >> 8), item_index & 0xFF, quantity)
+
+    thief1, thief2 = random.sample(candidates, 2)
+    map_index, _, map_event_index = thief1.split('-')
+
+    trade_quantity_item = '{0}x {1}'.format(iris_exchange_quantity,
+                                            iris_exchange_item.name)
+    parameters = {
+        'signature': thief1,
+        'iris_item_index': '{0:0>4X}'.format(iris_item),
+        'iris_item_name': ItemObject.get(iris_item).name,
+        'trade_quantity_item': trade_quantity_item.rstrip('.'),
+        'trade_item_index': '{0:0>4X}'.format(iris_exchange_item.index),
+        'quantity': iris_exchange_quantity,
+        'add_item_command': get_add_item_command(iris_item, 1),
+        'remove_item_command': get_remove_item_command(
+            iris_exchange_item.index, iris_exchange_quantity),
+        }
+    patch_with_template('thief1', parameters)
+
+    trade_quantity_item = '{0}x {1}'.format(second_exchange_quantity,
+                                            second_exchange_item.name)
+    if trade_quantity_item.endswith('.'):
+        trade_quantity_item = trade_quantity_items[:-1]
+    parameters = {
+        'signature': thief2,
+        'exchange_item_name': iris_exchange_item.name.rstrip('.'),
+        'trade_quantity_item': trade_quantity_item,
+        'trade_item_index': '{0:0>4X}'.format(second_exchange_item.index),
+        'quantity': second_exchange_quantity,
+        'add_item_command': get_add_item_command(iris_exchange_item.index, 1),
+        'remove_item_command': get_remove_item_command(
+            second_exchange_item.index, second_exchange_quantity),
+        }
+    patch_with_template('thief2', parameters)
+
+    sprites = [0x39, 0x3a]
+    random.shuffle(sprites)
+    for (signature, sprite) in zip([thief1, thief2], sprites):
+        map_index, _, map_event_index = signature.split('-')
+        map_index = int(map_index, 0x10)
+        map_event_index = int(map_event_index, 0x10)
+        script = MapEventObject.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(map_index))
+        new_script = []
+        for l, o, p in script.script:
+            if o == 0x68 and p[0] == map_event_index:
+                p = [map_event_index, sprite]
+            new_script.append((l, o, p))
+        script.script = new_script
+
+    return (thief1, thief2)
 
 
 def read_credits():
@@ -4918,7 +5029,8 @@ def read_credits():
     return '\n'.join(new_lines)
 
 
-def write_credits(boss_events, blue_chests, wild_jelly_map, iris_iris):
+def write_credits(boss_events, blue_chests, wild_jelly_map,
+                  iris_iris, thieves):
     iris_shop_item, iris_shop = iris_iris
     iris_shop = ShopObject.get(iris_shop)
 
@@ -5043,8 +5155,17 @@ def write_credits(boss_events, blue_chests, wild_jelly_map, iris_iris):
             location = iris_shop.zone_name
         else:
             candidates = [c for c in blue_chests if c.item.index == item]
-            assert len(candidates) == 1
-            map_index = candidates[0].map_index
+            if candidates:
+                assert len(candidates) == 1
+                map_index = candidates[0].map_index
+            else:
+                candidates = []
+                for t in thieves:
+                    pretty = MapEventObject.get_script_by_signature(t).pretty
+                    if ItemObject.get(item).name in pretty:
+                        candidates.append(t)
+                assert len(candidates) == 1
+                map_index = int(candidates[0].split('-')[0], 0x10)
             location = MapEventObject.get(map_index).zone_name
         s3 += ItemObject.get(item).name + '\n'
         s3 += right_justify(location) + '\n'
@@ -5345,8 +5466,10 @@ def make_open_world(custom=None):
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
     IRIS_ITEMS = sorted(range(0x19c, 0x1a4))
-    iris_shop_item = random.choice(IRIS_ITEMS)
+    iris_shop_item, iris_thief_item = random.sample(IRIS_ITEMS, 2)
     CONFLICT_ITEMS.remove(iris_shop_item)
+    CONFLICT_ITEMS.remove(iris_thief_item)
+
     iris_shop = assign_iris_shop(iris_shop_item)
     FILLER_ITEM = 0x2b
     conflict_items = sorted(CONFLICT_ITEMS)
@@ -5356,11 +5479,13 @@ def make_open_world(custom=None):
     for chest, item in zip(conflict_chests, conflict_items):
         chest.set_item(item)
 
+    thieves = generate_thieves(iris_thief_item)
+
     wild_jelly_map = make_wild_jelly(jelly_flag)
     generate_hints(boss_events, conflict_chests, wild_jelly_map,
-                   (iris_shop_item, iris_shop))
+                   (iris_shop_item, iris_shop), thieves)
     write_credits(boss_events, conflict_chests, wild_jelly_map,
-                  (iris_shop_item, iris_shop))
+                  (iris_shop_item, iris_shop), thieves)
 
     write_patch(get_outfile(), 'patch_no_boat_encounters.txt')
     write_patch(get_outfile(), 'patch_maximless_warp_animation_fix.txt')
