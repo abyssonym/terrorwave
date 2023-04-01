@@ -1083,6 +1083,12 @@ class MonsterObject(TableObject):
         new_data = self.drop_data & 0x1FF
         self.drop_data = new_data | (rate << 9)
 
+    def scale_stats(self, scale_amount):
+        self._scaled = True
+        for attr in sorted(self.mutate_attributes):
+            value = int(round(getattr(self, attr) * scale_amount))
+            setattr(self, attr, value)
+
     def read_data(self, filename=None, pointer=None):
         super(MonsterObject, self).read_data(filename, pointer)
         filename = filename or self.filename
@@ -1106,7 +1112,7 @@ class MonsterObject(TableObject):
             self.set_drop(i)
 
     def cleanup(self):
-        if self.is_boss:
+        if self.is_boss and not hasattr(self, '_scaled'):
             for attr in self.mutate_attributes:
                 if getattr(self, attr) < self.old_data[attr]:
                     setattr(self, attr, self.old_data[attr])
@@ -3589,7 +3595,6 @@ class MapEventObject(TableObject):
                 value = p[0]
                 no_change = bool(value & NO_ESCAPE_BIT) != make_escapable
                 if not no_change:
-                    print(script.signature, self.zone_name)
                     value ^= NO_ESCAPE_BIT
                 p = [value]
             new_script.append((l, o, p))
@@ -5257,6 +5262,95 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     f.write(data)
 
 
+def scale_enemies(location_ranks, boss_events,
+                  normal_scale_weight=1.0, boss_scale_weight=1.0):
+    random.shuffle(boss_events)
+    ranked_locations = []
+    ranked_bosses = []
+    for i in sorted(location_ranks):
+        locations = sorted(location_ranks[i])
+        random.shuffle(locations)
+        for loc in locations:
+            if loc.endswith('1') or loc.endswith('2'):
+                loc = loc[:-1]
+            loc_properties = OpenNPCGenerator.get_properties_by_name(loc)
+            if loc_properties is None:
+                continue
+            for b in boss_events:
+                if b.startswith(loc_properties.map_index.upper()):
+                    ranked_bosses.append(b)
+            map_index = int(loc_properties.map_index, 0x10)
+            meo = MapEventObject.get(map_index)
+            if meo.zone_name not in ranked_locations:
+                ranked_locations.append(meo.zone_name)
+
+    temp = []
+    for meo in MapEventObject.every:
+        if meo.zone_name not in ranked_locations:
+            continue
+        if meo.zone_name in temp:
+            continue
+        s = str(meo)
+        if '(FORMATION' in s or 'Invoke Battle' in s:
+            temp.append(meo.zone_name)
+    ranked_locations = [loc for loc in ranked_locations if loc in temp]
+
+    formation_matcher = re.compile('#.*\(FORMATION (..): ')
+    monster_ranks = defaultdict(list)
+    for meo in MapEventObject.every:
+        if meo.zone_name not in ranked_locations:
+            continue
+        rank = ranked_locations.index(meo.zone_name)
+        formation_indexes = formation_matcher.findall(str(meo))
+        for formation_index in formation_indexes:
+            formation_index = int(formation_index, 0x10)
+            formation = FormationObject.get(formation_index)
+            for m in formation.monsters:
+                if m is not None:
+                    monster_ranks[m.index].append(rank)
+
+    boss_matcher = re.compile('\. 53\((..)\)')
+    boss_ranks = defaultdict(list)
+    for b in boss_events:
+        map_index, _, _ = b.split('-')
+        map_index = int(map_index, 0x10)
+        zone_name = MapEventObject.get(map_index).zone_name
+        rank = ranked_bosses.index(b)
+        script = MapEventObject.get_script_by_signature(b)
+        bosses = boss_matcher.findall(script.pretty)
+        assert len(bosses) == 1
+        boss = BossFormationObject.get(int(bosses[0], 0x10))
+        for m in boss.monsters:
+            boss_ranks[m.index].append(rank)
+
+    pre_ranked = MonsterObject.ranked
+    for rankdict in (monster_ranks, boss_ranks):
+        if rankdict is boss_ranks:
+            scale_weight = boss_scale_weight
+        else:
+            scale_weight = normal_scale_weight
+        temp = {}
+        for m in rankdict:
+            ranks = rankdict[m]
+            lowest = min(ranks)
+            avg = sum(ranks) / len(ranks)
+            temp[m] = (lowest + avg) / 2
+        rankdict = temp
+
+        monsters = [m for m in MonsterObject.every if m.index in rankdict]
+        monsters_expected = sorted(
+            monsters, key=lambda m: (rankdict[m.index], m.signature))
+        monsters_actual = [m for m in pre_ranked if m in monsters]
+
+        for m in monsters:
+            expected = monsters_expected.index(m) + 1
+            actual = monsters_actual.index(m) + 1
+            a = scale_weight
+            b = (1-scale_weight)
+            scale_amount = (a * (expected/actual)) + (b * 1)
+            m.scale_stats(scale_amount)
+
+
 def make_open_world(custom=None):
     patch_events('max_world_clock')
     patch_events('open_world_base')
@@ -5460,6 +5554,9 @@ def make_open_world(custom=None):
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes[location.name] = int(reward.item_index,
                                                            0x10)
+
+    scale_enemies(ir.location_ranks, boss_events)
+
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes.values()]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
