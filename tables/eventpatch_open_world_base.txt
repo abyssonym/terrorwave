@@ -1,6 +1,7 @@
 !exit +1 (40) 00:c8,20->d6:18,23 2x2
 
 EVENT 03-X-XX
+0000. 69(98)
 0027. 68(50-0C)                      # Load NPC (15,1a) 50: 0c Blue Man
 002A. 68(51-0A)                      # Load NPC (1e,11) 51: 0a Red Boy
 002D. 68(52-0F)                      # Load NPC (0d,15) 52: 0f Green Middle Woman

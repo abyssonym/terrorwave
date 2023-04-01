@@ -519,7 +519,8 @@ class BossFormationObject(TableObject):
                       sorted(distant_relatives) +
                       [seed_monster, wildcard])
         candidates = sorted(candidates, key=lambda m: m.index)
-        candidates = [c for c in candidates if c.sprite_meta.memory_load <= 128]
+        candidates = [c for c in candidates
+                      if c.sprite_meta.memory_load <= 128]
 
         chosen_monsters = [seed_monster]
         memory_load = seed_monster.sprite_meta.memory_load
@@ -1679,6 +1680,10 @@ class MonsterMoveObject(TableObject):
 class MapMetaObject(TableObject):
     FREE_SPACE = [(0x3e8000, 0x3ec000)]
     IGNORE_EXISTING_DATA = set()
+
+    @classproperty
+    def after_order(self):
+        return [MapEventObject]
 
     class NPCPosition:
         def __init__(self, data):
@@ -3368,6 +3373,20 @@ class MapEventObject(TableObject):
             MapEventObject.deallocate((self.script_pointer,
                                        self.script_pointer + len(self.data)))
 
+        def optimize(self):
+            addresses = [a.address for (l, o, p) in self.script for a in p
+                         if isinstance(a, MapEventObject.Script.Address)]
+            new_script = []
+            prev_l, prev_o, prev_p = None, None, None
+            for line_number, opcode, parameters in self.script:
+                if (opcode == 0x69 and opcode == prev_o
+                        and line_number not in addresses):
+                    new_script.remove((prev_l, prev_o, prev_p))
+                    line_number = prev_l
+                new_script.append((line_number, opcode, parameters))
+                prev_l, prev_o, prev_p = line_number, opcode, parameters
+            self.script = new_script
+
     # MapEventObject methods
     def __repr__(self):
         s1 = '# MAP {0:0>2X}-{1:0>5x} ({2})'.format(
@@ -3556,6 +3575,24 @@ class MapEventObject(TableObject):
             return [self]
         return [MapEventObject.get(m)
                 for m in sorted(self.zone_maps[self.zone_index])]
+
+    def change_escapability(self, make_escapable=True):
+        NO_ESCAPE_BIT = 0x08
+        script = self.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(self.index))
+        script.optimize()
+        new_script = []
+        for (l, o, p) in script.script:
+            if o == 0x69:
+                assert len(p) == 1
+                value = p[0]
+                no_change = bool(value & NO_ESCAPE_BIT) != make_escapable
+                if not no_change:
+                    print(script.signature, self.zone_name)
+                    value ^= NO_ESCAPE_BIT
+                p = [value]
+            new_script.append((l, o, p))
+        script.script = new_script
 
     @classmethod
     def deallocate(self, to_deallocate):
@@ -3829,10 +3866,12 @@ class MapEventObject(TableObject):
 
     def cleanup(self):
         for el in self.event_lists:
+            for script in el.scripts:
+                script.optimize()
             if el.index == 'X':
                 continue
             for script in list(el.scripts):
-                if (el.index != 'C' and
+                if (el.index in 'AD' and
                         {o for (l, o, p) in script.script} == {0}):
                     el.scripts.remove(script)
                     continue
@@ -4159,7 +4198,10 @@ class OpenNPCGenerator:
         i = RewardCapsule(*line.split(','))
         reward_capsule_properties[i.name] = i
 
-    available_flags = sorted(range(0x20, 0x70))
+    BANNED_FLAGS = [0x5F, 0x62]
+    available_flags = list(reversed(range(0x20, 0x70)))
+    for f in BANNED_FLAGS:
+        available_flags.remove(f)
 
     @staticmethod
     def get_properties_by_name(name):
@@ -5113,10 +5155,12 @@ def make_open_world(custom=None):
     for rno in RoamingNPCObject.every:
         rno.map_index = 0xff
 
-    final_gades = BossFormationObject.get(0x21)
-    assert 'Gades x1' in str(final_gades)
-    dummied_gades = 0xde
-    final_gades.monster_indexes = [dummied_gades, 0xff, 0xff, 0xff, 0xff, 0xff]
+    for meo in MapEventObject.every:
+        if meo.zone_name in {
+                'Overworld', 'Seafloor', 'Karlloon Shrine', 'Daos Shrine'}:
+            meo.change_escapability(make_escapable=False)
+        else:
+            meo.change_escapability(make_escapable=True)
 
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
     MapEventObject.class_reseed('item_route')

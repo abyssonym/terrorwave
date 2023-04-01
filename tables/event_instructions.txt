@@ -57,7 +57,7 @@
 48  1,1
 49  1
 4a  1
-4b  1           Preload Music
+4b  1           Play BGM
 4c  1           Play Sound
 4d  1
 4f  1
@@ -82,7 +82,7 @@
 66  text        Tia Speaks
 67  text        Lexis Speaks
 68  1,1         Load NPC
-69  1
+69  1           Set Map Properties (escapable, etc.)
 6a  1,addr      Branch on NOT Flag
 6b  0
 6c  1,1,1       Move Character by Distance

@@ -285,11 +285,12 @@ EVENT 69-C-6D
 
 !npc 0f (05) a2:0d,21
 EVENT A2-X-XX  # $3a5f1:3a5f1
-0000. 6A(0A-@1031)
+0000. 6A(0A-@1000)
 0010. 14(00-1A-80-1B-80-1C-30-@80-FF)
 0020. 4B(09)
-0030. 1C(@1031)
+0030. 1C(@1000)
 0080. 4B(1F)
+1000. 69(98)
 1031. 68(56-6E)                      # Load NPC (06,09) 56: 6e Gray Lab Assistant
 1034. 68(57-6F)                      # Load NPC (0d,08) 57: 6f Red Lab Assistant
 1037. 68(58-6E)                      # Load NPC (0e,1a) 58: 6e Gray Lab Assistant
@@ -404,6 +405,7 @@ EVENT EA-D-0A
 !npc 04 (05) eb:0d,0b
 !npc 05 (05) eb:11,0b
 EVENT EB-X-XX
+0000. 69(D9)
 1000. 68(50-70)
 1010. 68(51-70)
 1020. 68(52-70)
