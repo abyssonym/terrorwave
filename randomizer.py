@@ -5472,13 +5472,13 @@ def make_open_world(custom=None):
     patch_events('open_world_base', warn_double_import=False)
 
     for clo in CharLevelObject.every:
-        clo.level = 1
+        clo.level = 5
 
     for clo in CapsuleLevelObject.every:
-        clo.level = 1
+        clo.level = 5
 
     for cxp in CharExpObject.every:
-        cxp.xp = 0
+        cxp.xp = 212
 
     for ieo in InitialEquipObject.every:
         ieo.set_appropriate_initial_equipment()
