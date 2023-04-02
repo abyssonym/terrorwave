@@ -3260,7 +3260,22 @@ class MapEventObject(TableObject):
             assert len(return_text) == return_length
             return return_text
 
+        def normalize_addresses(self):
+            line_numbers = [ln for (ln, _, _) in self.script]
+            offset = 0 - min(line_numbers)
+            if offset == 0:
+                return
+            new_script = []
+            for (l, o, ps) in self.script:
+                l += offset
+                for p in ps:
+                    if isinstance(p, self.Address):
+                        p.address += offset
+                new_script.append((l, o, ps))
+            self.script = new_script
+
         def realign_addresses(self):
+            self.normalize_addresses()
             line_numbers = [ln for (ln, _, _) in self.script]
             new_script = []
             for i, (line_number, opcode, parameters) in enumerate(self.script):
@@ -4476,6 +4491,30 @@ class OpenNPCGenerator:
         patch_with_template('egg_girl', parameters)
 
     @staticmethod
+    def create_priest(location):
+        map_index, coords = location.split(':')
+        x, y = coords.split(',')
+        map_index = int(map_index, 0x10)
+        x, y = int(x, 0x10), int(y, 0x10)
+        script = MapEventObject.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(map_index))
+        min_line = script.script[0][0]
+        map_meta = MapMetaObject.get(map_index)
+        npc_index = map_meta.get_next_npc_index()
+        map_npc_index = npc_index + 0x4f
+        sprite = 0x32
+        new_command = (min_line-1, 0x68, [map_npc_index, sprite])
+        script.script.insert(0, new_command)
+        script.realign_addresses()
+
+        priest_script = ('!npc {0:0>2x} (05) {1}\n'
+                         'EVENT {2:0>2X}-C-{3:0>2X}\n'
+                         '0000. 19()\n'
+                         '0001. 00()\n').format(npc_index, location,
+                                                map_index, map_npc_index)
+        patch_game_script(priest_script, warn_double_import=False)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None,
                         parameters=None):
         if parameters is not None:
@@ -4685,7 +4724,9 @@ def make_wild_jelly(jelly_flag):
             new_script.append((l, 0x1A, [0x0A]))
         else:
             new_script.append((l, o, p))
-    new_script.insert(0, (-0x1000, 0x7B, [map_npc_index, JELLY_SPRITE_INDEX]))
+    min_line = min(l for (l, o, p) in new_script)
+    new_script.insert(0, (min_line-1, 0x7B,
+                          [map_npc_index, JELLY_SPRITE_INDEX]))
     script.script = new_script
     script.realign_addresses()
 
@@ -5470,6 +5511,8 @@ def make_spoiler(ir):
 def make_open_world(custom=None):
     patch_events('max_world_clock', warn_double_import=False)
     patch_events('open_world_base', warn_double_import=False)
+    for line in read_lines_nocomment(path.join(tblpath, 'priests.txt')):
+        OpenNPCGenerator.create_priest(line)
 
     for clo in CharLevelObject.every:
         clo.level = 5
