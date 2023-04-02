@@ -5672,7 +5672,8 @@ def make_open_world(custom=None):
                 assigned_item_indexes.append(int(reward.item_index,
                                                  0x10))
 
-    if 'noscale' not in get_activated_codes():
+    if (('scale' in get_activated_codes() or 'm' in get_flags()) and
+            'noscale' not in get_activated_codes()):
         scale_enemies(ir.location_ranks, boss_events)
 
     EXTRA_CHESTS = [0x21]
@@ -5751,6 +5752,7 @@ if __name__ == '__main__':
             'open': ['open', 'openworld'],
             'custom': ['custom'],
             'airship': ['airship'],
+            'scale': ['scale'],
             'noscale': ['noscale'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)

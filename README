@@ -37,6 +37,7 @@ Secret Codes:
     custom                  Use a custom seed for open-world mode
     easymodo                Every enemy dies in one hit
     holiday                 Enemies run from the player
+    scale                   Scale enemy states in open-world mode
     noscale                 Do not scale enemies in open-world mode
     nothingpersonnelkid     Extremely aggressive enemies.
 
