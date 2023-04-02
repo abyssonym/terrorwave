@@ -158,9 +158,6 @@ EVENT 9F-C-50
     00CF. 20(15-0A)                      # Get Item 0XX (Mind potion x10)
     00D2. 20(13-0A)                      # Get Item 0XX (Power potion x10)
     00D5. 20(16-0A)                      # Get Item 0XX (Brave x10)
-    00D8. 4B(2C)                         # Preload Music
-    00DA. 1E(08-01)                      # Add Value to Variable 08 ($07a6)
-    00DD. AD(31-00-01)                   # Dragon eggs related?
     00E1. 1C(@388)                       # Jump
     00E4. 00()                           # End Event
     # LABEL @E5
@@ -181,9 +178,6 @@ EVENT 9F-C-50
     012D. 20(33-14)                      # Get Item 0XX (Earth fruit x20)
     0130. 20(34-14)                      # Get Item 0XX (Flame fruit x20)
     0133. 20(35-14)                      # Get Item 0XX (Magic fruit x20)
-    0136. 4B(2C)                         # Preload Music
-    0138. 1E(08-01)                      # Add Value to Variable 08 ($07a6)
-    013B. AD(31-00-01)                   # Dragon eggs related?
     013F. 1C(@388)                       # Jump
     0142. 00()                           # End Event
     # LABEL @143
@@ -197,9 +191,6 @@ EVENT 9F-C-50
     0179. 89(00)
     017B. 49(00)
     017D. 20(36-01)                      # Get Item 0XX (Dual blade x1)
-    0180. 4B(2C)                         # Preload Music
-    0182. 1E(08-01)                      # Add Value to Variable 08 ($07a6)
-    0185. AD(31-00-01)                   # Dragon eggs related?
     0189. 1C(@388)                       # Jump
     018C. 00()                           # End Event
     # LABEL @18D
@@ -221,9 +212,6 @@ EVENT 9F-C-50
     01DB. 21(57-01)                      # Get Item 1XX (S-fire ring x1)
     01DE. 21(58-01)                      # Get Item 1XX (S-water ring x1)
     01E1. 21(59-01)                      # Get Item 1XX (S-ice ring x1)
-    01E4. 4B(2C)                         # Preload Music
-    01E6. 1E(08-01)                      # Add Value to Variable 08 ($07a6)
-    01E9. AD(31-00-01)                   # Dragon eggs related?
     01ED. 1C(@388)                       # Jump
     01F0. 00()                           # End Event
     # LABEL @1F1
@@ -290,19 +278,32 @@ EVENT 9F-C-50
               and I will grant your
               wish.<END EVENT>
     # LABEL @388
-    0388. 37(1E)                         # Pause
-    038A. 95(BF-00-3C)                   # Screen tint animation
-    038E. 37(3C)                         # Pause
-    0390. 97()
-    0391. 37(14)                         # Pause
-    0393. 4C(2F)                         # Play Sound
-    0395. C1(0A-12)
-    0398. C2(00-01-08-08-00-00)
-    039F. 90(00-00-21)                   # Wave motion right-left
-    03A3. 8F(00-00-41)                   # Wave motion up-down
-    03A7. 9F(00-C6-12)                   # Wave motion shrink
-    03AB. A2(00)
-    03AD. 00()                           # End Event
+    0388. 4B(2C)                         # Preload Music
+    0390. 1E(08-01)                      # Add Value to Variable 08 ($07a6)
+    0400. 1D(0A-00)
+    0410. 24(2B-08)
+    0420. 14(C2-002B-0001-30-@800-FF)
+    0430. 1E(0A-01)
+    0440. 24(2B-01)
+    0450. 1C(@420)
+    0800. AD(31-00-01)                   # Dragon eggs related?
+    0810. 14(12-0A-01-30-@1388-FF)
+    0820. 1E(0A-FF)
+    0830. 20(2B-01)
+    0840. 1C(@810)
+    1388. 37(1E)                         # Pause
+    138A. 95(BF-00-3C)                   # Screen tint animation
+    138E. 37(3C)                         # Pause
+    1390. 97()
+    1391. 37(14)                         # Pause
+    1393. 4C(2F)                         # Play Sound
+    1395. C1(0A-12)
+    1398. C2(00-01-08-08-00-00)
+    139F. 90(00-00-21)                   # Wave motion right-left
+    13A3. 8F(00-00-41)                   # Wave motion up-down
+    13A7. 9F(00-C6-12)                   # Wave motion shrink
+    13AB. A2(00)
+    13AD. 00()                           # End Event
 
 EVENT D6-X-XX
 0000. 69(08)
