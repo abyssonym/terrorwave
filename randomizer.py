@@ -2531,13 +2531,17 @@ class MapEventObject(TableObject):
             self.pointer = MapEventObject.allocate(
                 (len(self.scripts)*3) + 1, near=self.meo.eventlists_pointer)
             f.seek(self.pointer)
+
+            if not hasattr(self.meo, 'assigned_zero'):
+                for i, script in enumerate(self.scripts):
+                    if script.index == 0:
+                        self.meo.assigned_zero = self.pointer + (i*3)
+
             for i, script in enumerate(self.scripts):
                 data = script.compile(optimize=True, ignore_pointers=True)
                 assert data[-1] == 0
-                if data[0] == 0:
-                    if not hasattr(self.meo, 'assigned_zero'):
-                        self.meo.assigned_zero = self.pointer + (i*3)
-
+                if data[0] == 0 and hasattr(self.meo, 'assigned_zero'):
+                    assert data == b'\x00'
                     assert hasattr(self.meo, 'assigned_zero')
                     if (DEBUG_MODE and
                             self.meo.assigned_zero != self.pointer + (i*3)):
@@ -2561,6 +2565,11 @@ class MapEventObject(TableObject):
                         forced=script.script_pointer)
                     f.seek(script.script_pointer)
                     f.write(script.data)
+                    assert b'\x00' in script.data
+                    if not hasattr(self.meo, 'assigned_zero'):
+                        zero_index = script.data.index(b'\x00')
+                        self.meo.assigned_zero = (script.script_pointer
+                                                  + zero_index)
                 script_pointer = script.script_pointer
                 offset = script_pointer - self.meo.eventlists_pointer
                 assert 0 <= offset <= 0xffff
@@ -2569,6 +2578,10 @@ class MapEventObject(TableObject):
                 f.write(offset.to_bytes(2, byteorder='little'))
             f.write(b'\xff')
             assert f.tell() == self.pointer + (3 * len(self.scripts)) + 1
+            if DEBUG_MODE and hasattr(self.meo, 'assigned_zero'):
+                f.seek(self.meo.assigned_zero)
+                peek = f.read(1)
+                assert peek == b'\x00'
 
     class Script:
         INSTRUCTIONS_FILENAME = path.join(tblpath, 'event_instructions.txt')
@@ -3431,10 +3444,16 @@ class MapEventObject(TableObject):
                 old = old.replace('  ', ' ')
             while '  ' in new:
                 new = new.replace('  ', ' ')
+            while ' \n' in old:
+                old = old.replace(' \n', '\n')
+            while ' \n' in new:
+                new = new.replace(' \n', '\n')
             old = re.sub('\n..... ', '\n', old)
             new = re.sub('\n..... ', '\n', new)
             old = re.sub('@[^-)]+', '', old)
             new = re.sub('@[^-)]+', '', new)
+            old = old.rstrip()
+            new = new.rstrip()
             if DEBUG_MODE and old != new:
                 olds = old.split('\n')
                 news = new.split('\n')
@@ -3464,6 +3483,8 @@ class MapEventObject(TableObject):
                     new_script.remove((prev_l, prev_o, prev_p))
                     line_number = prev_l
                 new_script.append((line_number, opcode, parameters))
+                if opcode == 0 and prev_o is None:
+                    break
                 prev_l, prev_o, prev_p = line_number, opcode, parameters
             self.script = new_script
 

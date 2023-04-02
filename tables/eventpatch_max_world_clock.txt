@@ -3605,8 +3605,6 @@ EVENT B2-X-XX
 
 EVENT B2-D-01
   0219. 00()                           # End Event
-  021A. A5()                           # Call Game Load Screen
-  021B. 00()                           # End Event
 
 EVENT B5-C-50
   0000. 08: Is Chaed really gone?
