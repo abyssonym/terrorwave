@@ -2,6 +2,7 @@
 
 EVENT 03-X-XX
 0000. 69(98)
+0008. 4B(02)
 0027. 68(50-0C)                      # Load NPC (15,1a) 50: 0c Blue Man
 002A. 68(51-0A)                      # Load NPC (1e,11) 51: 0a Red Boy
 002D. 68(52-0F)                      # Load NPC (0d,15) 52: 0f Green Middle Woman
