@@ -5449,7 +5449,8 @@ def scale_enemies(location_ranks, boss_events,
 
 
 def make_spoiler(ir):
-    outfilename = 'spoiler.{0}.txt'.format(get_outfile())
+    head, tail = path.split(get_outfile())
+    outfilename = path.join(head, 'spoiler.{0}.txt'.format(tail))
     randomness = [o.random_degree for o in ALL_OBJECTS]
     if len(set(randomness)) == 1:
         randomness = list(set(randomness))
