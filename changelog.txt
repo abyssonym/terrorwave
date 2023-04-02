@@ -1,3 +1,14 @@
+VERSION 3.1
+-Fixed bug where duplicate keys could be found in their vanilla chests.
+-Characters start at level 5.
+-Added save points to the entrances of various dungeons.
+-Added marks to areas that could have bosses, but don't.
+-Egg Dragon only takes 8 eggs at a time.
+-Moved the boss on the Mountain of No Return.
+-Monsters are not scaled when using "vanilla" flags without the "scale" code.
+-Fixed spoiler filename bug.
+-Various aesthetic fixes.
+
 VERSION 3
 -Added open world mode, tons of new features
 -Implemented a dynamic event script parsing and editing utility, then integrated
