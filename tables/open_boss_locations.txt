@@ -27,7 +27,7 @@ flower_mountain,7e,34,26,07,13
 flower_capsule,7e,12,0d,07,13
 dankirk_dungeon,90,34,23,09,08
 northeast_tower,98,0a,10,0a,05
-no_return_mountain,a5,1f,04,07,13
+no_return_mountain,a5,1d,0c,01,13
 divine_shrine,aa,1a,19,05,2f
 vengeance_shrine,b2,07,12,05,3a
 truth_tower,bd,10,15,0a,05
