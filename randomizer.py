@@ -4282,6 +4282,8 @@ class OpenNPCGenerator:
     for f in BANNED_FLAGS:
         available_flags.remove(f)
 
+    done_locations = set()
+
     @staticmethod
     def get_properties_by_name(name):
         for properties in [OpenNPCGenerator.boss_properties,
@@ -4515,8 +4517,34 @@ class OpenNPCGenerator:
         patch_game_script(priest_script, warn_double_import=False)
 
     @staticmethod
+    def create_crown(location):
+        location = OpenNPCGenerator.boss_location_properties[location]
+        map_index = location.map_index
+        x = location.npc_x
+        y = location.npc_y
+        location = '{0}:{1},{2}'.format(map_index, x, y)
+        map_index = int(map_index, 0x10)
+        script = MapEventObject.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(map_index))
+        min_line = script.script[0][0]
+        map_meta = MapMetaObject.get(map_index)
+        npc_index = map_meta.get_next_npc_index()
+        map_npc_index = npc_index + 0x4f
+        sprite = 0x48
+        new_command = (min_line-1, 0x68, [map_npc_index, sprite])
+        script.script.insert(0, new_command)
+        script.realign_addresses()
+
+        crown_script = ('!npc {0:0>2x} (05) {1}\n'
+                        'EVENT {2:0>2X}-C-{3:0>2X}\n'
+                        '0000. 00()\n').format(npc_index, location,
+                                               map_index, map_npc_index)
+        patch_game_script(crown_script, warn_double_import=False)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None,
                         parameters=None):
+        OpenNPCGenerator.done_locations.add(location)
         if parameters is not None:
             parameters = dict(parameters)
         else:
@@ -5714,6 +5742,10 @@ def make_open_world(custom=None):
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes.append(int(reward.item_index,
                                                  0x10))
+
+    for location in sorted(OpenNPCGenerator.boss_location_properties):
+        if location not in OpenNPCGenerator.done_locations:
+            OpenNPCGenerator.create_crown(location)
 
     if (('scale' in get_activated_codes() or 'm' in get_flags()) and
             'noscale' not in get_activated_codes()):

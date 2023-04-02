@@ -1,5 +1,5 @@
 # name, map index, x, y, battle bg index, map_bgm
-test_location,a2,0e,1c,0f,17
+#test_location,a2,0e,1c,0f,17
 skill_cave,05,31,05,0c,17
 foomy_woods,0e,0f,12,04,14
 darbi_shrine,ed,0f,09,04,14
