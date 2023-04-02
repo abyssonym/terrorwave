@@ -5515,12 +5515,12 @@ def make_open_world(custom=None):
     ir.assignments['daos_shrine'] = 'victory'
     make_spoiler(ir)
 
-    assigned_item_indexes = {}
+    assigned_item_indexes = []
 
     name = ir.assignments['starting_item']
     starting_item = OpenNPCGenerator.get_properties_by_name(name)
     index = int(starting_item.item_index, 0x10)
-    assigned_item_indexes['starting_item'] = index
+    assigned_item_indexes.append(index)
     starting_item = OpenNPCGenerator.set_appropriate_item_icon(starting_item)
 
     name = ir.assignments['starting_character']
@@ -5669,8 +5669,8 @@ def make_open_world(custom=None):
         boss_events.append(event)
         for reward in reward1, reward2:
             if hasattr(reward, 'item_index'):
-                assigned_item_indexes[location.name] = int(reward.item_index,
-                                                           0x10)
+                assigned_item_indexes.append(int(reward.item_index,
+                                                 0x10))
 
     if 'noscale' not in get_activated_codes():
         scale_enemies(ir.location_ranks, boss_events)
@@ -5678,7 +5678,7 @@ def make_open_world(custom=None):
     EXTRA_CHESTS = [0x21]
     MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
-                       if c.item_index in assigned_item_indexes.values()]
+                       if c.item_index in assigned_item_indexes]
     conflict_chests += [ChestObject.get(i) for i in EXTRA_CHESTS]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
