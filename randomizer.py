@@ -7,7 +7,7 @@ from randomtools.utils import (
     classproperty, cached_property, clached_property,
     read_lines_nocomment, utilrandom as random)
 from randomtools.interface import (
-    get_outfile, get_flags, get_activated_codes,
+    get_outfile, get_flags, get_activated_codes, activate_code,
     run_interface, rewrite_snes_meta, clean_and_write, finish_interface)
 from randomtools.itemrouter import ItemRouter, ItemRouterException
 
@@ -24,6 +24,9 @@ VERSION = '3.1'
 TEXT_VERSION = 'Three One'
 ALL_OBJECTS = None
 DEBUG_MODE = False
+
+scalecustom_boss = None
+scalecustom_nonboss = None
 
 
 def hexify(s):
@@ -5438,6 +5441,10 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
 
 def scale_enemies(location_ranks, boss_events,
                   normal_scale_weight=1.0, boss_scale_weight=1.0):
+    if scalecustom_nonboss is not None:
+        normal_scale_weight = scalecustom_nonboss
+    if scalecustom_boss is not None:
+        boss_scale_weight = scalecustom_boss
     MapEventObject.class_reseed('scale_enemies')
     random.shuffle(boss_events)
     ranked_locations = []
@@ -5848,6 +5855,7 @@ if __name__ == '__main__':
             'open': ['open', 'openworld'],
             'custom': ['custom'],
             'airship': ['airship'],
+            'splitscale': ['splitscale'],
             'scale': ['scale'],
             'noscale': ['noscale'],
         }
@@ -5860,6 +5868,17 @@ if __name__ == '__main__':
 
         patch_events()
         MapEventObject.roaming_comments = set()
+
+        if 'splitscale' in get_activated_codes():
+            print('NOTE: 1.0 for the standard scaling value, '
+                  '0.0 for no scaling.')
+            scalecustom_boss = input(
+                'Please enter the scaling multiplier for bosses: ')
+            scalecustom_nonboss = input(
+                'Please enter the scaling multiplier for nonbosses: ')
+            scalecustom_boss = float(scalecustom_boss.strip())
+            scalecustom_nonboss = float(scalecustom_nonboss.strip())
+            activate_code('scale')
 
         if any(code in get_activated_codes() for code in
                 {'open', 'airship', 'custom'}) or 'w' in get_flags():

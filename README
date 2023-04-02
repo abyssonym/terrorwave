@@ -39,6 +39,7 @@ Secret Codes:
     holiday                 Enemies run from the player
     scale                   Scale enemy states in open-world mode
     noscale                 Do not scale enemies in open-world mode
+    splitscale              Input custom values for scaling bosses and nonbosses.
     nothingpersonnelkid     Extremely aggressive enemies.
 
 Randomness:
