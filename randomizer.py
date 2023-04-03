@@ -5779,7 +5779,7 @@ def make_open_world(custom=None):
             'noscale' not in get_activated_codes()):
         scale_enemies(ir.location_ranks, boss_events)
 
-    EXTRA_CHESTS = [0x21]
+    EXTRA_CHESTS = [0x21, 0x2f]
     MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes]
