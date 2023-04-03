@@ -35,6 +35,7 @@ EVENT 27-X-XX
 001E. 00()                           # End Event
 
 !exit +1 (F1) 42:0a,0c->43:08,15
+!tile 0a 42:0a,0c
 EVENT 42-D-0A
 0000. 43(01-02)
 0010. 00()
