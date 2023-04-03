@@ -14,8 +14,8 @@ mummies,a8,0c,19
 trolls,a9,0d,19
 gades2,7a,0e,1b
 idura1,74,0f,19
-pierre2,77,10,19
-daniele2,78,11,19
+#pierre2,77,10,19
+#daniele2,78,11,19
 lions,b7,12,19
 idura2,74,13,19
 idura3,74,14,19

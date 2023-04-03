@@ -5713,7 +5713,7 @@ def make_open_world(custom=None):
     new_formations = set()
     seed_monsters = [MonsterObject.get(i)
                      for i in BossFormationObject.DUMMIED_MONSTERS]
-    SCRAP_FORMATIONS = [3, 4]
+    SCRAP_FORMATIONS = [3, 4, 0x10, 0x11]
     for bfo in BossFormationObject.every:
         if bfo.index in SCRAP_FORMATIONS and bfo not in spare_formations:
             spare_formations.append(bfo)
