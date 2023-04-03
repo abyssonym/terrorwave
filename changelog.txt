@@ -1,3 +1,13 @@
+VERSION 3.3
+-Changed some routing logic to hopefully make the endgame somewhat less linear.
+-Removed glitched Pierre and Daniele formations from the boss pool.
+-Added treasure sword chest to blue chest pool.
+-Replaced three IP attack animations that can crash the game on large formations.
+
+VERSION 3.2
+-Fixed data allocation bug that resulted in buggy crowns in very specific scenarios.
+-Allow the user to specify separate scaling settings for bosses and regular enemies with the splitscale code.
+
 VERSION 3.1
 -Fixed bug where duplicate keys could be found in their vanilla chests.
 -Characters start at level 5.
