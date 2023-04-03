@@ -1,0 +1,5 @@
+effect,2
+animation,1
+target_cursor,1
+target_mode,1
+ip_cost,1

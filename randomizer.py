@@ -1179,6 +1179,31 @@ class MonsterObject(TableObject):
                 setattr(self, attr, 1)
 
 
+class IPAttackObject(TableObject):
+    BANNED_ANIMATIONS = {
+        0x84: 0x8a,
+        0x8d: 0x83,
+        0x8e: 0x87,
+        }
+
+    def replace_banned_animation(self):
+        if self.animation in self.BANNED_ANIMATIONS:
+            self.animation = self.BANNED_ANIMATIONS[self.animation]
+
+    def read_data(self, filename=None, pointer=None):
+        super(IPAttackObject, self).read_data(filename, pointer)
+
+        f = get_open_file(get_outfile())
+        f.seek(self.pointer+6)
+        name = b''
+        while True:
+            c = f.read(1)
+            if c == b'\x00':
+                break
+            name += c
+        self.name = name.decode('ascii')
+
+
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'i'
     flag_description = 'items and equipment'
@@ -5717,6 +5742,9 @@ def make_open_world(custom=None):
     for bfo in BossFormationObject.every:
         if bfo.index in SCRAP_FORMATIONS and bfo not in spare_formations:
             spare_formations.append(bfo)
+
+    for ipa in IPAttackObject.every:
+        ipa.replace_banned_animation()
 
     for f in spare_formations:
         for i in range(1000):
