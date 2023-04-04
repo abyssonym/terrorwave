@@ -124,9 +124,9 @@ EVENT CF-C-5E
 6680. 1C(@7000)
 7000. 08: Would you like
           to play again?<END MESSAGE>
-7010. 10(2-@7800-@1000)
-7020. 08: No.
-          Yes.<CHOICE>
+7010. 10(2-@1000-@7800)
+7020. 08: Yes.
+          No.<CHOICE>
 7800. 08: Come on down anytime!
           We're centrally
           located for your
