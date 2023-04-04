@@ -4907,7 +4907,8 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
     capsule_matcher = re.compile('\. 81\((..)\) ')
     maiden_matcher = re.compile('My name is (\S*)\.')
 
-    hint_topics = ((boss_events * 4) + blue_chests
+    blue_chests = [b for b in blue_chests if 'Dragon egg' not in b.item.name]
+    hint_topics = ((boss_events * 3) + blue_chests
                    + [wild_jelly_map, iris_shop] + list(thieves))
     for npc in hint_npcs:
         hint_topic = random.choice(hint_topics)
