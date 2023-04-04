@@ -5277,7 +5277,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
         randomness = int(round((sorted(randomness)[0]**0.5) * 100))
         s2 += 'CHAOS   {0}\n'.format(num_to_text(randomness))
     else:
-        s2 += 'CHAOS   custom\n'.format(num_to_text(randomness))
+        s2 += 'CHAOS   custom\n'
     codes = get_activated_codes()
     if codes:
         codes = '\n        '.join(sorted(codes))
