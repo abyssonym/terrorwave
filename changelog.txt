@@ -1,3 +1,12 @@
+VERSION 3.4
+-Added tool quickswap patch (experimental).
+-Egg Dragon no longer steals all of your money.
+-NPCs no longer give hints about dragon eggs.
+-Dragon eggs no longer appear in the credits.
+-Made it easier to give the egg girl all of your eggs.
+-New shop on Forfeit Island.
+-Fixed randomizer crash when using custom randomness settings.
+
 VERSION 3.3
 -Changed some routing logic to hopefully make the endgame somewhat less linear.
 -Removed glitched Pierre and Daniele formations from the boss pool.
