@@ -48,4 +48,5 @@ $sprites            names_sprites.txt
 .patch              patch_fix_ac_items.txt
 .patch              patch_clear_initial_spells.txt
 .patch              patch_zero_gold_command.txt
+.patch              patch_secondary_tool.txt
 #.option             patch_ac_music_hack.txt

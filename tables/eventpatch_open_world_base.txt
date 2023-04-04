@@ -13,6 +13,33 @@ EVENT 03-X-XX
 0049. 68(5C-70)                      # Load NPC (14,25) 5c: 70 Nothing
 004C. 00()                           # End Event
 
+!npc 0f (00) 05:17,2e
+EVENT 05-X-XX
+0000. 74(0B)                         # Set Battle BG
+0002. 69(09)
+0004. 69(19)
+0006. 4B(17)                         # Preload Music
+0008. 7B(52-83)                      # Load Monster NPC (1a,06) 52: 83 Lizard
+000B. 7B(53-94)                      # Load Monster NPC (21,07) 53: 94 Jelly
+000E. 7B(54-94)                      # Load Monster NPC (1c,23) 54: 94 Jelly
+0011. 68(5E-37)
+0020. 00()                           # End Event
+
+EVENT 05-C-5E
+0000. 08: Are you sick of
+          switching between
+          your tools?<END MESSAGE>
+0010. 08: Hold {R+A} and press {L}
+          to use whichever tool
+          is at the top of your
+          inventory,<END MESSAGE>
+0020. 08: regardless of which
+          tool you have selected.<END MESSAGE>
+0030. 08: With this tech, you
+          can easily use two
+          tools without switching
+          between them!<END EVENT>
+
 EVENT 0E-X-XX
 0000. 69(08)
 0002. 69(98)

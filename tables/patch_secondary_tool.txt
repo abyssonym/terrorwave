@@ -1,0 +1,75 @@
+01bed6: 5c 80 c3 fd
+01c264: 5c 00 c3 fd
+
+3ec380: a5 46
+:       29 b0
+:       c9 b0
+:       f0 skip_stuff
+
+:       af a1 d0 7f
+:       d0 go_bf13
+:       5c dc be 83
+
+.label go_bf13
+:       5c 13 bf 83
+
+.label skip_stuff
+:       a9 00
+:       8f ee e2 7f     # reset sprite
+:       5c 0f bf 83
+
+3ec300:
+:       da
+:       5a
+:       c2 20
+:       a5 46
+:       29 90 00
+:       c9 90 00
+:       d0 normal
+
+:       a2 00 00
+:       a0 00 00
+
+.label inventory_loop
+:       bd 8d 0a
+:       29 00 fe
+:       f0 not_a_tool
+:       bd 8d 0a
+:       29 ff 01
+:       c9 a7 01
+:       f0 secondary
+:       c9 a8 01
+:       f0 secondary
+:       c9 a9 01
+:       f0 secondary
+:       c9 aa 01
+:       f0 secondary
+:       c9 ab 01
+:       f0 secondary
+
+.label not_a_tool
+:       e8 e8
+:       e0 c0 00
+:       d0 inventory_loop
+
+.label normal
+:       ad 1f 0c
+.label secondary
+:       8d 06 0a
+:       e2 20
+:       7a
+:       fa
+:       5c 70 c2 83
+
+VALIDATION
+
+01bc72: a9 a0
+:       25 46
+
+01bed6: af a1 d0 7f
+:       d0 37
+
+01c264: ad 1f 0c
+:       8d 06 0a
+:       ad 20 0c
+:       8d 07 0a
