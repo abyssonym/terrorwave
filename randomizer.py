@@ -1471,9 +1471,11 @@ class ShopObject(TableObject):
     flag = 's'
     flag_description = 'shops'
     custom_random_enable = True
+    UNUSED_SHOPS = {0x1a, 0x27}
 
     def __repr__(self):
         s = 'SHOP %x (%s)\n' % (self.index, self.zone_name)
+        s += '{0:0>2X} {1:0>2X} {2:0>2X}\n'.format(ord(self.unknown0), self.shop_type, ord(self.unknown2))
         for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
                 s += '%s\n' % menu.upper()
@@ -1558,6 +1560,11 @@ class ShopObject(TableObject):
     @property
     def data_pointer(self):
         return ShopObject.specs.pointer + self.reference_pointer
+
+    def become_coin_shop(self):
+        self.unknown0 = b'\x00'
+        self.unknown2 = b'\x00'
+        self.shop_type = 6
 
     def read_data(self, filename=None, pointer=None):
         super(ShopObject, self).read_data(filename, pointer)
@@ -5582,6 +5589,12 @@ def make_spoiler(ir):
 
 
 def make_open_world(custom=None):
+    # new coin shop on forfeit island (only supports coins + 3 items)
+    s = ShopObject.get(0x1a)
+    s.become_coin_shop()
+    s.wares['coin'] = [0x18d]
+    s.wares['item'] = [0xb, 0xc, 0xd]
+
     patch_events('max_world_clock', warn_double_import=False)
     patch_events('open_world_base', warn_double_import=False)
     for line in read_lines_nocomment(path.join(tblpath, 'priests.txt')):

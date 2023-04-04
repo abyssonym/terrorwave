@@ -283,6 +283,45 @@ EVENT 69-C-6D
 7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 7FFF. 00()
 
+!npc 1f (00) 87:04,05
+EVENT 87-X-XX  # $3a0e9:3a0e9
+0000. 69(98)                         # Set Map Properties (escapable, etc.)
+0002. 4B(22)                         # Play BGM
+0004. 68(50-1C)                      # Load NPC (1c,05) 50: 1c Brown Woman
+0007. 68(51-1C)                      # Load NPC (1a,05) 51: 1c Brown Woman
+000A. 68(52-58)                      # Load NPC (06,05) 52: 58 Formal Blue Dude
+000D. 68(53-58)                      # Load NPC (11,0c) 53: 58 Formal Blue Dude
+0010. 68(54-1C)                      # Load NPC (03,0e) 54: 1c Brown Woman
+0013. 68(55-1C)                      # Load NPC (13,08) 55: 1c Brown Woman
+0016. 68(56-10)                      # Load NPC (04,09) 56: 10 Bald Old Man
+0019. 68(57-58)                      # Load NPC (0a,0c) 57: 58 Formal Blue Dude
+001C. 68(58-0C)                      # Load NPC (06,11) 58: 0c Blue Man
+001F. 68(59-58)                      # Load NPC (1d,1b) 59: 58 Formal Blue Dude
+0022. 68(5A-17)                      # Load NPC (10,0e) 5a: 17 Maid
+0025. 68(5B-11)                      # Load NPC (13,11) 5b: 11 Gray Old Woman
+0028. 68(5C-1A)                      # Load NPC (0e,06) 5c: 1a Sailor
+002B. 68(5D-1C)                      # Load NPC (1b,1b) 5d: 1c Brown Woman
+002E. 68(5E-58)                      # Load NPC (12,1f) 5e: 58 Formal Blue Dude
+0031. 68(63-58)                      # Load NPC (0d,1e) 63: 58 Formal Blue Dude
+0034. 68(64-12)                      # Load NPC (0b,20) 64: 12 King
+0037. 68(65-13)                      # Load NPC (0d,22) 65: 13 Queen
+003A. 68(66-15)                      # Load NPC (0f,20) 66: 15 Princess
+003D. 68(67-1C)                      # Load NPC (0d,0b) 67: 1c Brown Woman
+0040. 68(68-1C)                      # Load NPC (13,0d) 68: 1c Brown Woman
+0043. 68(69-35)                      # Load NPC (0c,0f) 69: 35 Elf Woman
+0046. 68(6A-58)                      # Load NPC (07,0e) 6a: 58 Formal Blue Dude
+0049. 68(6B-58)                      # Load NPC (05,0e) 6b: 58 Formal Blue Dude
+004C. 68(6E-37)
+7FFF. 00()                           # End Event
+
+EVENT 87-C-6E
+0000. 08: For your convenience,
+          get the hottest
+          consumable items
+          right here!<END MESSAGE>
+1000. 18(1A)
+7FFF. 00()
+
 !npc 0f (05) a2:0d,21
 EVENT A2-X-XX  # $3a5f1:3a5f1
 0000. 6A(0A-@1000)
