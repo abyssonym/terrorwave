@@ -5812,10 +5812,12 @@ def make_open_world(custom=None):
             'noscale' not in get_activated_codes()):
         scale_enemies(ir.location_ranks, boss_events)
 
+    FILLER_ITEM = 0x2b
     EXTRA_CHESTS = [0x21, 0x2f]
     MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
-                       if c.item_index in assigned_item_indexes]
+                       if c.item_index in assigned_item_indexes
+                       and c.item_index != FILLER_ITEM]
     conflict_chests += [ChestObject.get(i) for i in EXTRA_CHESTS]
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
@@ -5826,7 +5828,6 @@ def make_open_world(custom=None):
     CONFLICT_ITEMS.remove(iris_thief_item)
 
     iris_shop = assign_iris_shop(iris_shop_item)
-    FILLER_ITEM = 0x2b
     conflict_items = sorted(CONFLICT_ITEMS)
     while len(conflict_items) < len(conflict_chests):
         conflict_items.append(FILLER_ITEM)
