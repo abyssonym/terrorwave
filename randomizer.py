@@ -5383,15 +5383,6 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     s3 += right_justify(location) + '\n'
     s3 += '\n'
 
-    item = ItemObject.get(0x2b)
-    candidates = [c for c in blue_chests if c.item is item]
-    map_indexes = sorted([c.map_index for c in candidates])
-    s3 += 'Dragon egg\n'
-    for map_index in map_indexes:
-        location = MapEventObject.get(map_index).zone_name
-        s3 += right_justify(location) + '\n'
-    s3 += '\n'
-
     s4 = center('STAFF')
     s4 += '\n\n\n\n'
     roles = ['Creative Director', 'Game Experience Planning',
