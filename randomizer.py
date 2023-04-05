@@ -3271,7 +3271,7 @@ class MapEventObject(TableObject):
             self.script = script
             return script
 
-        def compress(self, text, compress=True):
+        def compress(self, text, compress=False):
             assert isinstance(text, bytes)
             old_buffer_length = len(self.compression_buffer)
             while text:
@@ -3411,7 +3411,8 @@ class MapEventObject(TableObject):
                                 append_data(value)
                         elif label is None:
                             assert isinstance(value, bytes)
-                            compress = opcode not in {0x6d, 0x6e}
+                            #compress = opcode not in {0x6d, 0x6e}
+                            compress = False
                             value = self.compress(value, compress=compress)
                             line += [ord(c) for c in value]
                         elif isinstance(value, bytes):
@@ -4549,6 +4550,75 @@ class OpenNPCGenerator:
         patch_with_template('egg_girl', parameters)
 
     @staticmethod
+    def create_hint_shop(blue_chests, wild_jelly_map,
+                         iris_iris, thieves):
+        MapEventObject.class_reseed('create_hint_shop')
+        boss_events = []
+        blue_chests = [b for b in blue_chests if 'Iris' in b.item.name]
+        num_hints = 50
+        hints = []
+        while True:
+            num_temp = 11
+            temp = generate_hints(boss_events, blue_chests, wild_jelly_map,
+                                  iris_iris, thieves, num_hints=num_temp)
+            for hint in temp:
+                if hint not in hints:
+                    hints.append(hint)
+            if len(hints) >= num_hints:
+                break
+
+        hint_variable = 0x0d
+        temp_flag = 0xf0
+        hints = hints[:num_hints]
+        hints_script = []
+        line_number = 0x2000
+        for i, hint in enumerate(reversed(hints)):
+            hint_number = num_hints - i
+            line = '{0:0>4X}. 14(12-{1:0>2X}-{2:0>2X}-30-@{3:X}-FF)'
+            jump_line_number = line_number + 3
+            line = line.format(line_number, hint_variable,
+                               hint_number, jump_line_number)
+            hints_script.append(line)
+            line_number += 1
+            hint = '{0}. {1}'.format(hint_number, hint)
+            line = '{0:0>4X}. 9E: <POSITION 01>{1}<END MESSAGE>'.format(
+                line_number, hint)
+            hints_script.append(line)
+            line_number += 1
+            line = '{0:0>4X}. 15({1:0>2X}-@6800)'.format(line_number,
+                                                         temp_flag)
+            hints_script.append(line)
+            line_number += 1
+        hints_script.append('{0:0>4X}. 1A(0A)'.format(line_number))
+        hints_script = '\n'.join(hints_script)
+
+        map_index = 0x69
+        hint_shop_npc_index = MapMetaObject.get(map_index).get_next_npc_index()
+        hint_shop_map_npc_index = hint_shop_npc_index + 0x4f
+
+        script = MapEventObject.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(map_index))
+        min_line = script.script[0][0]
+        sprite = 0x37
+        new_command = (min_line-1, 0x68, [hint_shop_map_npc_index, sprite])
+        script.script.insert(0, new_command)
+        script.realign_addresses()
+
+        hint_shop_signature = '{0:0>2X}-C-{1:0>2X}'.format(
+            map_index, hint_shop_map_npc_index)
+        hint_shop_location = '69:06,04'
+        parameters = {
+            'hint_shop_npc_index': hint_shop_npc_index,
+            'hint_shop_signature': hint_shop_signature,
+            'hint_shop_location': hint_shop_location,
+            'temp_flag': temp_flag,
+            'hint_variable': hint_variable,
+            'max_num_hints': num_hints + 1,
+            'hints_script': hints_script,
+        }
+        patch_with_template('hint_shop', parameters)
+
+    @staticmethod
     def create_priest(location):
         map_index, coords = location.split(':')
         x, y = coords.split(',')
@@ -4887,23 +4957,9 @@ def assign_iris_shop(iris_item):
 
 
 def generate_hints(boss_events, blue_chests, wild_jelly_map,
-                   iris_iris, thieves):
-    MapEventObject.class_reseed('generate_hints')
+                   iris_iris, thieves, num_hints=500):
     iris_shop_item, iris_shop = iris_iris
     iris_shop = ShopObject.get(iris_shop)
-
-    hint_npcs = []
-    for meo in MapEventObject.every:
-        npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
-        for (index, misc, x, y, event, sprite, formation) in npcs:
-            if formation or '-C-' not in event or int(misc, 0x10) != 0:
-                continue
-            if '<=' not in x or '<=' not in y:
-                continue
-            script = MapEventObject.get_script_by_signature(event)
-            opcodes = {o for (l, o, p) in script.script}
-            if 8 in opcodes and opcodes <= {0, 8} and event in meo.old_pretty:
-                hint_npcs.append(event)
 
     boss_matcher = re.compile('\. 53\((..)\) ')
     bg_matcher = re.compile('\. 74\((..)\) ')
@@ -4915,9 +4971,10 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
     maiden_matcher = re.compile('My name is (\S*)\.')
 
     blue_chests = [b for b in blue_chests if 'Dragon egg' not in b.item.name]
-    hint_topics = ((boss_events * 3) + blue_chests
+    hint_topics = ((boss_events * 4) + blue_chests
                    + [wild_jelly_map, iris_shop] + list(thieves))
-    for npc in hint_npcs:
+    messages = []
+    for _ in range(num_hints):
         hint_topic = random.choice(hint_topics)
         hint_target = None
         event_boss = None
@@ -5094,8 +5151,35 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
                 message += '\n'
         message = message.strip()
         assert message.count('\n') <= 3
+        messages.append(message)
+
+    return messages
+
+
+def generate_hint_npcs(boss_events, blue_chests, wild_jelly_map,
+                       iris_iris, thieves):
+    MapEventObject.class_reseed('generate_hints')
+    hint_npcs = []
+    for meo in MapEventObject.every:
+        npcs = PLAINTEXT_NPC_MATCHER.findall(str(meo))
+        for (index, misc, x, y, event, sprite, formation) in npcs:
+            if formation or '-C-' not in event or int(misc, 0x10) != 0:
+                continue
+            if '<=' not in x or '<=' not in y:
+                continue
+            script = MapEventObject.get_script_by_signature(event)
+            opcodes = {o for (l, o, p) in script.script}
+            if 8 in opcodes and opcodes <= {0, 8} and event in meo.old_pretty:
+                hint_npcs.append(event)
+
+    num_hints = len(hint_npcs)
+    hints = generate_hints(boss_events, blue_chests, wild_jelly_map,
+                           iris_iris, thieves, num_hints=num_hints)
+
+    assert len(hints) == len(hint_npcs)
+    for npc, hint in zip(hint_npcs, hints):
         npc_script = ('EVENT {0}\n'
-                      '0000. 08: {1}<END EVENT>').format(npc, message)
+                      '0000. 08: {1}<END EVENT>').format(npc, hint)
         patch_game_script(npc_script, warn_double_import=False)
 
 
@@ -5837,9 +5921,12 @@ def make_open_world(custom=None):
 
     thieves = generate_thieves(iris_thief_item)
 
+    iris_iris = (iris_shop_item, iris_shop)
     wild_jelly_map = make_wild_jelly(jelly_flag)
-    generate_hints(boss_events, conflict_chests, wild_jelly_map,
-                   (iris_shop_item, iris_shop), thieves)
+    generate_hint_npcs(boss_events, conflict_chests, wild_jelly_map,
+                       iris_iris, thieves)
+    OpenNPCGenerator.create_hint_shop(conflict_chests, wild_jelly_map,
+                                      iris_iris, thieves)
     write_credits(boss_events, conflict_chests, wild_jelly_map,
                   (iris_shop_item, iris_shop), thieves)
 

@@ -1,0 +1,47 @@
+!npc {{hint_shop_npc_index}} (00) {{hint_shop_location}}
+EVENT {{hint_shop_signature}}
+0000. 1B({{temp_flag}})
+0100. 08: Welcome to the Hint
+          Shoppe! For one
+          Dragon Egg, you can
+          get one hint.<END MESSAGE>
+0110. 08: What would you
+          like to do?<END MESSAGE>
+0120. 10(03-@7000-@7800-@140)
+0130. 08: Buy a hint.
+          Hear old hints.
+          Nothing.<CHOICE>
+0140. 08: Come back anytime!<END EVENT>
+
+1000. 14(12-{{hint_variable}}-{{max_num_hints}}-30-@1100-FF)
+1010. 6A({{temp_flag}}-@1100)
+1020. 08: Sorry, I don't
+          have anymore hints.<END MESSAGE>
+1030. 20(2B-01)
+1040. 1D({{hint_variable}}-{{max_num_hints}})
+1050. 00()
+1100. 1A(0A)
+
+{{hints_script}}
+
+6000. 08: ...and that's
+          everything.<END MESSAGE>
+6800. 1B({{temp_flag}})
+6810. 1C(@110)
+7000. 14(C2-002B-0001-30-@7100-FF)
+7010. 08: Excellent! Here's
+          your hint...<END MESSAGE>
+7020. 24(2B-01)
+7030. 1E({{hint_variable}}-01)
+7040. 1A({{temp_flag}})
+7050. 1C(@1000)
+
+7100. 08: You need a Dragon
+          Egg to buy a hint!<END EVENT>
+
+7800. 14(10-{{hint_variable}}-00-30-@7820-FF)
+7810. 08: You haven't bought
+          any hints!<END EVENT>
+
+7820. 1C(@1000)
+7FFF. 00()
