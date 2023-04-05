@@ -5697,8 +5697,8 @@ def scale_enemies(location_ranks, boss_events,
         for m in boss.monsters:
             boss_ranks[m.index].append(rank)
 
+    scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
-    done_monsters = set()
     for rankdict in (boss_ranks, monster_ranks):
         if rankdict is boss_ranks:
             scale_weight = boss_scale_weight
@@ -5719,9 +5719,6 @@ def scale_enemies(location_ranks, boss_events,
 
         max_index = len(monsters)-1
         for m in monsters:
-            if m in done_monsters:
-                continue
-            done_monsters.add(m)
             expected = monsters_expected.index(m)
             actual = monsters_actual.index(m)
 
@@ -5734,7 +5731,23 @@ def scale_enemies(location_ranks, boss_events,
             a = scale_weight
             b = (1-scale_weight)
             scale_amount = (a * factor) + (b * 1)
-            m.scale_stats(scale_amount)
+            scale_dict[m.index].add(scale_amount)
+
+    for m in MonsterObject.every:
+        if m.index not in scale_dict:
+            continue
+        scale_amounts = sorted(scale_dict[m.index])
+        if len(scale_amounts) > 1:
+            a, b = scale_amounts
+            if a > 1 and b > 1:
+                scale_amount = max(a, b)
+            elif a < 1 and b < 1:
+                scale_amount = min(a, b)
+            else:
+                scale_amount = a * b
+        else:
+            scale_amount = scale_amounts[0]
+        m.scale_stats(scale_amount)
 
 
 def make_spoiler(ir):
