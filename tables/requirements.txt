@@ -67,8 +67,8 @@ divine_shrine1      hook&hammer&heart_key&party3
 divine_shrine2      hook&hammer&heart_key&party3
 vengeance_shrine1   submarine&bomb&hammer&ghost_key&party3
 vengeance_shrine2   submarine&bomb&hammer&ghost_key&party3
-truth_tower1        bomb&hook&truth_key&party3
-truth_tower2        bomb&hook&truth_key&party3
+truth_tower1        breakable&hook&truth_key&party3
+truth_tower2        breakable&hook&truth_key&party3
 dragon_mountain     submarine&hook&hammer&fire_arrow&magma_key&party3
 underwater_shrine   submarine&party3
 gratze_basement     gratze&breakable&hook&basement_key&party3
