@@ -138,6 +138,26 @@ EVENT 7E-X-XX
 0008. 4B(13)                         # Preload Music
 002C. 00()
 
+!npc 0f (00) 8c:09,2d
+EVENT 8C-X-XX
+0000. 68(5E-37)
+0003. 74(09)                         # Set Battle BG
+0005. 69(11)                         # Set Map Properties (escapable, etc.)
+0007. 4B(08)                         # Play BGM
+0009. 7B(51-D8)                      # Load Monster NPC (11,26) 51: d8 Blue Crab
+000C. 7B(52-96)                      # Load Monster NPC (10,12) 52: 96 Orange Flower
+000F. 7B(53-AE)                      # Load Monster NPC (15,0e) 53: ae Lamia
+0012. 7B(54-A8)                      # Load Monster NPC (1e,20) 54: a8 Mummy
+0015. 7B(55-D8)                      # Load Monster NPC (22,16) 55: d8 Blue Crab
+0018. 7B(56-96)                      # Load Monster NPC (04,08) 56: 96 Orange Flower
+001B. 00()                           # End Event
+
+EVENT 8C-C-5E
+0000. 08: Dankirk Dungeon monsters
+          hate Iris treasures!
+          The more you have, the
+          fewer you'll see!<END EVENT>
+
 EVENT 90-A-01
 0000. 54(05)
 0010. 14(C2-01C0-0001-20-@40-FF)

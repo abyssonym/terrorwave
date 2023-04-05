@@ -5284,6 +5284,74 @@ def generate_thieves(iris_item):
     return (thief1, thief2)
 
 
+def apply_iris_wards(maps, wild_jelly_map):
+    IRIS_ITEMS = sorted(range(0x19c, 0x1a6))
+    VARIABLE = 0x05
+    for meo in maps:
+        map_index = meo.index
+        signature = '{0:0>2X}-X-XX'.format(map_index)
+        script = meo.get_script_by_signature(signature)
+        seen_addresses = set()
+        for (l, o, p) in script.script:
+            for pp in p:
+                if isinstance(pp, MapEventObject.Script.Address):
+                    seen_addresses.add(pp.address)
+
+        monster_loaders = []
+        for (l, o, p) in script.script:
+            if l in seen_addresses:
+                continue
+            if o == 0x7B:
+                if map_index == wild_jelly_map and 0x94 in p:
+                    continue
+                monster_loaders.append((l, o, p))
+
+        for i in [0, 1]:
+            signature = '{0:0>2X}-A-{1:0>2X}'.format(map_index, i)
+            script = meo.get_script_by_signature(signature)
+            if script is None or script.script == [(0, 0, [])]:
+                break
+        else:
+            print('WARNING: No event for ward {0:0>2X}.'.format(map_index))
+            continue
+
+        s = 'EVENT {0}\n0000. 1D({1:0>2X}-00)\n'.format(signature, VARIABLE)
+        line_number = 1
+        for item_index in IRIS_ITEMS:
+            if item_index == IRIS_ITEMS[-1]:
+                jump_to = 0x100
+            else:
+                jump_to = line_number+2
+            line = '{0:0>4X}. 14(C2-{1:0>4X}-0001-30-@{2:X}-FF)\n'
+            s += line.format(line_number, item_index, jump_to)
+            line_number += 1
+            s += '{0:0>4X}. 1E({1:0>2X}-01)\n'.format(line_number, VARIABLE)
+            line_number += 1
+
+        num_monsters = len(monster_loaders)
+        thresholds = []
+        while len(thresholds) < num_monsters:
+            to_sample = min(num_monsters-len(thresholds), 9)
+            thresholds += random.sample(list(range(1, 10)), to_sample)
+        thresholds = sorted(thresholds)
+        assert len(thresholds) == num_monsters
+
+        line_number = 0x100
+        random.shuffle(monster_loaders)
+        for threshold, (l, o, p) in zip(thresholds, monster_loaders):
+            if (l, o, p) == monster_loaders[-1]:
+                jump_to = 0x7FFF
+            else:
+                jump_to = line_number+2
+            line = '{0:0>4X}. 14(12-{1:0>2X}-{2:0>2X}-30-@{3:X}-FF)\n'
+            s += line.format(line_number, VARIABLE, threshold, jump_to)
+            line_number += 1
+            s += '{0:0>4X}. 2E({1:0>2X})\n'.format(line_number, p[0])
+            line_number += 1
+        s += '7FFF. 00()'
+        patch_game_script(s, warn_double_import=False)
+
+
 def read_credits():
     f = get_open_file(get_outfile())
     f.seek(addresses.credits)
@@ -5927,6 +5995,8 @@ def make_open_world(custom=None):
                        iris_iris, thieves)
     OpenNPCGenerator.create_hint_shop(conflict_chests, wild_jelly_map,
                                       iris_iris, thieves)
+    apply_iris_wards(MapEventObject.get(0x8c).neighbors,
+                     wild_jelly_map=wild_jelly_map)
     write_credits(boss_events, conflict_chests, wild_jelly_map,
                   (iris_shop_item, iris_shop), thieves)
 
