@@ -1,0 +1,20 @@
+03181a: 5c 00 c4 fd
+
+3ec400: c9 03
+:       f0 airship_only
+:       c9 02
+:       f0 both_submarine_airship
+:       c9 01
+:       f0 submarine_only
+:       5c 41 98 86
+.label submarine_only
+:       5c 29 98 86
+.label both_submarine_airship
+:       5c 1f 98 86
+.label airship_only
+:       5c 2c 98 86
+
+VALIDATION
+
+031817: ad df 09
+:       f0 25
