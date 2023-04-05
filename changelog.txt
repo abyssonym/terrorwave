@@ -1,3 +1,14 @@
+VERSION 3.5
+-Engine no longer gives submarine.
+-Added hint shop in Gruberik.
+-Slightly fewer character pickups in the early game.
+-Iris items can make Dankirk Dungeon a bit easier.
+-Fixed bug that sometimes placed non-progression key items in red chests.
+-Treasure sword chest can't contain Iris items.
+-Added using the hammer to complete the Tower of Truth to the routing logic
+-Fixed chest shuffling (note: only Dragon Eggs can swap with other items in open world mode)
+-Turned on double scaling only in cases where the scale values are opposites.
+
 VERSION 3.4
 -Added tool quickswap patch (experimental).
 -Egg Dragon no longer steals all of your money.
