@@ -5982,11 +5982,14 @@ def make_open_world(custom=None):
 
     FILLER_ITEM = 0x2b
     EXTRA_CHESTS = [0x21, 0x2f]
+    for i in EXTRA_CHESTS:
+        ChestObject.get(i).set_item(0x2b)
+
     MapEventObject.class_reseed('iris_items')
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes
                        and c.item_index != FILLER_ITEM]
-    conflict_chests += [ChestObject.get(i) for i in EXTRA_CHESTS]
+    conflict_chests.append(ChestObject.get(0x21))
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
