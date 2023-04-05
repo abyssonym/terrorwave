@@ -4,11 +4,11 @@
 
 starting_character  tia,guy,selan,dekar
 starting_item       keys
-skill_cave          characters,capsules
 tanbel_tower1       keys
 tsword_shrine1      keys
 gordovan_tower1     keys
 ancient_tower1      keys
+lighthouse1         keys
 sacrifice_tower1    keys
 karlloon_shrine1    keys
 northeast_tower1    keys

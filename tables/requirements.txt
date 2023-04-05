@@ -21,10 +21,11 @@
 .def party5 party4&all_capsules
 .def airship engine
 .def submarine mermaid_jade
+.def submarine_or_airship submarine|airship
 .def victory victory
 
-.def dankirk hook&bomb&dankirk_key
-.def gratze dankirk|submarine
+.def dankirk hook&bomb&dankirk_key&party3
+.def gratze dankirk|submarine_or_airship
 
 starting_character  *
 starting_item       *
@@ -33,13 +34,13 @@ foomy_woods         party0
 darbi_shrine        party0
 zeppy_cave          submarine&party0
 sundletan_cave      party0
-catfish_cave        lake_key
+catfish_cave        lake_key&party0
 alunze_cave         party0
-alunze_basement     breakable
+alunze_basement     breakable&party0
 tanbel_tower1       bomb&hook&sky_key&party1
 tanbel_tower2       bomb&hook&sky_key&party1
 ruby_cave           ruby_key&party1
-ruby_capsule        breakable
+ruby_capsule        breakable&party0
 tsword_shrine1      bomb&sword_key&party2
 tsword_shrine2      bomb&sword_key&party2
 gordovan_tower1     hook&bomb&wind_key&party2
@@ -49,29 +50,30 @@ north_dungeon       hook&bomb&party2
 north_capsule       hook&bomb&party2
 ancient_tower1      hook&bomb&cloud_key&party2
 ancient_tower2      hook&bomb&cloud_key&party2
-lighthouse          breakable&light_key&party2
-phantom_mountain    hook&bomb&fire_arrow&tree_key&party3
-sacrifice_tower1    hook&bomb&narcysus_key&party3
-sacrifice_tower2    hook&bomb&narcysus_key&party3
-sacrifice_capsule   hook&bomb&narcysus_key
-karlloon_shrine1    hook&bomb&party3
-karlloon_shrine2    hook&bomb&party3
+lighthouse1         breakable&light_key&party2
+lighthouse2         breakable&light_key&party2
+phantom_mountain    hook&bomb&fire_arrow&tree_key&party2
+sacrifice_tower1    hook&bomb&narcysus_key&party2
+sacrifice_tower2    hook&bomb&narcysus_key&party2
+sacrifice_capsule   hook&bomb&narcysus_key&party2
+karlloon_shrine1    hook&bomb&party2
+karlloon_shrine2    hook&bomb&party2
 lexis_lab           party0
-flower_mountain     hammer&flower_key&party3
-flower_capsule      hammer&flower_key&hook&party3
-dankirk_dungeon     dankirk&party3
-northeast_tower1    hook&hammer&trial_key&party3
-northeast_tower2    hook&hammer&trial_key&party3
-no_return_mountain  party3
-divine_shrine1      hook&hammer&heart_key&party3
-divine_shrine2      hook&hammer&heart_key&party3
-vengeance_shrine1   submarine&bomb&hammer&ghost_key&party3
-vengeance_shrine2   submarine&bomb&hammer&ghost_key&party3
-truth_tower1        breakable&hook&truth_key&party3
-truth_tower2        breakable&hook&truth_key&party3
-dragon_mountain     submarine&hook&hammer&fire_arrow&magma_key&party3
-underwater_shrine   submarine&party3
-gratze_basement     gratze&breakable&hook&basement_key&party3
+flower_mountain     hammer&flower_key&party2
+flower_capsule      hammer&flower_key&hook&party2
+dankirk_dungeon     dankirk
+northeast_tower1    hook&hammer&trial_key&party2
+northeast_tower2    hook&hammer&trial_key&party2
+no_return_mountain  party1
+divine_shrine1      hook&hammer&heart_key&party2
+divine_shrine2      hook&hammer&heart_key&party2
+vengeance_shrine1   submarine&bomb&hammer&ghost_key&party2
+vengeance_shrine2   submarine&bomb&hammer&ghost_key&party2
+truth_tower1        breakable&hook&truth_key&party2
+truth_tower2        breakable&hook&truth_key&party2
+dragon_mountain     submarine_or_airship&hook&hammer&fire_arrow&magma_key&party2
+underwater_shrine   submarine&party0
+gratze_basement     gratze&breakable&hook&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
