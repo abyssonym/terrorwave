@@ -39,6 +39,13 @@ EVENT_PATCHES = [
 ]
 
 
+def check_open_world():
+    if any(code in get_activated_codes() for code in
+            {'open', 'airship', 'custom'}) or 'w' in get_flags():
+        return True
+    return False
+
+
 class ReadExtraMixin(object):
     end_pointer = None
 
@@ -755,13 +762,22 @@ class ChestObject(TableObject):
             chests = zonedict[zone_index]
             if len(chests) <= 1:
                 continue
-            shuffled_chests = list(chests)
-            random.shuffle(shuffled_chests)
-            for (a, b) in zip(chests, shuffled_chests):
-                a_index = a.item_index
-                b_index = b.item_index
-                a.set_item(b_index)
-                b.set_item(a_index)
+
+            if not check_open_world():
+                shuffled_items = sorted([c.item for c in chests],
+                                        key=lambda i: i.index)
+                random.shuffle(shuffled_items)
+                for (chest, item) in zip(chests, shuffled_items):
+                    chest.set_item(item)
+
+            if check_open_world():
+                dragon_egg_chests = [c for c in chests if c.item == dragon_egg]
+                for dec in dragon_egg_chests:
+                    other = random.choice(chests)
+                    dec_index = dec.item.index
+                    other_index = other.item.index
+                    dec.set_item(other_index)
+                    other.set_item(dec_index)
 
     @classmethod
     def full_randomize(cls):
@@ -6072,8 +6088,7 @@ if __name__ == '__main__':
             scalecustom_nonboss = float(scalecustom_nonboss.strip())
             activate_code('scale')
 
-        if any(code in get_activated_codes() for code in
-                {'open', 'airship', 'custom'}) or 'w' in get_flags():
+        if check_open_world():
             if 'airship' in get_activated_codes():
                 custom = path.join(tblpath, 'custom_airship.txt')
             elif 'custom' in get_activated_codes():
