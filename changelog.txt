@@ -1,3 +1,11 @@
+VERSION 3.6
+-Enabled difficulty settings; it's just a flat multiplier for enemy stats.
+-Removed Egg Dragon from the random boss pool.
+-Reworked character pickups to favor waifus less often. (Note that only Tia, Guy, Selan, and Dekar can be chosen as the party leader in open world mode)
+-Spell targeting is automatically limited to five enemies.
+-Fixed NPC hint claiming that Zeppy Cave is a mountain.
+-Implemented a logarithmic curve for enemy scaling. The default scaling factor is 0.75. This means enemies that were scaled 8x are now scaled 5x, but enemies that were scaled 2x are now scaled 1.5x. For the old behavior, input a default scaling factor of 1.0.
+
 VERSION 3.5
 -Engine no longer gives submarine.
 -Added hint shop in Gruberik.
