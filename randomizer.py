@@ -5653,7 +5653,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
 
 
 def scale_enemies(location_ranks, boss_events,
-                  normal_scale_weight=1.0, boss_scale_weight=1.0):
+                  normal_scale_weight=0.75, boss_scale_weight=0.75):
     if scalecustom_nonboss is not None:
         normal_scale_weight = scalecustom_nonboss
     if scalecustom_boss is not None:
@@ -5749,9 +5749,7 @@ def scale_enemies(location_ranks, boss_events,
             if expected > actual:
                 factor = 1 / factor
 
-            a = scale_weight
-            b = (1-scale_weight)
-            scale_amount = (a * factor) + (b * 1)
+            scale_amount = factor ** scale_weight
             scale_dict[m.index].add(scale_amount)
 
     for m in MonsterObject.every:
@@ -6118,7 +6116,7 @@ if __name__ == '__main__':
         MapEventObject.roaming_comments = set()
 
         if 'splitscale' in get_activated_codes():
-            print('NOTE: 1.0 for the standard scaling value, '
+            print('NOTE: 0.75 for the standard scaling value, '
                   '0.0 for no scaling.')
             scalecustom_boss = input(
                 'Please enter the scaling multiplier for bosses: ')
