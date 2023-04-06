@@ -6060,6 +6060,7 @@ def make_open_world(custom=None):
     write_patch(get_outfile(), 'patch_zero_capsule_command.txt')
     write_patch(get_outfile(), 'patch_start_portravia.txt')
     write_patch(get_outfile(), 'patch_no_submarine.txt')
+    write_patch(get_outfile(), 'patch_spell_target_limit.txt')
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
     MapEventObject.purge_orphans()
