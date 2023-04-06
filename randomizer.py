@@ -4983,6 +4983,11 @@ def assign_iris_shop(iris_item):
 
 def generate_hints(boss_events, blue_chests, wild_jelly_map,
                    iris_iris, thieves, num_hints=500):
+    BG_OVERRIDES = {
+        0xee: [0x0e, 0x0f],
+        0xef: [0x0e, 0x0f],
+        }
+
     iris_shop_item, iris_shop = iris_iris
     iris_shop = ShopObject.get(iris_shop)
 
@@ -5070,7 +5075,10 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
                     hint_topic).pretty
             else:
                 new_zone_text = ''
-            bgs = bg_matcher.findall(old_zone_text)
+            if map_index in BG_OVERRIDES:
+                bgs = BG_OVERRIDES[map_index]
+            else:
+                bgs = bg_matcher.findall(old_zone_text)
             formations = formation_matcher.findall(old_zone_text)
             monsters = [m for f in formations
                         for m in FormationObject.get(int(f, 0x10)).monsters]
@@ -5123,7 +5131,9 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
                 0x15: 'in a tower',
                 0x16: 'in a dungeon',
                 }
-            bg = int(random.choice(bgs), 0x10)
+            bg = random.choice(bgs)
+            if isinstance(bg, str):
+                bg = int(bg, 0x10)
             if bg not in bg_hints:
                 location_hint = 'somewhere strange'
             else:
