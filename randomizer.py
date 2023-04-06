@@ -422,6 +422,7 @@ class BossFormationObject(TableObject):
     GROUND_LEVEL = 0x68
     CENTER_LINE = 0xa0
     DUMMIED_MONSTERS = [0x60, 0x99]
+    BANNED_MONSTERS = [0xd3, 0xdf]
 
     @property
     def name(self):
@@ -495,11 +496,13 @@ class BossFormationObject(TableObject):
                     and bfo.reference_pointer == self.reference_pointer):
                 raise Exception(
                     'Conflict: Boss Formation {0:0>2X}.'.format(self.index))
+        valid_monsters = [m for m in MonsterObject.every
+                          if m.index not in BANNED_MONSTERS]
         self.unknown = self.get(1).old_data['unknown']
         if seed_monster is None:
-            seed_monster = random.choice(MonsterObject.every)
+            seed_monster = random.choice(valid_monsters)
         same_sprite_monsters = {
-            m for m in MonsterObject.every
+            m for m in valid_monsters
             if m.battle_sprite == seed_monster.battle_sprite}
         same_formation_monsters = set()
         for f in FormationObject.every:
@@ -523,7 +526,7 @@ class BossFormationObject(TableObject):
                 if cousin in bfo.old_monsters:
                     for m in bfo.old_monsters:
                         distant_relatives.add(m)
-        wildcard = random.choice(MonsterObject.every)
+        wildcard = random.choice(valid_monsters)
         candidates = (sorted(same_sprite_monsters) +
                       sorted(same_formation_monsters) +
                       sorted(distant_relatives) +
