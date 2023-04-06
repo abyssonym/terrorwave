@@ -3,22 +3,41 @@
 .def all_keys sky_key&lake_key&ruby_key&wind_key&cloud_key&light_key&sword_key&tree_key&flower_key&magma_key&heart_key&ghost_key&trial_key&dankirk_key&basement_key&narcysus_key&truth_key&mermaid_jade
 .def all_tools bomb&hook&hammer&fire_arrow
 .def all_tools_or_keys all_tools|all_keys
-.def all_boys maxim&guy&dekar&lexis&artea
-.def some_boys maxim|guy|dekar|lexis|artea
-.def all_girls tia&selan
-.def some_girls tia|selan
+
 .def all_capsules jelze&flash&gusto&zeppy&darbi&sully&blaze
 .def some_capsules jelze|flash|gusto|zeppy|darbi|sully|blaze
-.def party0 some_boys|some_girls
-.def party1 party0&some_capsules
-.def party2a party1&some_boys&some_girls
-.def party2b all_boys|all_girls
-.def party2 party2a|party2b
-.def party3a some_boys&all_girls&some_capsules
-.def party3b all_boys&some_girls&some_capsules
-.def party3 party3a|party3b
-.def party4 all_boys&all_girls&some_capsules
+
+.def group1_some selan|tia
+.def group1_all selan&tia
+.def group2_some guy|dekar
+.def group2_all guy&dekar
+.def group3_some maxim|artea|lexis
+.def group3_all maxim&artea&lexis
+
+.def party0 group1_some|group2_some|group3_some
+
+.def party1a group1_all|group2_all
+.def party1b group1_some&group2_some
+.def party1c group1_some&group3_some
+.def party1d group2_some&group3_some
+.def party1 party1a|party1b|party1c|party1d
+
+.def party2a group1_some&group2_some&group3_some
+.def party2b group1_all&group2_some
+.def party2c group1_some&group2_all
+.def party2d group1_all&group3_some
+.def party2e group2_all&group3_some
+.def party2f group3_all
+.def party2 party2a|party2b|party2c|party2d|party2e|party2f
+
+.def party3a party1a&party2a
+.def party3b group3_all
+.def party3c group1_all&group2_all
+.def party3 party3a|party3b|party3c
+
+.def party4 group1_all&group2_all&group3_all
 .def party5 party4&all_capsules
+
 .def airship engine
 .def submarine mermaid_jade
 .def submarine_or_airship submarine|airship
@@ -77,4 +96,4 @@ gratze_basement     gratze&breakable&hook&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
-daos_shrine         lisa&marie&clare&airship&all_tools&all_keys&party5
+daos_shrine         lisa&marie&clare&airship&submarine&all_tools&all_keys&party5
