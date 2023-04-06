@@ -1,7 +1,7 @@
 from randomtools.tablereader import (
     TableObject, get_global_label, get_seed, tblpath, addresses, names,
     get_random_degree, mutate_normal, shuffle_normal, shuffle_simple,
-    get_open_file, write_patch)
+    get_difficulty, get_open_file, write_patch)
 from randomtools.utils import (
     map_to_lorom, map_from_lorom,
     classproperty, cached_property, clached_property,
@@ -497,7 +497,7 @@ class BossFormationObject(TableObject):
                 raise Exception(
                     'Conflict: Boss Formation {0:0>2X}.'.format(self.index))
         valid_monsters = [m for m in MonsterObject.every
-                          if m.index not in BANNED_MONSTERS]
+                          if m.index not in self.BANNED_MONSTERS]
         self.unknown = self.get(1).old_data['unknown']
         if seed_monster is None:
             seed_monster = random.choice(valid_monsters)
@@ -1180,12 +1180,18 @@ class MonsterObject(TableObject):
     def cleanup(self):
         for (attr, bytesize, _) in self.specs.attributes:
             if attr in self.mutate_attributes:
+                value = getattr(self, attr)
+                if attr in ['gold', 'xp']:
+                    value = value / get_difficulty()
+                else:
+                    value = value * get_difficulty()
+                value = int(round(value))
+
                 minimum = 0
                 maximum = (1<<(bytesize*8))-1
-                value = getattr(self, attr)
                 if not minimum <= value <= maximum:
                     value = min(maximum, max(minimum, value))
-                    setattr(self, attr, value)
+                setattr(self, attr, value)
 
         if self.is_boss and not hasattr(self, '_scaled'):
             for attr in self.mutate_attributes:
@@ -5457,6 +5463,8 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
         s2 += 'CHAOS   {0}\n'.format(num_to_text(randomness))
     else:
         s2 += 'CHAOS   custom\n'
+    difficulty = int(round(get_difficulty() * 100))
+    s2 += 'DIFF    {0}\n'.format(num_to_text(difficulty))
     codes = get_activated_codes()
     if codes:
         codes = '\n        '.join(sorted(codes))
@@ -5765,6 +5773,7 @@ def make_spoiler(ir):
          'flags: {}'.format(get_flags()),
          'codes: {}'.format(','.join(sorted(get_activated_codes()))),
          'randomness: {}'.format(','.join(str(r) for r in randomness)),
+         'difficulty: {}'.format(get_difficulty()),
          )
     header = '\n'.join(s)
     footer = ir.report
@@ -6086,7 +6095,8 @@ if __name__ == '__main__':
             'scale': ['scale'],
             'noscale': ['noscale'],
         }
-        run_interface(ALL_OBJECTS, snes=True, codes=codes, custom_degree=True)
+        run_interface(ALL_OBJECTS, snes=True, codes=codes,
+                      custom_degree=True, custom_difficulty=True)
         numify = lambda x: '{0: >3}'.format(x)
         minmax = lambda x: (min(x), max(x))
 
