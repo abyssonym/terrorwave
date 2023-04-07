@@ -5758,12 +5758,7 @@ def scale_enemies(location_ranks, boss_events,
         scale_amounts = sorted(scale_dict[m.index])
         if len(scale_amounts) > 1:
             a, b = scale_amounts
-            if a > 1 and b > 1:
-                scale_amount = max(a, b)
-            elif a < 1 and b < 1:
-                scale_amount = min(a, b)
-            else:
-                scale_amount = a * b
+            scale_amount = (a+b)/2
         else:
             scale_amount = scale_amounts[0]
         m.scale_stats(scale_amount)
