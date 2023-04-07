@@ -33,6 +33,10 @@ def hexify(s):
     return '-'.join('{0:0>2X}'.format(c) for c in s)
 
 
+def lange(low, high):
+    return list(range(low, high))
+
+
 EVENT_PATCHES = [
     'skip_tutorial',
     'treadool_warp',
@@ -416,6 +420,21 @@ class FormationObject(TableObject):
     def monsters(self):
         return [MonsterObject.get(index) if index < 0xFF else None
                 for index in self.monster_indexes]
+
+    @cached_property
+    def clean_monsters(self):
+        return [m for m in self.monsters if m is not None]
+
+    @property
+    def rank(self):
+        if self.monsters[0] is None:
+            return -1
+        return self.monsters[0].rank
+
+    def guess_sprite(self):
+        if self.monsters[0] is None:
+            return None
+        return self.monsters[0].guess_sprite()
 
     def preprocess(self):
         self.monsters
@@ -3734,6 +3753,22 @@ class MapEventObject(TableObject):
             return self.reverse_zone_map[self.index]
         return None
 
+    def get_zone_enemies(self, old=True):
+        sprite_formation_matcher = re.compile(
+            '#.*PRELOAD (..) .* \(FORMATION (..):')
+        result = []
+        for meo in self.neighbors:
+            if old:
+                s = meo.old_pretty
+            else:
+                s = str(meo)
+            sprite_formations = sprite_formation_matcher.findall(s)
+            for sprite, formation in sprite_formations:
+                sprite = int(sprite, 0x10)
+                formation = FormationObject.get(int(formation, 0x10))
+                result.append((sprite, formation))
+        return result
+
     @property
     def neighbors(self):
         if self.zone_index is None:
@@ -5690,16 +5725,8 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     f.write(data)
 
 
-def scale_enemies(location_ranks, boss_events,
-                  normal_scale_weight=0.75, boss_scale_weight=0.75):
-    if scalecustom_nonboss is not None:
-        normal_scale_weight = scalecustom_nonboss
-    if scalecustom_boss is not None:
-        boss_scale_weight = scalecustom_boss
-    MapEventObject.class_reseed('scale_enemies')
-    random.shuffle(boss_events)
+def get_ranked_locations(location_ranks, randoms_only=False):
     ranked_locations = []
-    ranked_bosses = []
     for i in sorted(location_ranks):
         locations = sorted(location_ranks[i])
         random.shuffle(locations)
@@ -5709,9 +5736,6 @@ def scale_enemies(location_ranks, boss_events,
             loc_properties = OpenNPCGenerator.get_properties_by_name(loc)
             if loc_properties is None:
                 continue
-            for b in boss_events:
-                if b.startswith(loc_properties.map_index.upper()):
-                    ranked_bosses.append(b)
             map_index = int(loc_properties.map_index, 0x10)
             meo = MapEventObject.get(map_index)
             if meo.zone_name not in ranked_locations:
@@ -5724,9 +5748,157 @@ def scale_enemies(location_ranks, boss_events,
         if meo.zone_name in temp:
             continue
         s = str(meo)
-        if '(FORMATION' in s or 'Invoke Battle' in s:
+        if '(FORMATION' in s:
+            temp.append(meo.zone_name)
+        elif 'Invoke Battle' in s and not randoms_only:
             temp.append(meo.zone_name)
     ranked_locations = [loc for loc in ranked_locations if loc in temp]
+
+    return ranked_locations
+
+
+def replace_map_formations(location_ranks=None):
+    FormationObject.class_reseed('replace_map_formations')
+    JELLY_SPRITE = 0x94
+    SPRITE_OVERRIDES = {FormationObject.get(0): {0x36}}
+
+    big_sprites = set(lange(0xb6, 0xbe) + lange(0xbf, 0xc5)
+                      + lange(0xeb, 0xf0))
+    small_sprites = {s for s in range(0x80, 0xf0) if s not in big_sprites}
+    all_formation_sprites = defaultdict(set)
+
+    if location_ranks is not None:
+        ranked_locations = get_ranked_locations(location_ranks,
+                                                randoms_only=True)
+    else:
+        ranked_locations = None
+
+    for zone_index in sorted(MapEventObject.zone_names):
+        meo = MapEventObject.get(zone_index)
+        assert meo.zone_index == meo.index == zone_index
+        zone_name = meo.zone_name
+        zone_sprite_formations = meo.get_zone_enemies()
+        for sprite, formation in zone_sprite_formations:
+            all_formation_sprites[formation].add(sprite)
+
+    for f in FormationObject.every:
+        sprite = f.guess_sprite()
+        if sprite is not None:
+            all_formation_sprites[f].add(sprite)
+
+    for f in SPRITE_OVERRIDES:
+        all_formation_sprites[f] = SPRITE_OVERRIDES[f]
+
+    cores = {0xa7, 0xa8, 0xa9, 0xaa}
+    ranked_formations = [f for f in FormationObject.ranked if f.rank >= 0
+                         and f in all_formation_sprites
+                         and JELLY_SPRITE not in all_formation_sprites[f]
+                         and not set(f.monster_indexes) & cores]
+    small_formations = [f for f in ranked_formations
+                        if all_formation_sprites[f] & small_sprites]
+    big_formations = [f for f in ranked_formations
+                      if all_formation_sprites[f] & big_sprites]
+    for zone_index in sorted(MapEventObject.zone_names):
+        meo = MapEventObject.get(zone_index)
+        assert meo.zone_index == meo.index == zone_index
+        zone_name = meo.zone_name
+        if ranked_locations is not None:
+            if zone_name not in ranked_locations:
+                continue
+            rank = ranked_locations.index(zone_name) / len(ranked_locations)
+        else:
+            rank = None
+
+        zone_sprite_formations = meo.get_zone_enemies()
+        sprites = {s for (s, f) in zone_sprite_formations if s != JELLY_SPRITE}
+        formations = {f for (s, f) in zone_sprite_formations}
+        my_small = {s for s in sprites if s in small_sprites}
+        my_big = {s for s in sprites if s in big_sprites}
+
+        new_sprite_map = {}
+        new_formation_map = {}
+        for spriteset in (my_small, my_big):
+            if spriteset is my_small:
+                candidate_formations = small_formations
+            else:
+                candidate_formations = big_formations
+            for s in sorted(spriteset):
+                candidate_formations = [
+                    f for f in candidate_formations if not
+                    all_formation_sprites[f] & set(new_sprite_map.values())]
+
+                if rank is None:
+                    old_formations = [f for f in sorted(formations)
+                                      if s in all_formation_sprites[f]]
+                    if not old_formations:
+                        continue
+                    base = random.choice(old_formations)
+                    new_formation = base.get_similar(
+                        candidates=candidate_formations,
+                        override_outsider=True)
+                else:
+                    shuffled = shuffle_simple(
+                        candidate_formations,
+                        random_degree=FormationObject.random_degree)
+                    max_index = len(shuffled)-1
+                    index = int(round(rank * max_index))
+                    new_formation = shuffled[index]
+
+                new_sprites = all_formation_sprites[new_formation]
+                if len(new_sprites) > 1:
+                    new_sprite = random.choice(sorted(new_sprites))
+                else:
+                    new_sprite = list(new_sprites)[0]
+
+                assert s not in new_sprite_map
+                new_sprite_map[s] = new_sprite
+                assert new_sprite not in new_formation_map
+                similar_formations = [
+                    f for f in candidate_formations
+                    if new_sprite in all_formation_sprites[f] and
+                    set(f.clean_monsters) & set(new_formation.clean_monsters)]
+                assert new_formation in similar_formations
+                new_formation_map[new_sprite] = similar_formations
+
+        for neighbor in meo.neighbors:
+            mfo = MapFormationsObject.get(neighbor.index)
+            signature = '{0:0>2X}-X-XX'.format(neighbor.index)
+            script = neighbor.get_script_by_signature(signature)
+            new_script = []
+            for (l, o, p) in script.script:
+                if o in {0x68, 0x7B}:
+                    npc_event_index, sprite = p
+                    if sprite in new_sprite_map:
+                        new_sprite = new_sprite_map[sprite]
+                        if o == 0x7B:
+                            new_formation = random.choice(
+                                new_formation_map[new_sprite])
+                            formation_index = npc_event_index-0x50
+                            assert formation_index >= 0
+                            new_index = new_formation.index
+                            mfo.formation_indexes[formation_index] = new_index
+                        p = [npc_event_index, new_sprite]
+                new_script.append((l, o, p))
+            script.script = new_script
+
+
+def scale_enemies(location_ranks, boss_events,
+                  normal_scale_weight=0.75, boss_scale_weight=0.75):
+    if scalecustom_nonboss is not None:
+        normal_scale_weight = scalecustom_nonboss
+    if scalecustom_boss is not None:
+        boss_scale_weight = scalecustom_boss
+    MapEventObject.class_reseed('scale_enemies')
+    ranked_locations = get_ranked_locations(location_ranks)
+
+    random.shuffle(boss_events)
+    ranked_bosses = []
+    for i, signature in enumerate(boss_events):
+        map_index, _, _ = signature.split('-')
+        map_index = int(map_index, 0x10)
+        zone_name = MapEventObject.get(map_index).zone_name
+        ranked_bosses.append((ranked_locations.index(zone_name), i, signature))
+    ranked_bosses = [b for (l, i, b) in sorted(ranked_bosses)]
 
     formation_matcher = re.compile('#.*\(FORMATION (..): ')
     monster_ranks = defaultdict(list)
@@ -6067,6 +6239,9 @@ def make_open_world(custom=None):
         if location not in OpenNPCGenerator.done_locations:
             OpenNPCGenerator.create_crown(location)
 
+    if 'monstermash' in get_activated_codes():
+        replace_map_formations(ir.location_ranks)
+
     if (('scale' in get_activated_codes() or 'm' in get_flags()) and
             'noscale' not in get_activated_codes()):
         scale_enemies(ir.location_ranks, boss_events)
@@ -6161,7 +6336,8 @@ if __name__ == '__main__':
             'splitscale': ['splitscale'],
             'scale': ['scale'],
             'noscale': ['noscale'],
-            'bossy': ['bossy']
+            'bossy': ['bossy'],
+            'monstermash': ['monstermash'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
@@ -6200,6 +6376,9 @@ if __name__ == '__main__':
             else:
                 custom = None
             make_open_world(custom=custom)
+        else:
+            if 'monstermash' in get_activated_codes():
+                replace_map_formations()
 
         clean_and_write(ALL_OBJECTS)
         dump_events('_l2r_event_dump.txt')
