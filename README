@@ -32,15 +32,24 @@ Flags:
 Secret Codes:
     Codes are entered in the "flags" section. The codes are:
 
-    airship                 Start the game with the airship.
-    anywhere                Equipment slots are randomized (breaks "Strongest")
+    OPEN WORLD RELATED
     custom                  Use a custom seed for open-world mode
-    easymodo                Every enemy dies in one hit
-    holiday                 Enemies run from the player
+    airship                 Start the game with the airship.
+    bossy                   Very random bosses (unbalanced even with scaling)
+
+    OPEN WORLD ENEMY SCALING
     scale                   Scale enemy states in open-world mode
     noscale                 Do not scale enemies in open-world mode
     splitscale              Input custom values for scaling bosses and nonbosses.
+
+    CHEATS
+    easymodo                Every enemy dies in one hit
+    holiday                 Enemies run from the player
+
+    FOR FUN
+    monstermash             Randomize which monsters appear in dungeons.
     nothingpersonnelkid     Extremely aggressive enemies.
+    anywhere                Equipment slots are randomized (breaks "Strongest")
 
 Randomness:
     Terror Wave is the first Abyssonym randomizer to include a "randomness" option. This option controls how extreme the randomizations are. At 0.0, almost nothing will be randomized. At 1.0, enemies in the starting area will most likely have boss stats. I suggest leaving it at the default setting of 0.5 for your first run.

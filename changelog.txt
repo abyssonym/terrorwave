@@ -1,3 +1,11 @@
+VERSION 3.7
+-Implemented two new codes: `monstermash` and `bossy`.
+-`monstermash` shuffles enemies throughout dungeons. Experimental but recommended. Might make scaling more balanced.
+-`bossy` makes any boss appear in any location, regardless of progression or rank. However, this game mode does not seem viable, because many bosses have attacks that deal high damage even if you scale them to very low stats. Most boss battles are decided simply by who can OHKO the other first.
+-Hint Shop now gives an even distribution of hints.
+-Changed up the scaling algorithm again. This time monsters are scaled by comparing them to a different enemy that fits the progression.
+-Furthermore, because boss adds appear in multiple places, these monsters now scale to their lowest rank instead of the rank of their boss or home zone.
+
 VERSION 3.6
 -Enabled difficulty settings; it's just a flat multiplier for enemy stats.
 -Removed Egg Dragon from the random boss pool.
