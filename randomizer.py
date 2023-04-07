@@ -4577,20 +4577,51 @@ class OpenNPCGenerator:
     @staticmethod
     def create_hint_shop(blue_chests, wild_jelly_map,
                          iris_iris, thieves):
+        IRIS_ITEMS = sorted(range(0x19c, 0x1a6))
         MapEventObject.class_reseed('create_hint_shop')
         boss_events = []
         blue_chests = [b for b in blue_chests if 'Iris' in b.item.name]
         num_hints = 50
+        hints_by_treasure = {}
         hints = []
         while True:
             num_temp = 11
             temp = generate_hints(boss_events, blue_chests, wild_jelly_map,
                                   iris_iris, thieves, num_hints=num_temp)
             for hint in temp:
+                for item_index in IRIS_ITEMS:
+                    item = ItemObject.get(item_index)
+                    s = hint.replace('\n', ' ')
+                    if item.name in s:
+                        key = item.name
+                        break
+                    elif 'Master Jelly' in s:
+                        key = 'jelly'
+                        break
+                else:
+                    key = 'other'
+                if key not in hints_by_treasure:
+                    hints_by_treasure[key] = []
+                if hint not in hints_by_treasure[key]:
+                    hints_by_treasure[key].append(hint)
                 if hint not in hints:
                     hints.append(hint)
-            if len(hints) >= num_hints:
+            if len(hints) >= num_hints*2:
                 break
+
+        hints = []
+        unique_keys = sorted(hints_by_treasure.keys())
+        keys = []
+        while len(hints) < num_hints:
+            candidates = [k for k in unique_keys if k not in keys]
+            if not candidates:
+                candidates = [k for k in unique_keys if k not in keys[-5:]]
+            key = random.choice(candidates)
+            keys.append(key)
+            candidates = [h for h in hints_by_treasure[key] if h not in hints]
+            if not candidates:
+                continue
+            hints.append(candidates[0])
 
         hint_variable = 0x0d
         temp_flag = 0xf0
