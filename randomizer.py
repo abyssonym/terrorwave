@@ -5706,6 +5706,7 @@ def scale_enemies(location_ranks, boss_events,
 
     boss_matcher = re.compile('\. 53\((..)\)')
     boss_ranks = defaultdict(list)
+    boss_accessories = set()
     for b in boss_events:
         map_index, _, _ = b.split('-')
         map_index = int(map_index, 0x10)
@@ -5717,6 +5718,8 @@ def scale_enemies(location_ranks, boss_events,
         boss = BossFormationObject.get(int(bosses[0], 0x10))
         for m in boss.monsters:
             boss_ranks[m.index].append(rank)
+            if m is not boss.boss:
+                boss_accessories.add(m)
 
     scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
@@ -5730,7 +5733,10 @@ def scale_enemies(location_ranks, boss_events,
             ranks = rankdict[m]
             lowest = min(ranks)
             avg = sum(ranks) / len(ranks)
-            temp[m] = (lowest + avg) / 2
+            if rankdict is boss_ranks:
+                temp[m] = lowest
+            else:
+                temp[m] = avg
         rankdict = temp
 
         monsters = [m for m in MonsterObject.every if m.index in rankdict]
@@ -5761,6 +5767,10 @@ def scale_enemies(location_ranks, boss_events,
             scale_amount = (a+b)/2
         else:
             scale_amount = scale_amounts[0]
+
+        if m in boss_accessories and len(scale_amounts) > 1:
+            scale_amount = min(scale_amounts)
+
         m.scale_stats(scale_amount)
 
 
