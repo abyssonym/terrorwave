@@ -400,6 +400,8 @@ class MapFormationsObject(TableObject):
 
 
 class FormationObject(TableObject):
+    custom_random_enable = 'f'
+
     UNUSED_FORMATIONS = [0xA5]
 
     def __repr__(self):
@@ -419,6 +421,8 @@ class FormationObject(TableObject):
         self.monsters
 
 class BossFormationObject(TableObject):
+    custom_random_enable = 'b'
+
     GROUND_LEVEL = 0x68
     CENTER_LINE = 0xa0
     DUMMIED_MONSTERS = [0x60, 0x99]
@@ -2429,7 +2433,6 @@ class EventInstObject(TableObject): pass
 class MapEventObject(TableObject):
     flag = 'w'
     flag_description = 'an open world seed'
-    custom_random_enable = True
 
     TEXT_PARAMETERS = {
         0x04: 1,
@@ -4963,6 +4966,10 @@ def make_wild_jelly(jelly_flag):
              'inconceivable', 'impossible', 'ridiculous', 'bakana']
     word = random.choice(sorted(words))
     jelly_dialogue = '{0}-{1}'.format(word[0].upper(), word.lower())
+    min_x = max(0, min_x)
+    min_y = max(0, min_y)
+    width = min(width, 0xFF-min_x)
+    height = min(height, 0xFF-min_y)
     parameters = {
         'map_index': meo.index,
         'npc_index': map_npc_index,
@@ -5738,23 +5745,27 @@ def scale_enemies(location_ranks, boss_events,
     boss_matcher = re.compile('\. 53\((..)\)')
     boss_ranks = defaultdict(list)
     boss_accessories = set()
+    bosses = set()
     for b in boss_events:
         map_index, _, _ = b.split('-')
         map_index = int(map_index, 0x10)
         zone_name = MapEventObject.get(map_index).zone_name
         rank = ranked_bosses.index(b)
         script = MapEventObject.get_script_by_signature(b)
-        bosses = boss_matcher.findall(script.pretty)
-        assert len(bosses) == 1
-        boss = BossFormationObject.get(int(bosses[0], 0x10))
+        my_bosses = boss_matcher.findall(script.pretty)
+        assert len(my_bosses) == 1
+        boss = BossFormationObject.get(int(my_bosses[0], 0x10))
         for m in boss.monsters:
             boss_ranks[m.index].append(rank)
             if m is not boss.boss:
                 boss_accessories.add(m)
+            else:
+                bosses.add(m)
 
     scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
     for rankdict in (boss_ranks, monster_ranks):
+        is_boss = rankdict == boss_ranks
         if rankdict is boss_ranks:
             scale_weight = boss_scale_weight
         else:
@@ -5764,7 +5775,7 @@ def scale_enemies(location_ranks, boss_events,
             ranks = rankdict[m]
             lowest = min(ranks)
             avg = sum(ranks) / len(ranks)
-            if rankdict is boss_ranks:
+            if is_boss:
                 temp[m] = lowest
             else:
                 temp[m] = avg
@@ -5777,14 +5788,27 @@ def scale_enemies(location_ranks, boss_events,
 
         max_index = len(monsters)-1
         for m in monsters:
+            if m in bosses and not is_boss:
+                continue
             expected = monsters_expected.index(m)
             actual = monsters_actual.index(m)
 
-            difference = abs(expected-actual)
-            difference = min(difference, max_index-1)
-            factor = (max_index-difference) / (max_index+difference)
-            if expected > actual:
-                factor = 1 / factor
+            target = monsters_actual[expected]
+            ratios = []
+            for attr in sorted(target.mutate_attributes):
+                if attr in ('gold', 'xp'):
+                    continue
+                a = m.old_data[attr]
+                b = target.old_data[attr]
+                if a == 0:
+                    continue
+                ratio = b / a
+                if expected > actual:
+                    ratio = max(ratio, 1.0)
+                if expected < actual:
+                    ratio = min(ratio, 1.0)
+                ratios.append(ratio)
+            factor = sum(ratios) / len(ratios)
 
             scale_amount = factor ** scale_weight
             scale_dict[m.index].add(scale_amount)
@@ -5792,15 +5816,13 @@ def scale_enemies(location_ranks, boss_events,
     for m in MonsterObject.every:
         if m.index not in scale_dict:
             continue
-        scale_amounts = sorted(scale_dict[m.index])
-        if len(scale_amounts) > 1:
-            a, b = scale_amounts
-            scale_amount = (a+b)/2
-        else:
-            scale_amount = scale_amounts[0]
 
-        if m in boss_accessories and len(scale_amounts) > 1:
+        scale_amounts = scale_dict[m.index]
+        if m in boss_accessories:
             scale_amount = min(scale_amounts)
+        else:
+            assert len(scale_amounts) == 1
+            scale_amount = list(scale_amounts)[0]
 
         m.scale_stats(scale_amount)
 
@@ -6007,8 +6029,8 @@ def make_open_world(custom=None):
     while len(chosen_bosses) < len(sorted_locations):
         chosen_bosses.append(random.choice(chosen_bosses))
     sorted_bosses = sorted(chosen_bosses, key=lambda b: (b.rank, b.index))
-    sorted_bosses = shuffle_simple(sorted_bosses,
-                                   random_degree=MapEventObject.random_degree)
+    sorted_bosses = shuffle_simple(
+        sorted_bosses, random_degree=BossFormationObject.random_degree)
 
     assert len(sorted_bosses) == len(sorted_locations)
     location_bosses = {l: b for (l, b) in zip(sorted_locations, sorted_bosses)}
@@ -6139,6 +6161,7 @@ if __name__ == '__main__':
             'splitscale': ['splitscale'],
             'scale': ['scale'],
             'noscale': ['noscale'],
+            'bossy': ['bossy']
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
@@ -6150,6 +6173,12 @@ if __name__ == '__main__':
 
         patch_events()
         MapEventObject.roaming_comments = set()
+
+        if 'bossy' in get_activated_codes():
+            BossFormationObject.random_degree = 1.0
+            if 'noscale' not in get_activated_codes():
+                scalecustom_boss = 1.0
+                activate_code('scale')
 
         if 'splitscale' in get_activated_codes():
             print('NOTE: 0.75 for the standard scaling value, '
