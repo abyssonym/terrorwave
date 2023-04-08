@@ -5762,8 +5762,8 @@ def replace_map_formations(location_ranks=None):
     JELLY_SPRITE = 0x94
     SPRITE_OVERRIDES = {FormationObject.get(0): {0x36}}
 
-    big_sprites = set(lange(0xb6, 0xbe) + lange(0xbf, 0xc5)
-                      + lange(0xeb, 0xf0))
+    big_sprites = set(lange(0xb6, 0xbe) + lange(0xbf, 0xc9)
+                      + lange(0xd2, 0xd5) + lange(0xeb, 0xf0))
     small_sprites = {s for s in range(0x80, 0xf0) if s not in big_sprites}
     all_formation_sprites = defaultdict(set)
 
@@ -5773,11 +5773,17 @@ def replace_map_formations(location_ranks=None):
     else:
         ranked_locations = None
 
+    small_counts, big_counts = {}, {}
     for zone_index in sorted(MapEventObject.zone_names):
         meo = MapEventObject.get(zone_index)
         assert meo.zone_index == meo.index == zone_index
         zone_name = meo.zone_name
         zone_sprite_formations = meo.get_zone_enemies()
+        sprites = {s for (s, f) in zone_sprite_formations if s != JELLY_SPRITE}
+        my_small = {s for s in sprites if s in small_sprites}
+        my_big = {s for s in sprites if s in big_sprites}
+        small_counts[zone_name] = len(my_small)
+        big_counts[zone_name] = len(my_big)
         for sprite, formation in zone_sprite_formations:
             all_formation_sprites[formation].add(sprite)
 
@@ -5798,6 +5804,9 @@ def replace_map_formations(location_ranks=None):
                         if all_formation_sprites[f] & small_sprites]
     big_formations = [f for f in ranked_formations
                       if all_formation_sprites[f] & big_sprites]
+    shuffled = shuffle_simple(ranked_formations,
+                              random_degree=FormationObject.random_degree)
+
     for zone_index in sorted(MapEventObject.zone_names):
         meo = MapEventObject.get(zone_index)
         assert meo.zone_index == meo.index == zone_index
@@ -5805,7 +5814,7 @@ def replace_map_formations(location_ranks=None):
         if ranked_locations is not None:
             if zone_name not in ranked_locations:
                 continue
-            rank = ranked_locations.index(zone_name) / len(ranked_locations)
+            rank = True
         else:
             rank = None
 
@@ -5814,17 +5823,32 @@ def replace_map_formations(location_ranks=None):
         formations = {f for (s, f) in zone_sprite_formations}
         my_small = {s for s in sprites if s in small_sprites}
         my_big = {s for s in sprites if s in big_sprites}
-
         new_sprite_map = {}
         new_formation_map = {}
         for spriteset in (my_small, my_big):
+            if not spriteset:
+                continue
+
+            if rank is not None:
+                if spriteset is my_big:
+                    sub_ranked = [l for l in ranked_locations
+                                  if big_counts[l] > 0]
+                else:
+                    sub_ranked = [l for l in ranked_locations
+                                  if small_counts[l] > 0]
+                assert zone_name in sub_ranked
+                max_index = len(sub_ranked)-1
+                rank = sub_ranked.index(zone_name) / max_index
+                assert 0 <= rank <= 1
+
             if spriteset is my_small:
-                candidate_formations = small_formations
+                valid_formations = small_formations
             else:
-                candidate_formations = big_formations
+                valid_formations = big_formations
+
             for s in sorted(spriteset):
                 candidate_formations = [
-                    f for f in candidate_formations if not
+                    f for f in valid_formations if not
                     all_formation_sprites[f] & set(new_sprite_map.values())]
 
                 if rank is None:
@@ -5837,13 +5861,13 @@ def replace_map_formations(location_ranks=None):
                         candidates=candidate_formations,
                         override_outsider=True)
                 else:
-                    shuffled = shuffle_simple(
-                        candidate_formations,
-                        random_degree=FormationObject.random_degree)
-                    max_index = len(shuffled)-1
+                    reduced_shuffled = [f for f in shuffled
+                                        if f in candidate_formations]
+                    max_index = len(reduced_shuffled)-1
                     index = int(round(rank * max_index))
-                    new_formation = shuffled[index]
+                    new_formation = reduced_shuffled[index]
 
+                assert new_formation in valid_formations
                 new_sprites = all_formation_sprites[new_formation]
                 if len(new_sprites) > 1:
                     new_sprite = random.choice(sorted(new_sprites))
