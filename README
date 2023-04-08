@@ -13,6 +13,7 @@ Source rom file:
     This randomizer requires a Lufia 2 (NA-SNES) rom with the MD5 hash listed below. The "Lufia 2 Fixxxer Deluxe" version is also supported; vanilla Lufia 2 roms will automatically be patched with the "Fixxxer Deluxe" patch.
     MD5 - 6efc477d6203ed2b3b9133c1cd9e9c5d (NA)
           026b649ed316448e038349e39a6fe579 (Fixxxer)
+          b58c76f2ac0b2aeb9b779e880d2bff18 (Frue)
 
 Seed value:
     Input a seed value here, or leave it blank if you don't care.
