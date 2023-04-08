@@ -16,7 +16,7 @@ from copy import deepcopy
 from math import floor
 from os import path
 import re
-from string import ascii_letters, digits, punctuation
+from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
@@ -125,8 +125,8 @@ class AdditionalPropertiesMixin(ReadExtraMixin):
 
         if nexts:
             n = min(nexts, key=lambda n2: n2.pointer)
-            assert max([self.pointer] +
-                       self.additional_addresses.values())+2 <= n.pointer
+            ptr = max([self.pointer]+list(self.additional_addresses.values()))
+            assert ptr + 2 <= n.pointer
 
         self._pre_read.append(self)
 
@@ -1099,9 +1099,10 @@ class MonsterObject(TableObject):
         return (self.rank >= 0 and not 0xA7 <= self.index <= 0xAA
                 and self.index not in [0xdf])
 
-    @property
+    @cached_property
     def name(self):
-        return self.name_text.decode('utf8').strip()
+        name = self.name_text.decode('utf8').strip()
+        return ''.join([c for c in name if c in printable])
 
     @property
     def has_drop(self):
@@ -1171,7 +1172,7 @@ class MonsterObject(TableObject):
         self.drop_data = new_data | (rate << 9)
 
     def scale_stats(self, scale_amount):
-        if 'Jelly' in self.name:
+        if 'jelly' in self.name.lower():
             return
         self._scaled = True
         for attr in sorted(self.mutate_attributes):
@@ -1523,7 +1524,8 @@ class ShopObject(TableObject):
 
     def __repr__(self):
         s = 'SHOP %x (%s)\n' % (self.index, self.zone_name)
-        s += '{0:0>2X} {1:0>2X} {2:0>2X}\n'.format(ord(self.unknown0), self.shop_type, ord(self.unknown2))
+        s += '{0:0>2X} {1:0>2X} {2:0>2X}\n'.format(
+            ord(self.unknown0), self.shop_type, ord(self.unknown2))
         for menu in ['coin', 'item', 'weapon', 'armor']:
             if self.get_bit(menu):
                 s += '%s\n' % menu.upper()
@@ -2757,17 +2759,24 @@ class MapEventObject(TableObject):
         def pretty(self):
             pretty = self.prettify_script(self.script)
             address_matches = self.ADDRESS_MATCHER.findall(pretty)
+            address_matches = sorted(set(int(match, 0x10)
+                                         for match in address_matches))
             done_labels = set()
-            for match in address_matches:
-                offset = int(match, 0x10)
+            for offset in reversed(address_matches):
                 if offset in done_labels:
                     continue
                 done_labels.add(offset)
                 linecode = '{0:0>4X}. '.format(offset)
-                index = pretty.index(linecode)
-                replacement = '# LABEL @{0:X} ${1:x}\n{2}'.format(
-                    offset, self.script_pointer+offset, linecode)
-                pretty = pretty.replace(linecode, replacement)
+                try:
+                    index = pretty.index(linecode)
+                    replacement = '# LABEL @{0:X} ${1:x}\n{2}'.format(
+                        offset, self.script_pointer+offset, linecode)
+                    pretty = pretty.replace(linecode, replacement)
+                except ValueError:
+                    to_replace = '@{0:X}'.format(offset)
+                    replacement = '@{0:X}!'.format(offset)
+                    pretty = pretty.replace(to_replace, replacement)
+
             return pretty.rstrip()
 
         @property
@@ -4618,7 +4627,7 @@ class OpenNPCGenerator:
         IRIS_ITEMS = sorted(range(0x19c, 0x1a6))
         MapEventObject.class_reseed('create_hint_shop')
         boss_events = []
-        blue_chests = [b for b in blue_chests if 'Iris' in b.item.name]
+        blue_chests = [b for b in blue_chests if b.item.index in IRIS_ITEMS]
         num_hints = 50
         hints_by_treasure = {}
         hints = []
@@ -5034,7 +5043,8 @@ def assign_iris_shop(iris_item):
         'pot': 'item',
         'tiara': 'armor',
         }
-    keys = [k for k in item_types if k in ItemObject.get(iris_item).name]
+    keys = [k for k in item_types
+            if k in ItemObject.get(iris_item).name.lower()]
     assert len(keys) == 1
     shop_type = item_types[keys[0]]
     candidates = [s for s in ShopObject.every
@@ -5073,7 +5083,8 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
     capsule_matcher = re.compile('\. 81\((..)\) ')
     maiden_matcher = re.compile('My name is (\S*)\.')
 
-    blue_chests = [b for b in blue_chests if 'Dragon egg' not in b.item.name]
+    blue_chests = [b for b in blue_chests
+                   if 'dragon egg' not in b.item.name.lower()]
     hint_topics = ((boss_events * 4) + blue_chests
                    + [wild_jelly_map, iris_shop] + list(thieves))
     messages = []
@@ -5117,7 +5128,7 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
 
         elif hint_topic in blue_chests:
             map_index = hint_topic.map_index
-            if 'Dragon egg' in hint_topic.item.name:
+            if 'dragon egg' in hint_topic.item.name.lower():
                 hint_target = 'A dragon egg'
             else:
                 hint_target = 'The {0}'.format(hint_topic.item.name)
@@ -5995,9 +6006,6 @@ def scale_enemies(location_ranks, boss_events,
             actual = monsters_actual.index(m)
 
             if m in bosses and bosses[m] > 1:
-                for bfo in BossFormationObject.every:
-                    if m in bfo.monsters:
-                        print(bfo)
                 augmented_rank = m.rank * (bosses[m] ** 0.5)
                 below = [m for m in monsters_actual
                          if m.rank < augmented_rank]

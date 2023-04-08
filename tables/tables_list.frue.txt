@@ -1,5 +1,16 @@
 # objname tablefile address count grouped
+EventInstObject     struct_2pointer.txt         4a14    205
+IPAttackObject      struct_ip_attack.txt        pointers_ip_attack.txt
+CharLevelObject     struct_level.txt            pointers_level.txt
+CharExpObject       struct_exp.txt              pointers_xp.txt
+InitialEquipObject  struct_initial_equip.txt    pointers_initial_equip.txt
+OverPaletteObject   struct_over_palette.txt     36ca6   3
+OverSpriteObject    struct_over_sprite.txt      37086   6
+MapEventObject      struct_map_event.txt        38010   242
+RoamingNPCObject    struct_roaming_npc.txt      3ae4e   34
 ChestObject         struct_chest.txt            pointers_chest.txt
+CapsuleLevelObject  struct_capsule_level.txt    764c4   7
+WordObject          struct_word.txt             76a00   640
 AncientChest2Object struct_ancient_chest.txt    8ffdc   9
 BlueChestObject     struct_blue_chest.txt       30d880  42
 AncientChest1Object struct_ancient_chest.txt    a713d   31
@@ -9,15 +20,31 @@ MonsterObject       struct_monster.txt          282000  224     point1  282000 2
 ItemObject          struct_item.txt             b4f69   467     point1  b4f69 2
 CharGrowthObject    struct_char_growth.txt      pointers_char_growth.txt
 CharacterObject     struct_character.txt        bb93c   7
+MapFormationsObject struct_2pointer.txt         bb9ac   248
+FormationObject     struct_formation.txt        bbe93   192
+BossFormationObject struct_2pointer.txt         bc53d   39
+SpriteMetaObject    struct_sprite_meta.txt      bca64   134
 CapPaletteObject    struct_cap_palette.txt      bd258   35
 CapsuleObject       struct_capsule.txt          bdcb8   35      point1  bdcb8 2
-ShopObject          struct_shop.txt             pointers_shop.txt
+ShopObject          struct_2pointer.txt         bee9f   63
 ItemNameObject      struct_item_name.txt        f47e8   467
 CapSpritePTRObject  struct_cap_sprite_ptr.txt   1384bc  35
+TownSpriteObject    struct_town_sprite.txt      pointers_town_sprite.txt
 MonsterMoveObject   struct_monster_move.txt     27f6b5  112
+MapMetaObject       struct_3pointer.txt         27fcbc  242
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
+$credits            89aff
+$credits_pointer1   73449
+$credits_pointer2   73496
+$credits_pointer3   7349d
+$credits_pointer4   734b3
+$credits_pointer5   73503
+$credits_pointer6   73511
+$sprites            names_sprites.txt
 .patch              patch_unlock_gift_mode.txt
 .patch              patch_clear_initial_spells.txt
-.option             patch_ac_music_hack.txt
+.patch              patch_zero_gold_command.txt
+.patch              patch_secondary_tool.txt
+#.option             patch_ac_music_hack.txt
