@@ -5219,7 +5219,10 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
                 name += 'e'
             if name[-1] == 'y':
                 name = name[:-1] + 'ie'
-            location_hint = 'in a place where {0}s dwell'.format(name)
+            if 'monstermash' in get_activated_codes():
+                location_hint = 'in a place where {0}s may dwell'.format(name)
+            else:
+                location_hint = 'in a place where {0}s dwell'.format(name)
 
         elif hint_type == 'chests':
             c = random.choice(chest_items)
