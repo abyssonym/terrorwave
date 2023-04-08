@@ -140,13 +140,13 @@
 8B C4 Gargoyle
 8C C4 Rogue Shape
 8D A0 Bone Gorem
-8E A1 Nuborg
+8E E5 Nuborg
 8F A2 Wood Gorem
 90 A3 Mad Gorem
 91 E6 Green Clay
 92 E4 Sand Gorem
 93 E3 Magma Gorem
-94 E5 Iron Gorem
+94 A1 Iron Gorem
 95 E2 Gold Gorem
 96 BF Hidora
 97 BF Sea Hidora

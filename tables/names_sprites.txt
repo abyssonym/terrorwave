@@ -159,7 +159,7 @@ Goblin
 Lizardman
 Vampire
 Skeleton
-Stone Golem
+Iron Golem
 Wood Golem
 Mud Golem
 Mimic
@@ -227,7 +227,7 @@ Blue Zombie
 Gold Golem
 Magma Golem
 Sand Golem
-Iron Golem
+Nuborg
 Green Clay Golem
 Red Lich
 Blue Eagle
