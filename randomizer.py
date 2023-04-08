@@ -5944,7 +5944,7 @@ def scale_enemies(location_ranks, boss_events,
     boss_matcher = re.compile('\. 53\((..)\)')
     boss_ranks = defaultdict(list)
     boss_accessories = set()
-    bosses = set()
+    bosses = {}
     for b in boss_events:
         map_index, _, _ = b.split('-')
         map_index = int(map_index, 0x10)
@@ -5959,7 +5959,9 @@ def scale_enemies(location_ranks, boss_events,
             if m is not boss.boss:
                 boss_accessories.add(m)
             else:
-                bosses.add(m)
+                if m not in bosses:
+                    bosses[m] = -1
+                bosses[m] = max(bosses[m], boss.monsters.count(m))
 
     scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
@@ -5991,6 +5993,20 @@ def scale_enemies(location_ranks, boss_events,
                 continue
             expected = monsters_expected.index(m)
             actual = monsters_actual.index(m)
+
+            if m in bosses and bosses[m] > 1:
+                for bfo in BossFormationObject.every:
+                    if m in bfo.monsters:
+                        print(bfo)
+                augmented_rank = m.rank * (bosses[m] ** 0.5)
+                below = [m for m in monsters_actual
+                         if m.rank < augmented_rank]
+                if below:
+                    new_actual = len(below) - 0.5
+                    assert actual < new_actual
+                    modifier = actual / new_actual
+                    assert modifier < 1
+                    expected = int(round(modifier * expected))
 
             target = monsters_actual[expected]
             ratios = []
