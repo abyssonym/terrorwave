@@ -20,8 +20,8 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.7'
-TEXT_VERSION = 'Three Seven'
+VERSION = '3.8'
+TEXT_VERSION = 'Three Eight'
 ALL_OBJECTS = None
 DEBUG_MODE = False
 

@@ -1,3 +1,10 @@
+VERSION 3.8
+-Fixed an error in how progression was calculated, which may dramatically impact scaling in some seeds.
+-Number of enemies is now taken into account when scaling bosses.
+-North Dungeon, Tower of Sacrifice, and Flower Mountain capsule locations are now considered separate checks, to be consistent with the Ruby Cave capsule location check.
+-Restored compatibility with "Frue Lufia" by Artemis.
+-Adjusted distribution of enemies in `monstermash` mode for more coverage of both large and small sprites.
+
 VERSION 3.7
 -Implemented two new codes: `monstermash` and `bossy`.
 -`monstermash` shuffles enemies throughout dungeons. Experimental but recommended. Might make scaling more balanced.
