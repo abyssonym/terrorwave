@@ -1,0 +1,35 @@
+014b10: 5c 00 c8 fd
+
+3ec800: ad 4f 15
+:       c9 00
+:       d0 nonzero
+:       5c 17 cb 82
+.label nonzero
+:       da
+:       c2 20
+:       a2 00 00
+.label inventory_loop
+:       bd 8d 0a
+:       29 00 fe
+:       f0 not_iris_item
+:       bd 8d 0a
+:       29 ff 01
+:       c9 9c 01
+:       90 not_iris_item
+:       c9 a6 01
+:       b0 not_iris_item
+:       ee 4f 15
+.label not_iris_item
+:       e8 e8
+:       e0 c0 00
+:       d0 inventory_loop
+:       e2 20
+:       fa
+:       ad 4f 15
+:       5c 18 cb 82
+
+VALIDATION
+
+014b10: ad 4f 15
+:       c9 00
+:       d0 01
