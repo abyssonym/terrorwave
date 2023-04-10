@@ -1,3 +1,12 @@
+VERSION 3.9
+-Multiple capsule monsters can be used in one battle. Experimental; use the code `nocap` to disable this feature.
+-Iris items increase the rate of feeding capsule monsters.
+-Capsule monsters can eat eggs.
+-Self-kill no longer counts as a victory against the Master Jelly.
+-Fixed some incorrect sprites being used in `monstermash`.
+-Miscellaneous aesthetic changes.
+-Restored the Tanbel Inn.
+
 VERSION 3.8
 -Fixed an error in how progression was calculated, which may dramatically impact scaling in some seeds.
 -Number of enemies is now taken into account when scaling bosses.
