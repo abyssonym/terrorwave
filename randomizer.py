@@ -5907,6 +5907,13 @@ def replace_map_formations(location_ranks=None):
                 if o in {0x68, 0x7B}:
                     npc_event_index, sprite = p
                     if sprite in new_sprite_map:
+                        if o == 0x68:
+                            npcsig = '{0:0>2X}-C-{1:0>2X}'.format(
+                                neighbor.index, npc_event_index)
+                            nscript = neighbor.get_script_by_signature(npcsig)
+                            if nscript is not None and '53(' in nscript.pretty:
+                                new_script.append((l, o, p))
+                                continue
                         new_sprite = new_sprite_map[sprite]
                         if o == 0x7B:
                             new_formation = random.choice(
