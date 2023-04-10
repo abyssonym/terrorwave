@@ -6353,6 +6353,10 @@ def make_open_world(custom=None):
     write_patch(get_outfile(), 'patch_capsule_tag.txt')
     write_patch(get_outfile(), 'patch_capsule_feeding_bonus.txt')
 
+    dragon_egg = ItemObject.get(0x2b)
+    dragon_egg.price = 65000
+    write_patch(get_outfile(), 'patch_eat_dragon_eggs.txt')
+
     set_new_leader_for_events(int(starting_character.character_index, 0x10))
 
     MapEventObject.purge_orphans()

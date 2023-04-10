@@ -5,6 +5,13 @@
 :       d0 nonzero
 :       5c 17 cb 82
 .label nonzero
+:       ad 06 0a
+:       c9 2b
+:       d0 not_a_dragon_egg
+:       ad 4f 15
+:       0a 0a
+:       8d 4f 15
+.label not_a_dragon_egg
 :       da
 :       c2 20
 :       a2 00 00

@@ -1,0 +1,35 @@
+010461: 5c c0 c8 fd
+
+01468e: 5c 80 c8 fd
+:       ea ea ea
+
+3ec880: ad 06 0a
+:       c9 2b
+:       f0 sellable_or_dragon_egg1
+:       ad 84 0b
+:       89 20
+:       d0 unsellable1
+.label sellable_or_dragon_egg1
+:       5c 95 c6 82
+.label unsellable1
+:       5c a0 c6 82
+
+3ec8c0: 89 20
+:       d0 unsellable2
+.label sellable_or_dragon_egg2
+:       b9 00 00
+:       5c 75 84 82
+.label unsellable2
+:       ad 06 0a
+:       c9 2b
+:       f0 sellable_or_dragon_egg2
+:       5c 7d 84 82
+
+VALIDATION
+
+010461: 89 20
+:       d0 18
+
+01468e: ad 84 0b
+:       89 20
+:       d0 0b
