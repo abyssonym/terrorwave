@@ -6350,8 +6350,9 @@ def make_open_world(custom=None):
     write_patch(get_outfile(), 'patch_start_portravia.txt')
     write_patch(get_outfile(), 'patch_no_submarine.txt')
     write_patch(get_outfile(), 'patch_spell_target_limit.txt')
-    write_patch(get_outfile(), 'patch_capsule_tag.txt')
     write_patch(get_outfile(), 'patch_capsule_feeding_bonus.txt')
+    if 'nocap' not in get_activated_codes():
+        write_patch(get_outfile(), 'patch_capsule_tag.txt')
 
     dragon_egg = ItemObject.get(0x2b)
     dragon_egg.price = 65000
@@ -6403,6 +6404,7 @@ if __name__ == '__main__':
             'noscale': ['noscale'],
             'bossy': ['bossy'],
             'monstermash': ['monstermash'],
+            'nocap': ['nocap'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
