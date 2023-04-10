@@ -326,6 +326,9 @@ EVENT 87-C-6E
 7FFF. 00()
 
 !npc 0f (05) a2:0d,21
+!npc 1a (00) a2:0b,19
+!npc 1b (00) a2:0c,19
+!npc 1c (00) a2:0d,19
 EVENT A2-X-XX  # $3a5f1:3a5f1
 0000. 6A(0A-@1000)
 0010. 14(00-1A-80-1B-80-1C-30-@80-FF)
@@ -342,7 +345,13 @@ EVENT A2-X-XX  # $3a5f1:3a5f1
 1043. 68(5C-0B)                      # Load NPC (12,21) 5c: 0b Green Girl
 1046. 68(5D-40)                      # Load NPC (0c,1f) 5d: 40 Lab Assistant
 1049. 68(5E-71)                      # Load NPC (0d,21) 5e: 71 Little Boat
-104F. 00()                           # End Event
+2000. 6A(1A-@2020)
+2010. 68(69-44)
+2020. 6A(1B-@2040)
+2030. 68(6A-44)
+2040. 6A(1C-@7FFF)
+2050. 68(6B-44)
+7FFF. 00()                           # End Event
 
 EVENT A2-B-0A
 0050. 76()
@@ -373,6 +382,15 @@ EVENT A2-C-5D
 1000. 08: Return here after rescuing
           the three maidens to go to
           Doom Island!<END EVENT>
+
+EVENT A2-C-69
+0000. 08: I'm Lisa.<END EVENT>
+
+EVENT A2-C-6A
+0000. 08: I'm Marie.<END EVENT>
+
+EVENT A2-C-6B
+0000. 08: I'm Clare.<END EVENT>
 
 !tile 0a a2:0d,20 2x1
 EVENT A2-D-0A
