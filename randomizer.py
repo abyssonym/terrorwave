@@ -4177,12 +4177,12 @@ def patch_game_script(patch_script_text, warn_double_import=True):
                             middle = int(middle, 0x10)
                             right = int(right, 0x10)
                             assert left <= middle <= right
-                            if coordinate[0] == 'x':
+                            if axis == 'x':
                                 boundary_west = left
                                 x = middle
                                 boundary_east = right
                             else:
-                                assert coordinate[0] == 'y'
+                                assert axis == 'y'
                                 boundary_north = left
                                 y = middle
                                 boundary_south = right

@@ -50,6 +50,45 @@ EVENT 0E-X-XX
 EVENT 0E-D-01
 0000. 00()
 
+!npc 07 (00) 1d:01<=12<=fe,01<=22<=fe
+!npc 0f (00) 1d:1c,13
+EVENT 1D-X-XX  # $394ed:394ed
+0000. 69(90)                         # Set Map Properties (escapable, etc.)
+0002. 15(B0-@C)                      # Branch on Flag B0 ($0794:01)
+0006. 4B(02)                         # Play BGM
+0008. 1C(@12)                        # Jump
+000B. 00()                           # End Event
+# LABEL @C $394f9
+000C. 4B(2E)                         # Play BGM
+000E. 1C(@12)                        # Jump
+0011. 00()                           # End Event
+# LABEL @12 $394ff
+0012. 68(50-11)                      # Load NPC (14,21) 50: 11 Gray Old Woman
+0015. 68(51-0E)                      # Load NPC (26,04) 51: 0e Yellow Middle Man
+0018. 68(52-10)                      # Load NPC (06,20) 52: 10 Bald Old Man
+001B. 68(53-5C)                      # Load NPC (06,12) 53: 5c Bald Cleric
+001E. 68(54-0C)                      # Load NPC (07,05) 54: 0c Blue Man
+0021. 68(55-10)                      # Load NPC (14,06) 55: 10 Bald Old Man
+0024. 68(56-45)                      # Load NPC (16,12) 56: 45 Green Dress Girl
+0027. 68(58-32)                      # Load NPC (27,12) 58: 32 Priest
+0030. 68(5E-37)
+7FFF. 00()                           # End Event
+
+EVENT 1D-C-5E
+0000. 08: Hello! I am definitely
+          the owner of this inn.
+          It's 200 gold. Are you
+          staying or what?<END MESSAGE>
+0010. 10(02-@40-@30)
+0020. 08: Yes.
+          No.<CHOICE>
+0030. 00()
+0040. 08: Great! Checkout is
+          at 7:30am. Enjoy
+          your stay!<END MESSAGE>
+0050. 17(C8)
+0060. 00()
+
 EVENT 27-X-XX
 0000. 74(12)                         # Set Battle BG
 0002. 69(01)
