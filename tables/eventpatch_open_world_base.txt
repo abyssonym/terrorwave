@@ -40,12 +40,30 @@ EVENT 05-C-5E
           tools without switching
           between them!<END EVENT>
 
+!npc 01 (00) 0e:11,18
 EVENT 0E-X-XX
 0000. 69(08)
 0002. 69(98)
 0004. 4B(14)                         # Preload Music
-0006. 68(50-0D)                      # Load NPC (0f,16) 50: 0d Yellow Woman
+0006. 68(50-37)                      # Load NPC (0f,16) 50: 0d Yellow Woman
 000C. 00()                           # End Event
+
+EVENT 0E-C-50
+0000. 08: Did you know that
+          if you have more
+          than one capsule
+          monster,<END MESSAGE>
+0010. 08: they'll automatically
+          tag out with each
+          other in battle?<END MESSAGE>
+0020. 08: Also, if you have
+          any Iris Treasures,
+          your monsters will
+          get a feeding bonus!<END MESSAGE>
+0030. 08: But don't feed them
+          any Dragon Eggs.
+          Dragon Eggs are
+          very valuable!<END EVENT>
 
 EVENT 0E-D-01
 0000. 00()
