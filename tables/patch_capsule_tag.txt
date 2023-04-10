@@ -140,6 +140,7 @@
 :       3f 45 be 80
 :       d0 capsule_cycle_loop
 :       bd bb 11
+:       29 07
 :       8d a4 11
 :       8a
 :       8d a3 11
