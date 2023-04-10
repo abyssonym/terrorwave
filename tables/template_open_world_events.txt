@@ -36,6 +36,9 @@ EVENT A0-X-XX  # $3a428:3a428
 007B. 00()                           # End Event
 
 EVENT A0-B-0F
+#0000. 1A(1A)
+#0001. 1A(1B)
+#0002. 1A(1C)
 1010. 70()
 1020. 2B({{starting_character_index}})
 1030. 2C(00)
@@ -424,6 +427,18 @@ EVENT E6-B-63  # $701c2:701ce
 
 !exit 01 (00) ea:0,0->ea:0,0
 !tile 0a ea:10,12
+EVENT EA-X-XX
+0000. 74(08)                         # Set Battle BG
+0002. 69(D9)                         # Set Map Properties (escapable, etc.)
+7FFF. 00()                           # End Event
+
+EVENT EA-A-00
+0000. 15({{final_boss_flag}}-@30)
+0010. 4B(0A)
+0020. 00()
+0030. 4B(38)
+7FFF. 00()                           # End Event
+
 EVENT EA-A-01
 0000. 15({{final_boss_flag}}-@7FFF)
 1007. 43(02-01)
@@ -448,12 +463,16 @@ EVENT EA-D-0A
 !npc 05 (05) eb:11,0b
 EVENT EB-X-XX
 0000. 69(D9)
+0010. 4B(38)
 1000. 68(50-70)
 1010. 68(51-70)
 1020. 68(52-70)
 1030. 6A({{iris_ending_flag}}-@7FFF)
 2000. 68(53-6D)
 2010. 68(54-{{final_boss_sprite_index}})
+7FFF. 00()
+
+EVENT EB-A-00
 7FFF. 00()
 
 EVENT EB-A-01

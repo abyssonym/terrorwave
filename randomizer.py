@@ -5024,7 +5024,7 @@ def make_wild_jelly(jelly_flag):
         'height': str(height),
         'jelly_flag': jelly_flag,
         'jelly_dialogue': jelly_dialogue,
-        'map_bgm': 0x1F,
+        'map_bgm': 0x07,
         }
     patch_with_template('boss_jelly', parameters)
     return meo.index

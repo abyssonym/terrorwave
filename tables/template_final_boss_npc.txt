@@ -12,7 +12,7 @@ EVENT {{map_index}}-C-{{npc_event_index}}
     0020. 08: No.
               Yes.<CHOICE>
     0030. 1C(@7FFF)
-    1020. 4B({{battle_bgm}})
+    1020. 4B(1C)
     1030. 74({{battle_bg}})
     1040. 53({{boss_formation_index}})
     1050. 6A(FF-@1080)

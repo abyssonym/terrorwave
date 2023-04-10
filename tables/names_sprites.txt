@@ -223,7 +223,7 @@ Blue Jelly
 Green Jelly
 Yellow Flower
 Purple Flytrap
-Blue Zombie
+Ghoul
 Gold Golem
 Magma Golem
 Sand Golem
