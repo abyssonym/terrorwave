@@ -8,8 +8,7 @@
 :       ad 06 0a
 :       c9 2b
 :       d0 not_a_dragon_egg
-:       ad 4f 15
-:       0a 0a
+:       a9 20
 :       8d 4f 15
 .label not_a_dragon_egg
 :       da
