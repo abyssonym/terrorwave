@@ -1253,6 +1253,12 @@ class IPAttackObject(TableObject):
         self.name = name.decode('ascii')
 
 
+class CapAttackObject(TableObject):
+    def cleanup(self):
+        if self.animation in IPAttackObject.BANNED_ANIMATIONS:
+            self.animation = IPAttackObject.BANNED_ANIMATIONS[self.animation]
+
+
 class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
     flag = 'i'
     flag_description = 'items and equipment'
