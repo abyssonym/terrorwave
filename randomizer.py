@@ -4771,6 +4771,39 @@ class OpenNPCGenerator:
         patch_game_script(crown_script, warn_double_import=False)
 
     @staticmethod
+    def create_prince(location):
+        event_flag = OpenNPCGenerator.available_flags.pop()
+        location = OpenNPCGenerator.boss_location_properties[location]
+        map_bgm = location.map_bgm
+        map_index = location.map_index
+        x = location.npc_x
+        y = location.npc_y
+        location = '{0}:{1},{2}'.format(map_index, x, y)
+        map_index = int(map_index, 0x10)
+        script = MapEventObject.get_script_by_signature(
+            '{0:0>2X}-X-XX'.format(map_index))
+        min_line = script.script[0][0]
+        map_meta = MapMetaObject.get(map_index)
+        npc_index = map_meta.get_next_npc_index()
+        map_npc_index = npc_index + 0x4f
+        sprite = 0x14
+        new_command = (min_line-1, 0x68, [map_npc_index, sprite])
+        script.script.insert(0, new_command)
+        addr = MapEventObject.Script.Address(min_line, is_local=True)
+        new_command = (min_line-2, 0x15, [event_flag, addr])
+        script.script.insert(0, new_command)
+        script.realign_addresses()
+
+        parameters = {'event_flag': event_flag,
+                      'location': location,
+                      'map_bgm': map_bgm,
+                      'map_index': map_index,
+                      'map_npc_index': map_npc_index,
+                      'npc_index': npc_index,
+                      }
+        patch_with_template('prince', parameters)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None,
                         parameters=None):
         OpenNPCGenerator.done_locations.add(location)
@@ -6295,7 +6328,7 @@ def make_open_world(custom=None):
 
     for location in sorted(OpenNPCGenerator.boss_location_properties):
         if location not in OpenNPCGenerator.done_locations:
-            OpenNPCGenerator.create_crown(location)
+            OpenNPCGenerator.create_prince(location)
 
     if 'monstermash' in get_activated_codes():
         replace_map_formations(ir.location_ranks)

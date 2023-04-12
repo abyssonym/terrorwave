@@ -1,0 +1,24 @@
+!npc {{npc_index}} (00) {{location}}
+EVENT {{map_index}}-C-{{map_npc_index}}
+0000. 15({{event_flag}}-@1000)
+0010. 08: Sorry, chap. Looks
+          like I got here first.
+          I'll let you have
+          this egg, though.<END MESSAGE>
+0020. 1A({{event_flag}})
+0030. 4B(33)
+0040. 8C(00-0A-12)
+0050. 86(00-40)
+0060. 49(C8)
+0070. 9E: <POSITION 02>Gets the
+          Dragon Egg.<END MESSAGE>
+0080. 89(00)
+0090. 49(00)
+00A0. 20(2B-01)
+00B0. 70()
+00C0. 4B({{map_bgm}})
+00D0. 00()
+1000. 08: That's all the
+          time I have for
+          you. Move along,
+          now.<END EVENT>
