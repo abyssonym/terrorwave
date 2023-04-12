@@ -1,8 +1,9 @@
 .def breakable bomb|hammer
 .def useless_keys door_key&shrine_key
 .def all_keys sky_key&lake_key&ruby_key&wind_key&cloud_key&light_key&sword_key&tree_key&flower_key&magma_key&heart_key&ghost_key&trial_key&dankirk_key&basement_key&narcysus_key&truth_key&mermaid_jade
-.def all_tools bomb&hook&hammer&fire_arrow
+.def all_tools arrow&bomb&hook&hammer&fire_arrow
 .def all_tools_or_keys all_tools|all_keys
+.def arrowlike arrow|hook|fire_arrow
 
 .def all_capsules jelze&flash&gusto&zeppy&darbi&sully&blaze
 .def some_capsules jelze|flash|gusto|zeppy|darbi|sully|blaze
@@ -14,7 +15,9 @@
 .def group3_some maxim|artea|lexis
 .def group3_all maxim&artea&lexis
 
-.def party0 group1_some|group2_some|group3_some
+.def any_tool arrow|bomb|hook|hammer|fire_arrow
+.def any_character maxim|selan|guy|artea|tia|dekar|lexis
+.def party0 any_tool&any_character
 
 .def party1a group1_all|group2_all
 .def party1b group1_some&group2_some
@@ -48,13 +51,14 @@
 
 starting_character  *
 starting_item       *
-skill_cave          party0
+hidden_item         *
+skill_cave          arrowlike&party0
 foomy_woods         party0
 darbi_shrine        party0
 zeppy_cave          submarine&party0
 sundletan_cave      party0
-catfish_cave        lake_key&party0
-alunze_cave         party0
+catfish_cave        arrowlike&lake_key&party0
+alunze_cave         breakable&party0
 alunze_basement     breakable&party0
 tanbel_tower1       bomb&sky_key&party1
 tanbel_tower2       bomb&sky_key&party1

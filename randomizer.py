@@ -6144,7 +6144,7 @@ def make_open_world(custom=None):
         else:
             meo.change_escapability(make_escapable=True)
 
-    NOBOSS_LOCATIONS = {'starting_character', 'starting_item'}
+    NOBOSS_LOCATIONS = {'starting_character', 'starting_item', 'hidden_item'}
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                     path.join(tblpath, 'restrictions.txt'))
@@ -6160,8 +6160,6 @@ def make_open_world(custom=None):
             custom_assignments[location] = item
         ir.set_custom_assignments(custom_assignments)
     ir.assign_everything()
-    if 'starting_item' not in ir.assignments:
-        ir.assignments['starting_item'] = 'dragon_egg'
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
     make_spoiler(ir)
@@ -6173,6 +6171,9 @@ def make_open_world(custom=None):
     index = int(starting_item.item_index, 0x10)
     assigned_item_indexes.append(index)
     starting_item = OpenNPCGenerator.set_appropriate_item_icon(starting_item)
+    f = get_open_file(get_outfile())
+    f.seek(addresses.starting_tool)
+    f.write(index.to_bytes(length=2, byteorder='little'))
 
     name = ir.assignments['starting_character']
     starting_character = OpenNPCGenerator.get_properties_by_name(name)
@@ -6300,12 +6301,23 @@ def make_open_world(custom=None):
     final_boss = location_bosses['daos_shrine']
     parameters['final_boss_sprite_index'] = final_boss.guess_sprite()
 
+    if 'hidden_item' in ir.assignments:
+        item = ir.assignments['hidden_item']
+        item_properties = OpenNPCGenerator.get_properties_by_name(item)
+        item_index = int(item_properties.item_index, 0x10)
+        command = '0FFF. 2{0}({1:0>2X}-01)\n'.format(item_index >> 8,
+                                                     item_index & 0xFF)
+        parameters['hidden_item'] = command
+    else:
+        parameters['hidden_item'] = ''
+
     # Apply base patches BEFORE procedural modifications
     patch_with_template('open_world_events', parameters)
 
     boss_events = []
     assert len(sorted_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
+        assert location not in NOBOSS_LOCATIONS
         reward1, reward2 = None, None
         if location in ir.assignments:
             reward1 = ir.assignments[location]

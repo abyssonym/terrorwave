@@ -3,7 +3,8 @@
 .def capsules jelze,flash,gusto,zeppy,darbi,sully,blaze
 
 starting_character  tia,guy,selan,dekar
-starting_item       keys
+starting_item       arrow,bomb,hammer
+hidden_item         nothing
 tanbel_tower1       keys
 tsword_shrine1      keys
 gordovan_tower1     keys

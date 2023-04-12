@@ -366,6 +366,8 @@ EVENT A2-B-0A
 0400. 22(0BB8)
 0410. 21(AD-01)
 0420. 21(AE-01)
+0430. 25(A9-01)
+{{hidden_item}}
 {{starting_item_reward_event}}
 7FE0. 4B(1F)
 7FF0. 1A(0A)

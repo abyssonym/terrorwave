@@ -35,6 +35,7 @@ MapMetaObject       struct_3pointer.txt         27fcbc  242
 $capsule_end        beead
 $rng1               63
 $rng2               2f4
+$starting_tool      2b2ca
 $credits            89aff
 $credits_pointer1   73449
 $credits_pointer2   73496

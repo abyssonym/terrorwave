@@ -7,7 +7,7 @@ zeppy_cave,ef,0a,07,0f,14
 sundletan_cave,07,21,10,0c,17
 catfish_cave,0c,09,0f,0f,17
 alunze_basement,14,0a,1c,09,08
-alunze_cave,1b,3c,10,09,17
+alunze_cave,1b,3f,06,09,17
 tanbel_tower,24,11,08,0a,3a
 ruby_cave,2a,18,0d,14,17
 ruby_capsule,27,15,19,12,17
