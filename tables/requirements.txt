@@ -56,8 +56,8 @@ sundletan_cave      party0
 catfish_cave        lake_key&party0
 alunze_cave         party0
 alunze_basement     breakable&party0
-tanbel_tower1       bomb&hook&sky_key&party1
-tanbel_tower2       bomb&hook&sky_key&party1
+tanbel_tower1       bomb&sky_key&party1
+tanbel_tower2       bomb&sky_key&party1
 ruby_cave           ruby_key&party1
 ruby_capsule        breakable&party0
 tsword_shrine1      bomb&sword_key&party2
