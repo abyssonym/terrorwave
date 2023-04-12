@@ -6,12 +6,6 @@ EVENT {{map_index}}-X-XX
     {{old_event}}
 
 EVENT {{map_index}}-C-{{npc_event_index}}
-    0000. 9E: <POSITION 02>This is the final showdown.
-              Are you ready?<END MESSAGE>
-    0010. 10(02-@7FFF-@1020)
-    0020. 08: No.
-              Yes.<CHOICE>
-    0030. 1C(@7FFF)
     1020. 4B(1C)
     1030. 74({{battle_bg}})
     1040. 53({{boss_formation_index}})
