@@ -1,3 +1,17 @@
+VERSION 3.10
+-Added a key shop in Agurio. The rate is three dragon eggs for one key.
+-Randomized the starting tool.
+-Capsule monsters get a free bonus strike when tagging in.
+-Fixed the capsule tag-out experience point calculation.
+-Wall breaking is now required to access the boss in Alunze Cave, for consistency with vanilla.
+-Filled all empty checks.
+-Dragon eggs always fill the hunger bar by half, regardless of capsule class.
+-Fixed the brief palette errors when swapping capsule monsters.
+-Fixed a mistake in the routing logic; it was assumed that hook is needed for Tanbel Tower.
+-Changed the animation of "Frog Song", which would crash the game when used on large formations.
+-Final boss no longer asks if you are ready.
+-Iris items can be found in the treasure sword chest again.
+
 VERSION 3.9
 -Multiple capsule monsters can be used in one battle. Experimental; use the code `nocap` to disable this feature.
 -Iris items increase the rate of feeding capsule monsters.
