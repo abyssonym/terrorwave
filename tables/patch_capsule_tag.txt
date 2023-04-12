@@ -18,6 +18,7 @@
 # calculate and set capsule stats
 017ff0: 20 70 d2
 :       20 f8 c3
+:       20 52 ce
 :       6b
 
 3ec6a0: 7d 11 00
