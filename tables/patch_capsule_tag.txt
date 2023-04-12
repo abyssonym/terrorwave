@@ -212,6 +212,7 @@
 :       a9 00 08
 :       99 8f 1a
 :       e2 20
+:       22 af b9 81
 
 # bonus attack
 :       a9 10
