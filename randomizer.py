@@ -5414,7 +5414,7 @@ def generate_thieves(iris_item):
     trade_quantity_item = '{0}x {1}'.format(second_exchange_quantity,
                                             second_exchange_item.name)
     if trade_quantity_item.endswith('.'):
-        trade_quantity_item = trade_quantity_items[:-1]
+        trade_quantity_item = trade_quantity_item[:-1]
     parameters = {
         'signature': thief2,
         'exchange_item_name': iris_exchange_item.name.rstrip('.'),
