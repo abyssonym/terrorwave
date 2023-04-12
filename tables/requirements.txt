@@ -73,8 +73,8 @@ north_dungeon       hook&bomb&party2
 north_capsule       hook&party2
 ancient_tower1      hook&bomb&cloud_key&party2
 ancient_tower2      hook&bomb&cloud_key&party2
-lighthouse1         breakable&light_key&party2
-lighthouse2         breakable&light_key&party2
+lighthouse1         light_key&party2
+lighthouse2         light_key&party2
 phantom_mountain    hook&bomb&fire_arrow&tree_key&party2
 sacrifice_tower1    hook&bomb&narcysus_key&party2
 sacrifice_tower2    hook&bomb&narcysus_key&party2
