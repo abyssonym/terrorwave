@@ -213,6 +213,13 @@
 :       99 8f 1a
 :       e2 20
 
+# bonus attack
+:       a9 10
+:       92 d5
+:       c6 d5
+:       c6 d5
+:       c6 d5
+
 # return
 :       22 8c 94 85
 :       6b
