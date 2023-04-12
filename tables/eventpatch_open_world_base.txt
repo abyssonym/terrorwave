@@ -232,6 +232,299 @@ EVENT 90-D-04
 EVENT 90-D-05
 0000. 00()
 
+!npc 0f (00) 9a:1a,0d
+EVENT 9A-X-XX
+0000. 69(90)                         # Set Map Properties (escapable, etc.)
+0002. 4B(11)                         # Play BGM
+0010. 68(5E-37)
+7FFF. 00()                           # End Event
+
+EVENT 9A-C-5E
+0800. 08: You want keys? I
+          got keys. Three eggs,
+          any key you want.
+          Interested?<END MESSAGE>
+0810. 10(02-@900-@6200)
+0820. 08: I'm interested.
+          Nope.<CHOICE>
+0830. 1C(@6200)
+0900. 14(C2-002B-0003-30-@6300-FF)
+0910. 08: Great. Go ahead
+          and pick your
+          favorite key
+          from the list.<END MESSAGE>
+0920. 10(04-@1000-@2000-@3000-@4000)
+0930. 08: Dungeon keys
+          Mountain keys
+          Shrine keys
+          Tower keys<CHOICE>
+0940. 1C(@6200)
+1000. 10(04-@1100-@1200-@1300-@1030)
+1010. 08: Ancient key
+          Basement key
+          Dankirk key
+          Next page<CHOICE>
+1020. 1C(@6200)
+1030. 10(02-@1400-@1500)
+1040. 08: Lake key
+          Ruby key<CHOICE>
+1050. 1C(@6200)
+1100. 14(C2-01C2-0001-20-@6000-FF)
+1110. 21(C2-01)
+1120. 24(2B-03)
+1130. 08: You got it. Here's
+          your Ancient key.<END MESSAGE>
+1140. 4B(33)
+1150. 8C(00-0A-08)
+1160. 86(00-40)
+1170. 49(C8)
+1180. 9E: <POSITION 02>Gets the
+          Ancient key.<END MESSAGE>
+1190. 1C(@6100)
+1200. 14(C2-01BD-0001-20-@6000-FF)
+1210. 21(BD-01)
+1220. 24(2B-03)
+1230. 08: You got it. Here's
+          your Basement key.<END MESSAGE>
+1240. 4B(33)
+1250. 8C(00-0A-08)
+1260. 86(00-40)
+1270. 49(C8)
+1280. 9E: <POSITION 02>Gets the
+          Basement key.<END MESSAGE>
+1290. 1C(@6100)
+1300. 14(C2-01BC-0001-20-@6000-FF)
+1310. 21(BC-01)
+1320. 24(2B-03)
+1330. 08: You got it. Here's
+          your Dankirk key.<END MESSAGE>
+1340. 4B(33)
+1350. 8C(00-0A-08)
+1360. 86(00-40)
+1370. 49(C8)
+1380. 9E: <POSITION 02>Gets the
+          Dankirk key.<END MESSAGE>
+1390. 1C(@6100)
+1400. 14(C2-01B0-0001-20-@6000-FF)
+1410. 21(B0-01)
+1420. 24(2B-03)
+1430. 08: You got it. Here's
+          your Lake key.<END MESSAGE>
+1440. 4B(33)
+1450. 8C(00-0A-08)
+1460. 86(00-40)
+1470. 49(C8)
+1480. 9E: <POSITION 02>Gets the
+          Lake key.<END MESSAGE>
+1490. 1C(@6100)
+1500. 14(C2-01B1-0001-20-@6000-FF)
+1510. 21(B1-01)
+1520. 24(2B-03)
+1530. 08: You got it. Here's
+          your Ruby key.<END MESSAGE>
+1540. 4B(33)
+1550. 8C(00-0A-08)
+1560. 86(00-40)
+1570. 49(C8)
+1580. 9E: <POSITION 02>Gets the
+          Ruby key.<END MESSAGE>
+1590. 1C(@6100)
+2000. 10(03-@2100-@2200-@2300)
+2010. 08: Flower key
+          Magma key
+          Tree key<CHOICE>
+2020. 1C(@6200)
+2100. 14(C2-01B7-0001-20-@6000-FF)
+2110. 21(B7-01)
+2120. 24(2B-03)
+2130. 08: You got it. Here's
+          your Flower key.<END MESSAGE>
+2140. 4B(33)
+2150. 8C(00-0A-08)
+2160. 86(00-40)
+2170. 49(C8)
+2180. 9E: <POSITION 02>Gets the
+          Flower key.<END MESSAGE>
+2190. 1C(@6100)
+2200. 14(C2-01B8-0001-20-@6000-FF)
+2210. 21(B8-01)
+2220. 24(2B-03)
+2230. 08: You got it. Here's
+          your Magma key.<END MESSAGE>
+2240. 4B(33)
+2250. 8C(00-0A-08)
+2260. 86(00-40)
+2270. 49(C8)
+2280. 9E: <POSITION 02>Gets the
+          Magma key.<END MESSAGE>
+2290. 1C(@6100)
+2300. 14(C2-01B6-0001-20-@6000-FF)
+2310. 21(B6-01)
+2320. 24(2B-03)
+2330. 08: You got it. Here's
+          your Tree key.<END MESSAGE>
+2340. 4B(33)
+2350. 8C(00-0A-08)
+2360. 86(00-40)
+2370. 49(C8)
+2380. 9E: <POSITION 02>Gets the
+          Tree key.<END MESSAGE>
+2390. 1C(@6100)
+3000. 10(03-@3100-@3200-@3300)
+3010. 08: Ghost key
+          Heart key
+          Sword key<CHOICE>
+3020. 1C(@6200)
+3100. 14(C2-01BA-0001-20-@6000-FF)
+3110. 21(BA-01)
+3120. 24(2B-03)
+3130. 08: You got it. Here's
+          your Ghost key.<END MESSAGE>
+3140. 4B(33)
+3150. 8C(00-0A-08)
+3160. 86(00-40)
+3170. 49(C8)
+3180. 9E: <POSITION 02>Gets the
+          Ghost key.<END MESSAGE>
+3190. 1C(@6100)
+3200. 14(C2-01B9-0001-20-@6000-FF)
+3210. 21(B9-01)
+3220. 24(2B-03)
+3230. 08: You got it. Here's
+          your Heart key.<END MESSAGE>
+3240. 4B(33)
+3250. 8C(00-0A-08)
+3260. 86(00-40)
+3270. 49(C8)
+3280. 9E: <POSITION 02>Gets the
+          Heart key.<END MESSAGE>
+3290. 1C(@6100)
+3300. 14(C2-01B5-0001-20-@6000-FF)
+3310. 21(B5-01)
+3320. 24(2B-03)
+3330. 08: You got it. Here's
+          your Sword key.<END MESSAGE>
+3340. 4B(33)
+3350. 8C(00-0A-08)
+3360. 86(00-40)
+3370. 49(C8)
+3380. 9E: <POSITION 02>Gets the
+          Sword key.<END MESSAGE>
+3390. 1C(@6100)
+4000. 10(04-@4100-@4200-@4300-@4030)
+4010. 08: Cloud key
+          Light key
+          Narcysus key
+          Next page<CHOICE>
+4020. 1C(@6200)
+4030. 10(04-@4400-@4500-@4600-@4700)
+4040. 08: Sky key
+          Trial key
+          Truth key
+          Wind key<CHOICE>
+4050. 1C(@6200)
+4100. 14(C2-01B3-0001-20-@6000-FF)
+4110. 21(B3-01)
+4120. 24(2B-03)
+4130. 08: You got it. Here's
+          your Cloud key.<END MESSAGE>
+4140. 4B(33)
+4150. 8C(00-0A-08)
+4160. 86(00-40)
+4170. 49(C8)
+4180. 9E: <POSITION 02>Gets the
+          Cloud key.<END MESSAGE>
+4190. 1C(@6100)
+4200. 14(C2-01B4-0001-20-@6000-FF)
+4210. 21(B4-01)
+4220. 24(2B-03)
+4230. 08: You got it. Here's
+          your Light key.<END MESSAGE>
+4240. 4B(33)
+4250. 8C(00-0A-08)
+4260. 86(00-40)
+4270. 49(C8)
+4280. 9E: <POSITION 02>Gets the
+          Light key.<END MESSAGE>
+4290. 1C(@6100)
+4300. 14(C2-01BE-0001-20-@6000-FF)
+4310. 21(BE-01)
+4320. 24(2B-03)
+4330. 08: You got it. Here's
+          your Narcysus key.<END MESSAGE>
+4340. 4B(33)
+4350. 8C(00-0A-08)
+4360. 86(00-40)
+4370. 49(C8)
+4380. 9E: <POSITION 02>Gets the
+          Narcysus key.<END MESSAGE>
+4390. 1C(@6100)
+4400. 14(C2-01AF-0001-20-@6000-FF)
+4410. 21(AF-01)
+4420. 24(2B-03)
+4430. 08: You got it. Here's
+          your Sky key.<END MESSAGE>
+4440. 4B(33)
+4450. 8C(00-0A-08)
+4460. 86(00-40)
+4470. 49(C8)
+4480. 9E: <POSITION 02>Gets the
+          Sky key.<END MESSAGE>
+4490. 1C(@6100)
+4500. 14(C2-01BB-0001-20-@6000-FF)
+4510. 21(BB-01)
+4520. 24(2B-03)
+4530. 08: You got it. Here's
+          your Trial key.<END MESSAGE>
+4540. 4B(33)
+4550. 8C(00-0A-08)
+4560. 86(00-40)
+4570. 49(C8)
+4580. 9E: <POSITION 02>Gets the
+          Trial key.<END MESSAGE>
+4590. 1C(@6100)
+4600. 14(C2-01BF-0001-20-@6000-FF)
+4610. 21(BF-01)
+4620. 24(2B-03)
+4630. 08: You got it. Here's
+          your Truth key.<END MESSAGE>
+4640. 4B(33)
+4650. 8C(00-0A-08)
+4660. 86(00-40)
+4670. 49(C8)
+4680. 9E: <POSITION 02>Gets the
+          Truth key.<END MESSAGE>
+4690. 1C(@6100)
+4700. 14(C2-01B2-0001-20-@6000-FF)
+4710. 21(B2-01)
+4720. 24(2B-03)
+4730. 08: You got it. Here's
+          your Wind key.<END MESSAGE>
+4740. 4B(33)
+4750. 8C(00-0A-08)
+4760. 86(00-40)
+4770. 49(C8)
+4780. 9E: <POSITION 02>Gets the
+          Wind key.<END MESSAGE>
+4790. 1C(@6100)
+6000. 08: Hey, don't you already
+          have this key? Don't
+          ever say I ain't never
+          lookin' out for ya.<END EVENT>
+6100. 89(00)
+6110. 49(00)
+6120. 4B(11)                         # Play BGM
+6130. 00()
+6200. 08: Sure, sure. You
+          ever need keys, you
+          you know where to
+          find me.<END EVENT>
+6300. 08: You need three eggs,
+          pal. Count 'em,<PAUSE 82> one,<PAUSE 82>
+          two,<PAUSE 82> THREE.<PAUSE 82> Get outta
+          my sight.<END EVENT>
+7FFF. 00()
+
 EVENT 9F-C-50
     0000. 14(12-08-04-20-@1F1-FF)        # If Variable 08 ($07a6) >= 4 then jump to @1F1
     0008. AB(08)                         # Check Dragon Eggs Obtained

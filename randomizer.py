@@ -6384,6 +6384,104 @@ ALL_OBJECTS = [g for g in globals().values()
                and g not in [TableObject]]
 
 
+def key_shop():
+    tower = {'sky', 'wind', 'cloud', 'light', 'trial', 'truth', 'narcysus'}
+    shrine = {'sword', 'heart', 'ghost'}
+    dungeon = {'lake', 'ruby', 'dankirk', 'basement', 'ancient'}
+    mountain = {'magma', 'flower', 'tree'}
+
+    keys = lange(0x1af, 0x1c0) + [0x1c2]
+    keys = [ItemObject.get(key) for key in keys]
+    keys = sorted(keys, key=lambda k: k.name)
+
+    tower_keys = [k for k in keys if k.name.lower().split()[0] in tower]
+    shrine_keys = [k for k in keys if k.name.lower().split()[0] in shrine]
+    dungeon_keys = [k for k in keys if k.name.lower().split()[0] in dungeon]
+    mountain_keys = [k for k in keys if k.name.lower().split()[0] in mountain]
+    assert len(tower_keys) == len(tower)
+    assert len(shrine_keys) == len(shrine)
+    assert len(dungeon_keys) == len(dungeon)
+    assert len(mountain_keys) == len(mountain)
+
+    keydict = {
+        'tower': tower_keys,
+        'shrine': shrine_keys,
+        'dungeon': dungeon_keys,
+        'mountain': mountain_keys,
+        }
+
+    s = ''
+    for i, location in enumerate(['dungeon', 'mountain', 'shrine', 'tower']):
+        line_number = (i+1)*0x1000
+        keys = keydict[location]
+        key_lines = {key: line_number + ((k+1) * 0x100) for (k, key) in enumerate(keys)}
+        page_keys = sorted(keys, key=lambda k: k.name)
+        while len(page_keys) > 0:
+            if len(page_keys) <= 4:
+                my_page = page_keys
+                page_keys = []
+            else:
+                my_page = page_keys[:3]
+                page_keys = page_keys[3:]
+            addresses = [key_lines[key] for key in my_page]
+            if page_keys:
+                next_page_line = line_number + 0x30
+                addresses.append(next_page_line)
+                s += '{0:0>4X}. 10({1:0>2X}'.format(line_number, len(addresses))
+                for addr in addresses:
+                    s += '-@{0:X}'.format(addr)
+                s += ')\n'
+                line_number += 0x10
+                s += '{0:0>4X}. 08: '.format(line_number)
+                for key in my_page:
+                    s += '{0}\n'.format(key.name)
+                s += 'Next page<CHOICE>\n'
+                line_number += 0x10
+            else:
+                s += '{0:0>4X}. 10({1:0>2X}'.format(line_number, len(addresses))
+                for addr in addresses:
+                    s += '-@{0:X}'.format(addr)
+                s += ')\n'
+                line_number += 0x10
+                s += '{0:0>4X}. 08: '.format(line_number)
+                for key in my_page:
+                    s += '{0}\n'.format(key.name)
+                s = s.rstrip('\n') + '<CHOICE>\n'
+                line_number += 0x10
+            s += '{0:0>4X}. 1C(@MENU_CANCEL)\n'.format(line_number)
+            line_number += 0x10
+        for key in keys:
+            line_number = key_lines[key]
+            key_index = key.index
+            s += '{0:0>4X}. 14(C2-{1:0>4X}-0001-20-@ALREADY_HAVE-FF)\n'.format(
+                line_number, key_index)
+            line_number += 0x10
+            s += '{0:0>4X}. 21({1:0>2X}-01)\n'.format(line_number, key_index & 0xFF)
+            line_number += 0x10
+            s += '{0:0>4X}. 24(2B-03)\n'.format(line_number)
+            line_number += 0x10
+            s += ("{0:0>4X}. 08: You got it. Here's\n"
+                                "your {1}.<END MESSAGE>\n").format(line_number, key.name)
+            line_number += 0x10
+            s += '{0:0>4X}. '.format(line_number)
+            s += '4B(33)\n'
+            line_number += 0x10
+            s += '{0:0>4X}. '.format(line_number)
+            s += '8C(01-0A-08)\n'
+            line_number += 0x10
+            s += '{0:0>4X}. '.format(line_number)
+            s += '86(00-40)\n'
+            line_number += 0x10
+            s += '{0:0>4X}. '.format(line_number)
+            s += '49(C8)\n'
+            line_number += 0x10
+            s += '{0:0>4X}. '.format(line_number)
+            s += '9E: <POSITION 02>Gets the\n{0}.<END MESSAGE>\n'.format(key.name)
+            line_number += 0x10
+            s += '{0:0>4X}. 1C(@FINISH_BUY_KEY)\n'.format(line_number)
+    return s
+
+
 if __name__ == '__main__':
     try:
         print ('You are using the Lufia II '
