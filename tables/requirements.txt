@@ -96,7 +96,7 @@ truth_tower1        breakable&hook&truth_key&party2
 truth_tower2        breakable&hook&truth_key&party2
 dragon_mountain     submarine_or_airship&hook&hammer&fire_arrow&magma_key&party2
 underwater_shrine   submarine&party0
-gratze_basement     gratze&breakable&hook&basement_key&party2
+gratze_basement     gratze&hook&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
