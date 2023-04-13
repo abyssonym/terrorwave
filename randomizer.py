@@ -4554,9 +4554,9 @@ class OpenNPCGenerator:
 
         offer_messages = {
             'gold': '...you give me all\nof your gold',
-            'consumables': '...you give me all of\nyour consumable items',
-            'equipment': '...you give me all of\nyour spare equipment',
-            'capsules': '...you give me all of\nyour capsule monsters',
+            'consumables': '...you give\nme all of your\nconsumable items',
+            'equipment': '...you give\nme all of your\nspare equipment',
+            'capsules': '...you give\nme all of your\ncapsule monsters',
             }
 
         def generate_offer_message(offer, terminator='.'):
