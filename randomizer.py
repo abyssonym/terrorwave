@@ -4810,6 +4810,17 @@ class OpenNPCGenerator:
         patch_with_template('prince', parameters)
 
     @staticmethod
+    def create_vip_prince(iris_item):
+        iris_item = ItemObject.get(iris_item)
+        remove_item_command = '25({0:0>2X}-01)'.format(iris_item.index & 0xFF)
+        parameters = {
+            'iris_item_index': iris_item.index,
+            'iris_item_name': iris_item.name,
+            'remove_item_command': remove_item_command,
+            }
+        patch_with_template('vip_prince', parameters)
+
+    @staticmethod
     def create_boss_npc(location, boss, reward1=None, reward2=None,
                         parameters=None):
         OpenNPCGenerator.done_locations.add(location)
@@ -6381,6 +6392,7 @@ def make_open_world(custom=None):
         chest.set_item(item)
 
     thieves = generate_thieves(iris_thief_item)
+    OpenNPCGenerator.create_vip_prince(iris_thief_item)
 
     iris_iris = (iris_shop_item, iris_shop)
     wild_jelly_map = make_wild_jelly(jelly_flag)

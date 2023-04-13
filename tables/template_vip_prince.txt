@@ -1,0 +1,94 @@
+!npc 1f (00) 87:07,1f
+
+EVENT 87-X-XX  # $3a1fe:3a1fe
+0000. 69(08)                         # Set Map Properties (escapable, etc.)
+0002. 69(98)                         # Set Map Properties (escapable, etc.)
+0004. 4B(22)                         # Play BGM
+0006. 68(50-1C)                      # Load NPC (1c,05) 50: 1c Brown Woman
+0009. 68(51-1C)                      # Load NPC (1a,05) 51: 1c Brown Woman
+000C. 68(52-58)                      # Load NPC (06,05) 52: 58 Formal Blue Dude
+000F. 68(53-58)                      # Load NPC (11,0c) 53: 58 Formal Blue Dude
+0012. 68(54-1C)                      # Load NPC (03,0e) 54: 1c Brown Woman
+0015. 68(55-1C)                      # Load NPC (13,08) 55: 1c Brown Woman
+0018. 68(56-10)                      # Load NPC (04,09) 56: 10 Bald Old Man
+001B. 68(57-58)                      # Load NPC (0a,0c) 57: 58 Formal Blue Dude
+001E. 68(58-0C)                      # Load NPC (06,11) 58: 0c Blue Man
+0021. 68(59-58)                      # Load NPC (1d,1b) 59: 58 Formal Blue Dude
+0024. 68(5A-17)                      # Load NPC (10,0e) 5a: 17 Maid
+0027. 68(5B-11)                      # Load NPC (13,11) 5b: 11 Gray Old Woman
+002A. 68(5C-1A)                      # Load NPC (0e,06) 5c: 1a Sailor
+002D. 68(5D-1C)                      # Load NPC (1b,1b) 5d: 1c Brown Woman
+0030. 68(5E-58)                      # Load NPC (12,1f) 5e: 58 Formal Blue Dude
+0033. 68(63-58)                      # Load NPC (0d,1e) 63: 58 Formal Blue Dude
+0036. 68(64-12)                      # Load NPC (0b,20) 64: 12 King
+0039. 68(65-13)                      # Load NPC (0d,22) 65: 13 Queen
+003C. 68(66-15)                      # Load NPC (0f,20) 66: 15 Princess
+003F. 68(67-1C)                      # Load NPC (0d,0b) 67: 1c Brown Woman
+0042. 68(68-1C)                      # Load NPC (13,0d) 68: 1c Brown Woman
+0045. 68(69-35)                      # Load NPC (0c,0f) 69: 35 Elf Woman
+0048. 68(6A-58)                      # Load NPC (07,0e) 6a: 58 Formal Blue Dude
+004B. 68(6B-58)                      # Load NPC (05,0e) 6b: 58 Formal Blue Dude
+0100. 68(6E-14)
+7FFF. 00()                           # End Event
+
+EVENT 87-C-6E
+1000. 14(C2-{{iris_item_index}}-0001-30-@7000-FF)
+1010. 08: You have it! The
+          {{iris_item_name}}! Will you
+          sell it to me for
+          two million gold?<END MESSAGE>
+1020. 10(02-@1100-@1800)
+1030. 08: No.
+          Yes.<CHOICE>
+1100. 08: Bah. It's probably
+          fake, anyway.<END EVENT>
+1800. {{remove_item_command}}
+1810. 22(C350)
+1820. 22(C350)
+1830. 22(C350)
+1840. 22(C350)
+1850. 22(C350)
+1860. 22(C350)
+1870. 22(C350)
+1880. 22(C350)
+1890. 22(C350)
+18A0. 22(C350)
+18B0. 22(C350)
+18C0. 22(C350)
+18D0. 22(C350)
+18E0. 22(C350)
+18F0. 22(C350)
+1900. 22(C350)
+1910. 22(C350)
+1920. 22(C350)
+1930. 22(C350)
+1940. 22(C350)
+2810. 22(C350)
+2820. 22(C350)
+2830. 22(C350)
+2840. 22(C350)
+2850. 22(C350)
+2860. 22(C350)
+2870. 22(C350)
+2880. 22(C350)
+2890. 22(C350)
+28A0. 22(C350)
+28B0. 22(C350)
+28C0. 22(C350)
+28D0. 22(C350)
+28E0. 22(C350)
+28F0. 22(C350)
+2900. 22(C350)
+2910. 22(C350)
+2920. 22(C350)
+2930. 22(C350)
+2940. 22(C350)
+6F00. 08: Superb! Here you
+          are, two million gold!<END EVENT>
+7000. 08: In all my travels,
+          I could not find the
+          coveted {{iris_item_name}}.<END MESSAGE>
+7010. 08: Should you bring
+          it to me, I will
+          pay you handsomely
+          for it.<END EVENT>
