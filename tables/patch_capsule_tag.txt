@@ -7,8 +7,8 @@
 # escape (routine shared with enemy monsters)
 00abe5: 22 00 c7 fd
 
-# take a hit
-02d4db: 5c a0 c6 fd
+# death routine (shared with enemy monsters)
+2d6ac: 22 60 c6 fd
 
 # prep sprite for vram update
 00ff00:
@@ -21,22 +21,23 @@
 :       20 52 ce
 :       6b
 
-3ec6a0: 7d 11 00
-:       90 death
-:       c9 00 00
-:       d0 no_death
-.label death
+3ec660: 22 f0 d9 85
 :       e0 df 10
-:       f0 capsule_survives
-:       5c e0 d4 85
-.label no_death
-:       5c e9 d4 85
-.label capsule_survives
+:       f0 capsule_survives_death
+:       6b
+.label capsule_survives_death
+:       20 80 c6
+# reset death bit
+:       ad ee 10
+:       29 fb
+:       8d ee 10
+:       6b
+
 # move capsule up in turn order
+3ec680: 08
 :       da
 :       a6 d5
 :       e2 20
-
 .label find_capsule_loop
 :       bd 00 00
 :       c9 10
@@ -65,7 +66,8 @@
 # set hp to zero
 :       a9 00 00
 :       9d 11 00
-:       5c 08 d5 85
+:       28
+:       60
 
 # DROP STACK function
 3ec600: da
@@ -234,7 +236,10 @@ VALIDATION
 00a80e: 22 a3 b1 81
 00abe5: 22 8c 94 85
 02d4db: 7d 11 00
-        b0 09
+:       b0 09
+02d699: a9 04
+:       9d 0f 00
+02d6ac: 22 f0 d9 85
 
 00ff00: aa 8a a8 aa
 017ff0: aa ae aa a8
