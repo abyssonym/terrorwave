@@ -6153,7 +6153,8 @@ def make_open_world(custom=None):
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item', 'hidden_item'}
     MapEventObject.class_reseed('item_route')
     ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
-                    path.join(tblpath, 'restrictions.txt'))
+                    path.join(tblpath, 'restrictions.txt'),
+                    linearity=0, prioritize_restrictions=True)
     if custom is not None:
         custom_assignments = {}
         for line in read_lines_nocomment(custom):
@@ -6529,6 +6530,34 @@ def key_shop():
             line_number += 0x10
             s += '{0:0>4X}. 1C(@FINISH_BUY_KEY)\n'.format(line_number)
     return s
+
+
+def run_trials():
+    LOGFILE = 'trial_log.txt'
+    NUM_TRIALS = 1000
+    victory_set = {'lisa', 'marie', 'clare', 'engine'}
+    linearity = 0
+    for n in range(NUM_TRIALS):
+        MapEventObject.class_reseed('trial%s-%s' % (linearity, n+4000))
+        ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
+                        path.join(tblpath, 'restrictions.txt'),
+                        linearity=linearity, prioritize_restrictions=True,
+                        silent=True)
+        ir.assign_everything()
+        assert 'daos_shrine' not in ir.assignments
+        ir.assignments['daos_shrine'] = 'victory'
+        items = set()
+        for rank in sorted(ir.location_ranks):
+            locations = ir.location_ranks[rank]
+            for loc in sorted(locations):
+                if loc in ir.assignments:
+                    items.add(ir.assignments[loc])
+            if items >= victory_set:
+                break
+        with open(LOGFILE, 'a+') as f:
+            s = '%s %s %s\n' % (linearity, rank, max(ir.location_ranks))
+            f.write(s)
+        print(s.strip())
 
 
 if __name__ == '__main__':
