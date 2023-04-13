@@ -2,6 +2,6 @@ LUFIA2_NA           6efc477d6203ed2b3b9133c1cd9e9c5d    tables_list.txt
 LUFIA2_JP           18567d21df6a95a7b52029d250bac721    tables_list_jp.txt
 LUFIA2_FIX          026b649ed316448e038349e39a6fe579    tables_list.fixxxer.txt
 LUFIA2_FRUE_V6      b58c76f2ac0b2aeb9b779e880d2bff18    tables_list.frue.txt
-LUFIA2_SPEKKIO      5afddb3ba7788123c4cff6ee7fa83f3f    tables_list.spekkio.txt
-LUFIA2_KUREJI       faba981aa1f3831d1b065ae071ea555b    tables_list.kureji.txt
+LUFIA2_SPEKKIO_V6   b4c4973a5f1cfd40bb1863dbad260de4    tables_list.spekkio.txt
+LUFIA2_KUREJI_V6    5983201c45de814dc3672ab7d8279886    tables_list.kureji.txt
 !LUFIA2_NA->LUFIA2_FIX       lufia2_fixxxer_unheadered.ips

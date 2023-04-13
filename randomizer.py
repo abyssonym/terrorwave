@@ -1101,7 +1101,12 @@ class MonsterObject(TableObject):
 
     @cached_property
     def name(self):
-        name = self.name_text.decode('utf8').strip()
+        if b'\x00' in self.name_text:
+            null_index = self.name_text.index(b'\x00')
+            name_text = self.name_text[:null_index]
+        else:
+            name_text = self.name_text
+        name = name_text.decode('utf8').strip()
         return ''.join([c for c in name if c in printable])
 
     @property
@@ -1159,7 +1164,13 @@ class MonsterObject(TableObject):
             candidates=[m for m in MonsterObject.every if m.is_boss])
 
     def guess_sprite(self):
-        return self.monster_overworld_sprites[self.index]
+        if self.index in self.monster_overworld_sprites:
+            return self.monster_overworld_sprites[self.index]
+        elif (get_global_label() == 'LUFIA2_SPEKKIO_V6'
+                and 'Lady Spider' in self.name):
+            return 0x89
+        else:
+            return 0x94
 
     def set_drop(self, item):
         if isinstance(item, ItemObject):
@@ -1372,7 +1383,10 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
             0x1d2: 0,
         }
         artemis_mods = ['L2_FRUE', 'L2_SPEKKIO', 'L2_KUREJI', 'L2_KUREJI_NB',
-                        'L2_KUREJI_HC', 'L2_KUREJI_HC_NB']
+                        'L2_KUREJI_HC', 'L2_KUREJI_HC_NB',
+                        'LUFIA2_FRUE_V6', 'LUFIA2_SPEKKIO_V6',
+                        'LUFIA2_KUREJI_V6',
+                        ]
         if get_global_label() in artemis_mods and self.index >= 0x1a7:
             self._rank = -1
         elif self.index in rankdict:
@@ -1853,12 +1867,18 @@ class MapMetaObject(TableObject):
             self.misc = data[7]
             if {self.boundary_west, self.boundary_east,
                     self.boundary_north, self.boundary_south} != {0xff}:
-                assert self.boundary_west < self.boundary_east
-                assert self.boundary_north < self.boundary_south
-                if self.x != 0xff:
-                    assert self.boundary_west <= self.x < self.boundary_east
-                if self.y != 0xff:
-                    assert self.boundary_north <= self.y < self.boundary_south
+                try:
+                    assert self.boundary_west < self.boundary_east
+                    assert self.boundary_north < self.boundary_south
+                    if self.x != 0xff:
+                        assert (self.boundary_west <= self.x
+                                < self.boundary_east)
+                    if self.y != 0xff:
+                        assert (self.boundary_north <= self.y
+                                < self.boundary_south)
+                except:
+                    print('WARNING: NPC {0} has boundary errors.'.format(
+                            hexify(data)))
 
         def __repr__(self):
             if self.is_mobile:
