@@ -3,7 +3,7 @@ from randomtools.tablereader import (
     get_random_degree, mutate_normal, shuffle_normal, shuffle_simple,
     get_difficulty, get_open_file, write_patch)
 from randomtools.utils import (
-    map_to_lorom, map_from_lorom,
+    SnesGfxManager, map_to_lorom, map_from_lorom,
     classproperty, cached_property, clached_property,
     read_lines_nocomment, utilrandom as random)
 from randomtools.interface import (
@@ -2453,7 +2453,124 @@ class WordObject(TableObject):
         message = [m for m in message.split('💙') if m]
         return message
 
-class TownSpriteObject(TableObject): pass
+
+class TownSpriteObject(TableObject):
+    FREE_SPACE = (0x3e4000, 0x3e8000)
+    MAXIM_PALETTE = 0x133f20
+    GUY_PALETTE = 0x133f40
+
+    @property
+    def palette(self):
+        assert self.palette_index in (1, 2)
+        if self.palette_index == 2:
+            palette_pointer = self.GUY_PALETTE
+        else:
+            palette_pointer = self.MAXIM_PALETTE
+        f = get_open_file(get_outfile())
+        f.seek(palette_pointer)
+        palette = []
+        for _ in range(0x10):
+            palette.append(int.from_bytes(f.read(2), byteorder='little'))
+        return palette
+
+    @staticmethod
+    def pretty_deinterleave_tiles(tiles):
+        old_tiles = list(tiles)
+        sprites = []
+        while tiles:
+            sprites.append(tiles[:8])
+            tiles = tiles[8:]
+        new_tiles = []
+        for s in sprites:
+            new_tiles.extend(s[0:2])
+        for s in sprites:
+            new_tiles.extend(s[4:6])
+        for s in sprites:
+            new_tiles.extend(s[2:4])
+        for s in sprites:
+            new_tiles.extend(s[6:8])
+        reinterleaved = TownSpriteObject.reinterleave_tiles(new_tiles)
+        assert reinterleaved == old_tiles
+        return new_tiles
+
+    @staticmethod
+    def reinterleave_tiles(tiles):
+        num_sprites = len(tiles) / 8
+        sprites = defaultdict(list)
+        for i, tile in enumerate(tiles):
+            sprite_index = (i//2) % num_sprites
+            sprites[sprite_index].append(tile)
+
+        new_tiles = []
+        for sprite_index, s in sprites.items():
+            new_tiles.extend(s[0:2])
+            new_tiles.extend(s[4:6])
+            new_tiles.extend(s[2:4])
+            new_tiles.extend(s[6:8])
+        return new_tiles
+
+    def export_file(self, filename):
+        WIDTH = 384
+        HEIGHT = 32
+        f = get_open_file(get_outfile())
+        f.seek(map_from_lorom(self.sprite_pointer))
+        data = f.read(0x1800)
+        tiles = SnesGfxManager.data_to_tiles(data)
+        tiles = self.pretty_deinterleave_tiles(tiles)
+        pixels = SnesGfxManager.tiles_to_pixels(tiles, width=WIDTH//8)
+        image = SnesGfxManager.pixels_to_image(
+            pixels, width=WIDTH, height=HEIGHT, palette=self.palette)
+        image.save(filename, transparency=0)
+
+    def import_data(self, data):
+        assert len(data) <= 0x1800
+        if self.index not in [3, 6]:
+            pointer = map_from_lorom(self.sprite_pointer)
+        else:
+            a, b = self.FREE_SPACE
+            assert b-a >= 0x1800
+            pointer = map_to_lorom(a)
+            a += 0x1800
+            TownSpriteObject.FREE_SPACE = (a, b)
+            self.sprite_pointer = pointer
+            pointer = map_from_lorom(pointer)
+        f = get_open_file(get_outfile())
+        if self.index in [3, 6]:
+            f.seek(pointer)
+            old_data = f.read(0x1800)
+            assert set(old_data) in ({0xff}, {0x00})
+        f.seek(pointer)
+        f.write(data)
+
+    def import_file(self, filename):
+        from PIL import Image
+        image = Image.open(filename)
+        palette = image.getpalette()
+        palette = list(zip(palette[::3], palette[1::3], palette[2::3]))
+        my_palette = SnesGfxManager.snes_palette_to_rgb(self.palette)
+        palette_mapping = {0: 0}
+        for i, (r1, g1, b1) in enumerate(palette):
+            if i == 0:
+                continue
+            best_score = None
+            best_index = None
+            for j, (r2, g2, b2) in enumerate(my_palette):
+                if j == 0:
+                    continue
+                score = (r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2
+                if best_score is None or score < best_score:
+                    best_score = score
+                    best_index = j
+            palette_mapping[i] = best_index
+
+        pixels = image.tobytes()
+        pixels = [palette_mapping[p] for p in pixels]
+        tiles = SnesGfxManager.pixels_to_tiles(pixels, width=image.width//8)
+        tiles = self.reinterleave_tiles(tiles)
+        data = SnesGfxManager.tiles_to_data(tiles)
+        self.import_data(data)
+
+
 class OverPaletteObject(TableObject): pass
 
 class OverSpriteObject(TableObject):
@@ -6241,7 +6358,8 @@ def make_open_world(custom=None):
     if starting_character.name in {'selan', 'tia'}:
         candidates = female_titles | unisex_titles
     else:
-        assert starting_character.name in {'maxim', 'guy', 'dekar'}
+        assert starting_character.name in {'maxim', 'guy', 'dekar',
+                                           'artea', 'lexis'}
         candidates = male_titles | unisex_titles
     ending_title = random.choice(sorted(candidates))
     starting_character_index = int(starting_character.character_index, 0x10)
@@ -6621,6 +6739,9 @@ if __name__ == '__main__':
 
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')
+
+        #TownSpriteObject.get(3).import_file('new_artea.png')
+        #TownSpriteObject.get(6).import_file('new_lexis.png')
 
         patch_events()
         MapEventObject.roaming_comments = set()
