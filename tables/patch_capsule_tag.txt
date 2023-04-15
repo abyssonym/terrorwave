@@ -143,7 +143,10 @@
 :       3f 45 be 80
 :       d0 capsule_cycle_loop
 :       bd bb 11
-:       29 07
+:       c9 0c
+:       d0 not_master_class
+:       a9 05
+.label not_master_class
 :       8d a4 11
 :       8a
 :       8d a3 11
