@@ -60,8 +60,8 @@ sundletan_cave      party0
 catfish_cave        arrowlike&lake_key&party0
 alunze_cave         breakable&party0
 alunze_basement     breakable&party0
-tanbel_tower1       bomb&sky_key&party1
-tanbel_tower2       bomb&sky_key&party1
+tanbel_tower1       sky_key&party1
+tanbel_tower2       sky_key&party1
 ruby_cave           ruby_key&party1
 ruby_capsule        breakable&party0
 tsword_shrine1      bomb&sword_key&party2
@@ -96,7 +96,7 @@ truth_tower1        breakable&hook&truth_key&party2
 truth_tower2        breakable&hook&truth_key&party2
 dragon_mountain     submarine_or_airship&hook&hammer&fire_arrow&magma_key&party2
 underwater_shrine   submarine&party0
-gratze_basement     gratze&hook&basement_key&party2
+gratze_basement     gratze&arrowlike&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
