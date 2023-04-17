@@ -1,3 +1,4 @@
+0317fa: 5c 20 c4 fd
 03181a: 5c 00 c4 fd
 
 3ec400: c9 03
@@ -14,7 +15,18 @@
 .label airship_only
 :       5c 2c 98 86
 
+3ec420: ad df 09
+:       c9 03
+:       f0 r_button_no_sub
+:       c9 00
+:       f0 r_button_no_sub
+:       5c 29 98 86
+.label r_button_no_sub
+:       5c ff 97 86
+
 VALIDATION
 
+0317fa: ad df 09
+:       d0 2a
 031817: ad df 09
 :       f0 25
