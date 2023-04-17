@@ -493,7 +493,7 @@ class BossFormationObject(TableObject):
     @property
     def rank(self):
         return (max(m.rank for m in self.monsters)
-                * sum(m.hp for m in self.monsters))
+                * (sum(m.hp for m in self.monsters)**0.5))
 
     @classproperty
     def uniques(self):
@@ -1145,14 +1145,39 @@ class MonsterObject(TableObject):
     def rank(self):
         if hasattr(self, '_rank'):
             return self._rank
-        rankdict = {}
-        if self.index in rankdict:
-            self._rank = rankdict[self.index]
-        elif self.is_boss:
-            self._rank = self.level * (self.hp ** 2)
-        else:
-            assert self.level * self.hp * self.xp != 0
-            self._rank = self.level * self.hp * self.xp
+
+        RANK_ATTRS = ['level', 'hp', 'hp', 'attack',
+                      'intelligence', 'agility', 'xp', 'xp']
+        NUM_CHOOSE = 5
+        orderings = {}
+        for attr in RANK_ATTRS:
+            orderings[attr] = sorted(
+                MonsterObject.every,
+                key=lambda m: (m.old_data[attr],
+                               m.old_data['xp'] * m.old_data['hp'],
+                               m.signature))
+
+        for m in MonsterObject.every:
+            if m.is_boss:
+                m.old_rank = m.old_data['level'] * (m.old_data['hp'] ** 2)
+            else:
+                m.old_rank = (m.old_data['level'] * m.old_data['hp']
+                              * m.old_data['xp'])
+                assert m.old_rank != 0
+            ranks = [orderings[attr].index(m) for attr in RANK_ATTRS]
+            while len(ranks) > NUM_CHOOSE:
+                ranks.remove(min(ranks))
+            assert len(ranks) == NUM_CHOOSE
+            m._rank = sum(ranks) / len(ranks)
+
+        old_ranked = sorted(MonsterObject.every, key=lambda m: m.old_rank)
+        for m in MonsterObject.every:
+            m.old_rank = old_ranked.index(m)
+
+        new_ranked = sorted(MonsterObject.every, key=lambda m: m._rank)
+        for m in MonsterObject.every:
+            m._rank = new_ranked.index(m)
+
         return self.rank
 
     @classmethod
@@ -6114,23 +6139,15 @@ def replace_map_formations(location_ranks=None):
             script.script = new_script
 
 
-def scale_enemies(location_ranks, boss_events,
+def scale_enemies(location_ranks, ranked_bosses,
                   normal_scale_weight=0.75, boss_scale_weight=0.75):
+    SCALE_ATTRS = ['hp', 'hp', 'attack', 'intelligence', 'agility', 'agility']
     if scalecustom_nonboss is not None:
         normal_scale_weight = scalecustom_nonboss
     if scalecustom_boss is not None:
         boss_scale_weight = scalecustom_boss
     MapEventObject.class_reseed('scale_enemies')
     ranked_locations = get_ranked_locations(location_ranks)
-
-    random.shuffle(boss_events)
-    ranked_bosses = []
-    for i, signature in enumerate(boss_events):
-        map_index, _, _ = signature.split('-')
-        map_index = int(map_index, 0x10)
-        zone_name = MapEventObject.get(map_index).zone_name
-        ranked_bosses.append((ranked_locations.index(zone_name), i, signature))
-    ranked_bosses = [b for (l, i, b) in sorted(ranked_bosses)]
 
     formation_matcher = re.compile('#.*\(FORMATION (..): ')
     monster_ranks = defaultdict(list)
@@ -6146,27 +6163,20 @@ def scale_enemies(location_ranks, boss_events,
                 if m is not None:
                     monster_ranks[m.index].append(rank)
 
-    boss_matcher = re.compile('\. 53\((..)\)')
     boss_ranks = defaultdict(list)
-    boss_accessories = set()
-    bosses = {}
-    for b in boss_events:
-        map_index, _, _ = b.split('-')
-        map_index = int(map_index, 0x10)
-        zone_name = MapEventObject.get(map_index).zone_name
-        rank = ranked_bosses.index(b)
-        script = MapEventObject.get_script_by_signature(b)
-        my_bosses = boss_matcher.findall(script.pretty)
-        assert len(my_bosses) == 1
-        boss = BossFormationObject.get(int(my_bosses[0], 0x10))
+    boss_accessories = {}
+    boss_leaders = set()
+    num_bosses = {}
+    for rank, boss in enumerate(ranked_bosses):
         for m in boss.monsters:
             boss_ranks[m.index].append(rank)
             if m is not boss.boss:
-                boss_accessories.add(m)
+                boss_accessories[m] = boss.boss
             else:
-                if m not in bosses:
-                    bosses[m] = -1
-                bosses[m] = max(bosses[m], boss.monsters.count(m))
+                boss_leaders.add(boss.boss)
+            if m not in num_bosses:
+                num_bosses[m] = -1
+            num_bosses[m] = max(num_bosses[m], boss.monsters.count(m))
 
     scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
@@ -6194,13 +6204,25 @@ def scale_enemies(location_ranks, boss_events,
 
         max_index = len(monsters)-1
         for m in monsters:
-            if m in bosses and not is_boss:
+            if m in boss_leaders and not is_boss:
                 continue
             expected = monsters_expected.index(m)
             actual = monsters_actual.index(m)
+            if is_boss and m in boss_accessories:
+                boss = boss_accessories[m]
+                assert m is not boss
+                boss_expected = monsters_expected.index(boss)
+                boss_actual = monsters_actual.index(boss)
+                indexes = sorted([actual, expected,
+                                  boss_actual, boss_expected])
+                if expected > actual:
+                    expected = min([expected, boss_actual, boss_expected])
+                    if expected > actual:
+                        expected = random.randint(
+                            random.randint(actual, expected), expected)
 
-            if m in bosses and bosses[m] > 1:
-                augmented_rank = m.rank * (bosses[m] ** 0.5)
+            if is_boss and m in num_bosses and num_bosses[m] > 1:
+                augmented_rank = m.rank * (num_bosses[m] ** 0.5)
                 below = [m for m in monsters_actual
                          if m.rank < augmented_rank]
                 if below:
@@ -6212,9 +6234,7 @@ def scale_enemies(location_ranks, boss_events,
 
             target = monsters_actual[expected]
             ratios = []
-            for attr in sorted(target.mutate_attributes):
-                if attr in ('gold', 'xp'):
-                    continue
+            for attr in sorted(SCALE_ATTRS):
                 a = m.old_data[attr]
                 b = target.old_data[attr]
                 if a == 0:
@@ -6503,7 +6523,7 @@ def make_open_world(custom=None):
 
     if (('scale' in get_activated_codes() or 'm' in get_flags()) and
             'noscale' not in get_activated_codes()):
-        scale_enemies(ir.location_ranks, boss_events)
+        scale_enemies(ir.location_ranks, sorted_bosses)
 
     FILLER_ITEM = 0x2b
     EXTRA_CHESTS = [0x21, 0x2f]
