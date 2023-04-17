@@ -6337,6 +6337,42 @@ def make_open_world(custom=None):
     ir.assign_everything()
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
+
+    for loc in ir.unassigned_locations:
+        if loc.endswith('1'):
+            other = loc[:-1] + '2'
+            if other in ir.assignments:
+                assert not ir.assignments[other].endswith('_key')
+
+    name = ir.assignments['starting_character']
+    starting_character = OpenNPCGenerator.get_properties_by_name(name)
+    dual_blade = ItemObject.get(0x36)
+    dual_blade.equipability = 0
+    dual_blade.set_bit(starting_character.name, True)
+
+    warp = SpellObject.get(0x24)
+    warp.characters |= 0x7f
+    warp.mp_cost = 0
+
+    characters = ['maxim', 'selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
+    characters.remove(name)
+    random.shuffle(characters)
+    character_locations = ir.get_valid_locations('maxim')
+    character_locations = sorted(
+        character_locations, key=lambda loc: (ir.get_location_rank(loc), loc))
+    for i, character in enumerate(characters[:3]):
+        key = 'character%s' % (i+1)
+        location = ir.get_assigned_location(key)
+        ir.assignments[location] = character
+        characters.remove(character)
+
+    for character in characters:
+        max_index = len(character_locations)-1
+        index = random.randint(random.randint(0, max_index), max_index)
+        location = character_locations[index]
+        character_locations.remove(location)
+        ir.assignments[location] = character
+
     make_spoiler(ir)
 
     assigned_item_indexes = []
@@ -6349,16 +6385,6 @@ def make_open_world(custom=None):
     f = get_open_file(get_outfile())
     f.seek(addresses.starting_tool)
     f.write(index.to_bytes(length=2, byteorder='little'))
-
-    name = ir.assignments['starting_character']
-    starting_character = OpenNPCGenerator.get_properties_by_name(name)
-    dual_blade = ItemObject.get(0x36)
-    dual_blade.equipability = 0
-    dual_blade.set_bit(starting_character.name, True)
-
-    warp = SpellObject.get(0x24)
-    warp.characters |= 0x7f
-    warp.mp_cost = 0
 
     starting_item_reward_event = OpenNPCGenerator.REWARD_EVENT_ITEM
     item_index = int(starting_item.item_index, 0x10)
