@@ -998,8 +998,10 @@ class CharGrowthObject(TableObject):
     def get_character(character_index):
         if not isinstance(character_index, int):
             character_index = character_index.index
-        return [cg for cg in CharGrowthObject.every
-                if cg.index / 13 == character_index]
+        growths = [cg for cg in CharGrowthObject.every
+                   if cg.index // 13 == character_index]
+        assert len(growths) == 13
+        return growths
 
     @property
     def name(self):
