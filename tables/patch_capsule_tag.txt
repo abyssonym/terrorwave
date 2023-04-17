@@ -88,7 +88,8 @@
 # load hp and set mp to zero at battle start
 3ec630: ad 04 11
 :       8d f0 10
-:       9c f2 10
+:       a9 ff 80
+:       8d f2 10
 :       6b
 
 # force escape at zero hp
@@ -119,13 +120,13 @@
 .label capsule_attempt_tag_out
 :       ad a3 11
 :       aa
-:       ad f2 10
+:       ad f3 10
 :       1f 45 be 80
-:       8d f2 10
+:       8d f3 10
 .label capsule_cycle_loop
 :       8a
 :       1a
-:       c9 08
+:       c9 07
 :       90 no_capsule_index_overflow
 :       a9 00
 .label no_capsule_index_overflow
@@ -139,7 +140,7 @@
 :       d0 capsule_cycle_found_check_used
 :       80 capsule_cycle_loop
 .label capsule_cycle_found_check_used
-:       ad f2 10
+:       ad f3 10
 :       3f 45 be 80
 :       d0 capsule_cycle_loop
 :       bd bb 11
