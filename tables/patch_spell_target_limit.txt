@@ -1,4 +1,7 @@
-00ce71: 5c 00 c5 fd
+00ce71: 22 00 c5 fd
+:       ea
+00d011: 22 00 c5 fd
+:       ea
 
 3ec500: c9 bf
 :       d0 targeting_okay
@@ -6,9 +9,11 @@
 .label targeting_okay
 :       8d 81 1b
 :       c2 20
-:       5c 76 ce 81
+:       6b
 
 VALIDATION
 
 00ce71: 8d 81 1b
+:       c2 20
+00d011: 8d 81 1b
 :       c2 20
