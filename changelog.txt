@@ -1,3 +1,18 @@
+VERSION 3.12
+-Completely overhauled monster ranking and scaling (again).
+	-Scaling is now based on important attributes like HP and Agility, and not Guts.
+	-Monster ranking now incorporates attack, intelligence and agility. Highlights:
+		-Significantly higher: Cores, Troll, Catfish, Dark Sum'ner, Clowns
+		-Significantly lower: Snow Gas, Behemoth, big slow enemies in general
+	-Boss minions in large numbers are nerfed.
+	-Boss minions scale up to the strength of their boss and not more.
+-Bosses for split checks like Ruby Cave are scaled independently, now.
+-Capsule monster master class tags in, when available.
+-IP attack targeting is automatically limited to five enemies.
+-Fixed a bug that caused character growths to not be randomized.
+-Gratze Basement is no longer assumed to require hook. (requires arrows instead)
+-Tanbel Tower is no longer assumed to require bombs.
+
 VERSION 3.11
 -Adjusted the item routing "linearity" setting to the minimum. Testing shows that this has reduced the length of key chains by 2-3 steps, on average. The previous mean for the longest chain in a seed was ~16 steps, and the new mean is ~13 steps.
 -Instant death spells no longer prevent capsule monsters from tagging in.
