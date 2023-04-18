@@ -2,8 +2,7 @@
 
 EVENT 78-X-XX
 0000. 74(05)                         # Set Battle BG
-000F. 69(01)
-0011. 69(11)
+0011. 69(19)
 0013. 4B(2F)                         # Preload Music
 0021. 7B(56-D5)                      # Load Monster NPC (07,48) 56: d5 Red Dullahan
 0024. 7B(57-9C)                      # Load Monster NPC (0a,44) 57: 9c Medusa

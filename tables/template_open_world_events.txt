@@ -20,8 +20,7 @@ EVENT A0-X-XX  # $3a428:3a428
 0020. 1C(@24)                        # Jump
 0023. 00()                           # End Event
 # LABEL @24 $3a44c
-0024. 69(08)
-0026. 69(98)
+0024. 69(90)
 002F. 68(50-0C)                      # Load NPC (1e,0b) 50: 0c Blue Man
 0032. 68(51-0B)                      # Load NPC (15,1d) 51: 0b Green Girl
 0035. 68(52-1A)                      # Load NPC (14,24) 52: 1a Sailor
@@ -85,8 +84,7 @@ EVENT 68-B-03  # $56796:56b0d
 !npc 1d (00) 69:09,06
 !npc 1e (05) 69:02,10
 EVENT 69-X-XX  # $39d83:39d83
-0000. 69(08)
-0002. 69(98)
+0002. 69(90)
 0100. 15(C4-@1800)
 0110. 68(6D-6D)
 1000. 14(C2-019C-0001-40-C8-30-@1800-FF)
@@ -289,7 +287,7 @@ EVENT 69-C-6D
 !npc 1e (00) 87:07,1f
 !npc 1f (00) 87:04,05
 EVENT 87-X-XX  # $3a0e9:3a0e9
-0000. 69(98)                         # Set Map Properties (escapable, etc.)
+0000. 69(90)                         # Set Map Properties (escapable, etc.)
 0002. 4B(22)                         # Play BGM
 0004. 68(50-1C)                      # Load NPC (1c,05) 50: 1c Brown Woman
 0007. 68(51-1C)                      # Load NPC (1a,05) 51: 1c Brown Woman
@@ -340,7 +338,7 @@ EVENT A2-X-XX  # $3a5f1:3a5f1
 0020. 4B(09)
 0030. 1C(@1000)
 0080. 4B(1F)
-1000. 69(98)
+1000. 69(90)
 1031. 68(56-6E)                      # Load NPC (06,09) 56: 6e Gray Lab Assistant
 1034. 68(57-6F)                      # Load NPC (0d,08) 57: 6f Red Lab Assistant
 1037. 68(58-6E)                      # Load NPC (0e,1a) 58: 6e Gray Lab Assistant
