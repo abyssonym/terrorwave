@@ -6183,7 +6183,7 @@ def scale_enemies(location_ranks, ranked_bosses,
     stat_ranks = {}
     for attr in sorted(set(SCALE_ATTRS)):
         stat_ranks[attr] = sorted(
-            MonsterObject.every, key=lambda m: (getattr(m, attr),
+            MonsterObject.every, key=lambda m: (m.old_data[attr],
                                                 m.signature, m.index))
 
     def get_sorted_stats(m):
