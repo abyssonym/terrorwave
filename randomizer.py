@@ -6523,11 +6523,23 @@ def make_open_world(custom=None):
     while len(chosen_bosses) < len(sorted_locations):
         chosen_bosses.append(random.choice(chosen_bosses))
     sorted_bosses = sorted(chosen_bosses, key=lambda b: (b.rank, b.index))
-    sorted_bosses = shuffle_simple(
-        sorted_bosses, random_degree=BossFormationObject.random_degree)
 
-    assert len(sorted_bosses) == len(sorted_locations)
-    location_bosses = {l: b for (l, b) in zip(sorted_locations, sorted_bosses)}
+    shuffled_bosses = shuffle_simple(
+        sorted_bosses, random_degree=BossFormationObject.random_degree)
+    if 'bossy' not in get_activated_codes():
+        progscores = {}
+        max_index = len(shuffled_bosses)-1
+        for (i, boss) in enumerate(shuffled_bosses):
+            before = sorted_bosses.index(boss)
+            after = shuffled_bosses.index(boss)
+            factor = ((i+1)/(max_index+1)) ** 0.25
+            shifted = (factor*after) + ((1-factor)*before)
+            progscores[boss] = (shifted, before)
+        shuffled_bosses = sorted(shuffled_bosses, key=lambda b: progscores[b])
+
+    assert len(shuffled_bosses) == len(sorted_locations)
+    location_bosses = {l: b for (l, b) in zip(sorted_locations,
+                                              shuffled_bosses)}
     final_boss = location_bosses['daos_shrine']
     parameters['final_boss_sprite_index'] = final_boss.guess_sprite()
 
@@ -6545,7 +6557,7 @@ def make_open_world(custom=None):
     patch_with_template('open_world_events', parameters)
 
     boss_events = []
-    assert len(sorted_bosses) == len(sorted_locations)
+    assert len(shuffled_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
         assert location not in NOBOSS_LOCATIONS
         reward1, reward2 = None, None
@@ -6577,7 +6589,7 @@ def make_open_world(custom=None):
 
     if (('scale' in get_activated_codes() or 'm' in get_flags()) and
             'noscale' not in get_activated_codes()):
-        scale_enemies(ir.location_ranks, sorted_bosses)
+        scale_enemies(ir.location_ranks, shuffled_bosses)
 
     FILLER_ITEM = 0x2b
     EXTRA_CHESTS = [0x21, 0x2f]
