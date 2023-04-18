@@ -286,6 +286,7 @@ EVENT 69-C-6D
 7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 7FFF. 00()
 
+!npc 1e (00) 87:07,1f
 !npc 1f (00) 87:04,05
 EVENT 87-X-XX  # $3a0e9:3a0e9
 0000. 69(98)                         # Set Map Properties (escapable, etc.)
@@ -315,7 +316,11 @@ EVENT 87-X-XX  # $3a0e9:3a0e9
 0046. 68(6A-58)                      # Load NPC (07,0e) 6a: 58 Formal Blue Dude
 0049. 68(6B-58)                      # Load NPC (05,0e) 6b: 58 Formal Blue Dude
 004C. 68(6E-37)
+0100. 68(6D-14)
 7FFF. 00()                           # End Event
+
+EVENT 87-C-6D
+0000. 08: I'm a placeholder.<END EVENT>
 
 EVENT 87-C-6E
 0000. 08: For your convenience,
