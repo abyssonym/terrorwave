@@ -5991,7 +5991,7 @@ def replace_map_formations(location_ranks=None):
     SPRITE_OVERRIDES = {FormationObject.get(0): {0x36}}
 
     big_sprites = set(lange(0xb6, 0xbe) + lange(0xbf, 0xc9)
-                      + lange(0xd2, 0xd5) + lange(0xeb, 0xf0))
+                      + lange(0xd3, 0xd5) + lange(0xeb, 0xf0))
     small_sprites = {s for s in range(0x80, 0xf0) if s not in big_sprites}
     all_formation_sprites = defaultdict(set)
 
