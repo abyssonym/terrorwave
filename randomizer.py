@@ -6180,6 +6180,17 @@ def scale_enemies(location_ranks, ranked_bosses,
                 num_bosses[m] = -1
             num_bosses[m] = max(num_bosses[m], boss.monsters.count(m))
 
+    stat_ranks = {}
+    for attr in sorted(set(SCALE_ATTRS)):
+        stat_ranks[attr] = sorted(
+            MonsterObject.every, key=lambda m: (getattr(m, attr),
+                                                m.signature, m.index))
+
+    def get_sorted_stats(m):
+        return tuple(sorted(
+            set(SCALE_ATTRS),
+            key=lambda attr: (stat_ranks[attr].index(m), attr)))
+
     scale_dict = defaultdict(set)
     pre_ranked = MonsterObject.ranked
     for rankdict in (boss_ranks, monster_ranks):
@@ -6234,7 +6245,19 @@ def scale_enemies(location_ranks, ranked_bosses,
                     assert modifier < 1
                     expected = int(round(modifier * expected))
 
-            target = monsters_actual[expected]
+            lower = max(0, expected-2)
+            target_candidates = monsters_actual[lower:expected+3]
+            stats = get_sorted_stats(m)
+            target_scores = defaultdict(list)
+            for c in target_candidates:
+                cstats = get_sorted_stats(c)
+                score = sum((stats.index(attr) - cstats.index(attr))**2
+                            for attr in stats)
+                score += abs(monsters_actual.index(c) - expected)
+                target_scores[score].append(c)
+            target_candidates = target_scores[min(target_scores)]
+            target = random.choice(target_candidates)
+
             ratios = []
             for attr in sorted(SCALE_ATTRS):
                 a = m.old_data[attr]
