@@ -9,8 +9,7 @@
 .def some_capsules jelze|flash|gusto|zeppy|darbi|sully|blaze
 
 .def any_tool arrow|bomb|hook|hammer|fire_arrow
-.def any_character maxim|selan|guy|artea|tia|dekar|lexis
-.def party0 any_tool&any_character
+.def party0 any_tool&character0
 
 .def party1 character1|character2|character3
 

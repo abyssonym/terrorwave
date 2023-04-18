@@ -6346,6 +6346,9 @@ def make_open_world(custom=None):
             if other in ir.assignments:
                 assert not ir.assignments[other].endswith('_key')
 
+    VALID_LEADERS = ['selan', 'guy', 'tia', 'dekar']
+    assert ir.assignments['starting_character'] == 'character0'
+    ir.assignments['starting_character'] = random.choice(VALID_LEADERS)
     name = ir.assignments['starting_character']
     starting_character = OpenNPCGenerator.get_properties_by_name(name)
     dual_blade = ItemObject.get(0x36)
