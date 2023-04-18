@@ -1,3 +1,14 @@
+VERSION 3.13
+-Can no longer dive using the R button without mermaid jade.
+-Enemies now attempt to scale against enemies with similar stats (no more Magma Gorem trying to become a Dark Sum'ner)
+-Boss shuffling at the start of the progression is less extreme, to prevent grindy scenarios. There should still be enough variation given the number of early checks.
+-Double Dekar seeds are no longer possible.
+-Capsule swap no longer looks for eighth capsule monster in Jelze's hunger meter.
+-Moved the Lake Cave priest to a location where he can't softlock the game.
+-Restored the casino Shriek shop that disappeared in a previous update.
+-Made the casino and some other maps escapeable.
+-Cokatoris is now correctly treated as a small monster sprite.
+
 VERSION 3.12
 -Completely overhauled monster ranking and scaling (again).
 	-Scaling is now based on important attributes like HP and Agility, and not Guts.
