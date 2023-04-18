@@ -6245,8 +6245,21 @@ def scale_enemies(location_ranks, ranked_bosses,
                     assert modifier < 1
                     expected = int(round(modifier * expected))
 
-            lower = max(0, expected-2)
-            target_candidates = monsters_actual[lower:expected+3]
+            if is_boss:
+                lower = max(0, expected-1)
+                target_candidates = monsters_actual[lower:expected+2]
+                assert target_candidates
+            else:
+                lower = max(0, expected-2)
+                target_candidates = monsters_actual[lower:expected+3]
+
+            if m in target_candidates:
+                index = target_candidates.index(m)
+                if expected > actual:
+                    target_candidates = target_candidates[index+1:]
+                if expected < actual:
+                    target_candidates = target_candidates[:index]
+
             stats = get_sorted_stats(m)
             target_scores = defaultdict(list)
             for c in target_candidates:
