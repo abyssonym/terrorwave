@@ -1,3 +1,8 @@
+VERSION 3.14
+-Added a new game mode: `fourkeys`. In `fourkeys` there are only four keys.
+-Capsule monster reverts to the one you selected after battle.
+-Some minor adjustments to scaling; less emphasis on hp, to prevent overtuning non-boss monsters that end up in the boss pool.
+
 VERSION 3.13
 -Can no longer dive using the R button without mermaid jade.
 -Enemies now attempt to scale against enemies with similar stats (no more Magma Gorem trying to become a Dark Sum'ner)
