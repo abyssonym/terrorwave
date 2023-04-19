@@ -1,5 +1,9 @@
-0080ae: 22 30 c6 fd
+# pre battle
+0080ae: 22 20 c6 fd
 :       ea ea
+
+# post battle
+008859: 22 e0 c6 fd
 
 # capsule monster AI
 00a80e: 22 40 c6 fd
@@ -85,11 +89,21 @@
 :       fa
 :       60
 
-# load hp and set mp to zero at battle start
-3ec630: ad 04 11
+# load hp and set default capsule at battle start
+3ec620: da
+:       ad 04 11
 :       8d f0 10
-:       a9 ff 80
-:       8d f2 10
+:       a9 00 00
+:       e2 20
+:       ad a3 11
+:       aa
+:       bd bb 11
+:       f0 no_monsters
+:       09 40
+:       9d bb 11
+.label no_monsters
+:       c2 20
+:       fa
 :       6b
 
 # force escape at zero hp
@@ -110,8 +124,7 @@
 # enemy or capsule monster escapes
 3ec700: af 4e f4 7f
 :       c9 10
-:       d0 not_a_capsule_monster
-:       80 capsule_attempt_tag_out
+:       f0 capsule_attempt_tag_out
 .label not_a_capsule_monster
 # return from escape routine
 :       22 8c 94 85
@@ -120,9 +133,9 @@
 .label capsule_attempt_tag_out
 :       ad a3 11
 :       aa
-:       ad f3 10
-:       1f 45 be 80
-:       8d f3 10
+:       bd bb 11
+:       09 80
+:       9d bb 11
 .label capsule_cycle_loop
 :       8a
 :       1a
@@ -140,48 +153,10 @@
 :       d0 capsule_cycle_found_check_used
 :       80 capsule_cycle_loop
 .label capsule_cycle_found_check_used
-:       ad f3 10
-:       3f 45 be 80
-:       d0 capsule_cycle_loop
 :       bd bb 11
-:       c9 0c
-:       d0 not_master_class
-:       a9 05
-.label not_master_class
-:       8d a4 11
-:       8a
-:       8d a3 11
-:       0a 0a
-:       6d a3 11
-:       6d a4 11
-:       3a
-:       8d 44 11
-
-# calculate and set capsule stats
-:       22 f0 ff 82
-
-# load AI and stuff
-:       c2 20
-:       ad 44 11
-:       29 ff 00
-:       0a
-:       aa
-:       bf b8 dc 97
-:       18
-:       69 b8 dc
-:       aa
-:       8e c4 09
-:       ac c4 09
-:       e2 20
-:       8c 24 11
-:       b9 23 00
-:       8d 27 11
-:       b9 25 00
-:       8d 29 11
-:       b9 27 00
-:       8d 2b 11
-:       b9 29 00
-:       8d 2d 11
+:       89 80
+:       d0 capsule_cycle_loop
+:       20 a0 c7
 
 # reset battle hp
 :       c2 20
@@ -231,12 +206,85 @@
 :       22 8c 94 85
 :       6b
 
+# basic capsule stats loading routine
+3ec7a0:
+:       da
+:       29 0f
+:       c9 0c
+:       d0 not_master_class
+:       a9 05
+.label not_master_class
+:       8d a4 11
+:       8a
+:       8d a3 11
+:       0a 0a
+:       6d a3 11
+:       6d a4 11
+:       3a
+:       8d 44 11
+
+# calculate and set capsule stats
+:       22 f0 ff 82
+
+# load AI and stuff
+:       c2 20
+:       ad 44 11
+:       29 ff 00
+:       0a
+:       aa
+:       bf b8 dc 97
+:       18
+:       69 b8 dc
+:       aa
+:       8e c4 09
+:       ac c4 09
+:       e2 20
+
+# data bank register manipulation
+:       8b
+:       a9 97
+:       48
+:       ab
+
+:       8c 24 11
+:       b9 23 00
+:       8d 27 11
+:       b9 25 00
+:       8d 29 11
+:       b9 27 00
+:       8d 2b 11
+:       b9 29 00
+:       8d 2d 11
+
+:       ab
+:       fa
+:       60
+
+# post battle
+3ec6e0:
+:       a2 00 00
+.label postbattle_loop
+:       bd bb 11
+:       89 40
+:       f0 not_favorite
+:       20 a0 c7
+:       bd bb 11
+.label not_favorite
+:       29 0f
+:       9d bb 11
+:       e8
+:       e0 07 00
+:       90 postbattle_loop
+:       22 bb ed 85
+:       6b
+
 VALIDATION
 
 00945b: bd 0f 00
 :       89 04
 0080ae: ad 04 11
 :       8d f0 10
+008859: 22 bb ed 85
 00a80e: 22 a3 b1 81
 00abe5: 22 8c 94 85
 02d4db: 7d 11 00
