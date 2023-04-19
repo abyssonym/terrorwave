@@ -5048,8 +5048,17 @@ class OpenNPCGenerator:
             if i == 2:
                 reward = reward2
 
-            if reward in OpenNPCGenerator.reward_item_properties:
-                reward = OpenNPCGenerator.reward_item_properties[reward]
+            if (reward in OpenNPCGenerator.reward_item_properties or
+                    (isinstance(reward, str) and reward.startswith('item_'))):
+                if reward in OpenNPCGenerator.reward_item_properties:
+                    reward = OpenNPCGenerator.reward_item_properties[reward]
+                else:
+                    check, item_index = reward.split('_')
+                    assert check == 'item'
+                    item_index = reward.split('_')[-1]
+                    item = ItemObject.get(int(item_index, 0x10))
+                    reward = OpenNPCGenerator.RewardItem(
+                            reward, item.name, item_index, 'default')
                 event_text = OpenNPCGenerator.REWARD_EVENT_ITEM.replace(
                     '{{reward_id}}', str(i))
                 if i == 2:
@@ -6427,6 +6436,27 @@ def make_open_world(custom=None):
 
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
+
+    if 'fourkeys' in get_activated_codes():
+        buyable_items = {i for s in ShopObject.every for i in s.wares_flat}
+        rare_items = [i for i in ItemObject.every
+                      if i.price > 0 and i.rank > 0 and i not in buyable_items]
+
+        num_bonus = min(len(rare_items), 10)
+        remaining_locations = sorted(ir.get_valid_locations('dankirk_key'))
+        random.shuffle(remaining_locations)
+        remaining_locations = remaining_locations[:num_bonus]
+        bonus_items = []
+        rare_items = sorted(rare_items, key=lambda i: (i.rank, i.signature))
+        max_index = len(rare_items)-1
+        while len(bonus_items) < num_bonus:
+            index = random.randint(random.randint(0, max_index), max_index)
+            item = rare_items[index]
+            if item not in bonus_items:
+                bonus_items.append(item)
+
+        for location, item in zip(remaining_locations, bonus_items):
+            ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
 
     for loc in ir.unassigned_locations:
         if loc.endswith('1'):
