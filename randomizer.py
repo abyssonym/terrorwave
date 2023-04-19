@@ -5301,6 +5301,9 @@ def generate_hints(boss_events, blue_chests, wild_jelly_map,
                    if 'dragon egg' not in b.item.name.lower()]
     hint_topics = ((boss_events * 4) + blue_chests
                    + [wild_jelly_map, iris_shop] + list(thieves))
+    if 'fourkeys' in get_activated_codes():
+        hint_topics = (boss_events + blue_chests
+                       + [wild_jelly_map, iris_shop] + list(thieves))
     messages = []
     for _ in range(num_hints):
         hint_topic = random.choice(hint_topics)
@@ -6322,6 +6325,48 @@ def make_spoiler(ir):
         f.write('{0}\n\n{1}\n'.format(header, footer))
 
 
+def make_four_keys():
+    master_keys = {
+        'dungeon': 0x1c6,
+        'mountain': 0x1c7,
+        'shrine': 0x1c8,
+        'tower': 0x1c9,
+        }
+
+    for location, master_index in sorted(master_keys.items()):
+        master_key = ItemNameObject.get(master_index)
+        name_text = 'ALL {0}'.format(location).upper()
+        while len(name_text) < 12:
+            name_text += ' '
+        assert len(name_text) == 12
+        master_key.name_text = name_text.encode('ascii')
+
+    keydict = get_keydict()
+    for meo in MapEventObject.every:
+        index = meo.index
+        signature = '{0:0>2X}-A-03'.format(index)
+        script = meo.get_script_by_signature(signature)
+        if script is not None:
+            assert len(script.script) == 2
+            opcode = script.script[0][1]
+            assert 1 <= opcode <= 6 or opcode == 0x40
+            key_index = script.script[0][2][0]
+            key = ItemObject.get(key_index)
+            locations = [loc for loc in keydict if key in keydict[loc]]
+            if not locations:
+                continue
+            assert len(locations) == 1
+            location = locations[0]
+            master_index = master_keys[location]
+            parameters = {
+                'signature': signature,
+                'opcode': opcode,
+                'master_index': master_index,
+                'key_index': key_index,
+                }
+            patch_with_template('master_key_door', parameters)
+
+
 def make_open_world(custom=None):
     # new coin shop on forfeit island (only supports coins + 3 items)
     s = ShopObject.get(0x1a)
@@ -6358,9 +6403,15 @@ def make_open_world(custom=None):
 
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item', 'hidden_item'}
     MapEventObject.class_reseed('item_route')
-    ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
-                    path.join(tblpath, 'restrictions.txt'),
-                    linearity=0, prioritize_restrictions=True)
+    if 'fourkeys' in get_activated_codes():
+        ir = ItemRouter(path.join(tblpath, 'requirements_fourkeys.txt'),
+                        path.join(tblpath, 'restrictions_fourkeys.txt'),
+                        linearity=0.8)
+        make_four_keys()
+    else:
+        ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
+                        path.join(tblpath, 'restrictions.txt'),
+                        linearity=0, prioritize_restrictions=True)
     if custom is not None:
         custom_assignments = {}
         for line in read_lines_nocomment(custom):
@@ -6373,6 +6424,7 @@ def make_open_world(custom=None):
             custom_assignments[location] = item
         ir.set_custom_assignments(custom_assignments)
     ir.assign_everything()
+
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
 
@@ -6382,6 +6434,7 @@ def make_open_world(custom=None):
             if other in ir.assignments:
                 assert not ir.assignments[other].endswith('_key')
 
+    MapEventObject.class_reseed('selecting_characters')
     VALID_LEADERS = ['selan', 'guy', 'tia', 'dekar']
     assert ir.assignments['starting_character'] == 'character0'
     ir.assignments['starting_character'] = random.choice(VALID_LEADERS)
@@ -6611,7 +6664,12 @@ def make_open_world(custom=None):
     conflict_chests = [c for c in ChestObject.every
                        if c.item_index in assigned_item_indexes
                        and c.item_index != FILLER_ITEM]
+    if 'fourkeys' in get_activated_codes():
+        conflict_chests += [c for c in ChestObject.every
+                            if c.item.name.lower().endswith(' key')
+                            and c.item.get_bit('unsellable')]
     conflict_chests += [ChestObject.get(i) for i in EXTRA_CHESTS]
+    conflict_chests = sorted(set(conflict_chests), key=lambda c: c.index)
     CONFLICT_ITEMS = [0x19c, 0x19d, 0x19e, 0x19f, 0x1a0,
                       0x1a1, 0x1a2, 0x1a3, 0x1a4,
                       0x1c2, 0x1c5]
@@ -6683,7 +6741,7 @@ ALL_OBJECTS = [g for g in globals().values()
                and g not in [TableObject]]
 
 
-def key_shop():
+def get_keydict():
     tower = {'sky', 'wind', 'cloud', 'light', 'trial', 'truth', 'narcysus'}
     shrine = {'sword', 'heart', 'ghost'}
     dungeon = {'lake', 'ruby', 'dankirk', 'basement', 'ancient'}
@@ -6708,7 +6766,11 @@ def key_shop():
         'dungeon': dungeon_keys,
         'mountain': mountain_keys,
         }
+    return keydict
 
+
+def key_shop():
+    keydict = get_keydict()
     s = ''
     for i, location in enumerate(['dungeon', 'mountain', 'shrine', 'tower']):
         line_number = (i+1)*0x1000
@@ -6830,6 +6892,7 @@ if __name__ == '__main__':
             'bossy': ['bossy'],
             'monstermash': ['monstermash'],
             'nocap': ['nocap'],
+            'fourkeys': ['fourkeys'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)

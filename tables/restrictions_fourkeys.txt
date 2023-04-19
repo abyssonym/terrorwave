@@ -1,0 +1,4 @@
+starting_character  character0
+starting_item       arrow,bomb,hammer
+hidden_item         nothing
+daos_shrine         victory

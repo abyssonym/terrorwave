@@ -29,3 +29,7 @@ arrow,Arrow,1a9,default
 fire_arrow,Fire Arrow,1aa,default
 hammer,Hammer,1ab,default
 victory,n/a,0,n/a
+dungeons_key,ALL DUNGEON,1c6,0A-08
+mountains_key,ALL MOUNTAIN,1c7,0A-08
+shrines_key,ALL SHRINE,1c8,0A-08
+towers_key,ALL TOWER,1c9,0A-08

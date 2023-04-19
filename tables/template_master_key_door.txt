@@ -1,0 +1,3 @@
+EVENT {{signature}}
+0010. {{opcode}}({{master_index}})
+0020. 00()
