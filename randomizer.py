@@ -5812,7 +5812,10 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
         return location, boss
 
     reward_item_order = [0x1a8, 0x1a7, 0x1aa, 0x1ab, 0x1c0, 0x1c1]
-    reward_item_order += list(range(0x1b0, 0x1c0))
+    if 'fourkeys' in get_activated_codes():
+        reward_item_order += list(range(0x1c6, 0x1ca))
+    else:
+        reward_item_order += list(range(0x1b0, 0x1c0))
 
     boss_matcher = re.compile('\. 53\((..)\)')
     s3 = center('ITEM LOCATIONS')
