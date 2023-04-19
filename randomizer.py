@@ -6628,7 +6628,7 @@ def make_open_world(custom=None):
         for (i, boss) in enumerate(shuffled_bosses):
             before = sorted_bosses.index(boss)
             after = shuffled_bosses.index(boss)
-            factor = ((i+1)/(max_index+1)) ** 0.25
+            factor = ((i+1)/(max_index+1)) ** 0.5
             shifted = (factor*after) + ((1-factor)*before)
             progscores[boss] = (shifted, before)
         shuffled_bosses = sorted(shuffled_bosses, key=lambda b: progscores[b])
