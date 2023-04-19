@@ -6155,7 +6155,7 @@ def replace_map_formations(location_ranks=None):
 
 def scale_enemies(location_ranks, ranked_bosses,
                   normal_scale_weight=0.75, boss_scale_weight=0.75):
-    SCALE_ATTRS = ['hp', 'hp', 'attack', 'intelligence', 'agility', 'agility']
+    SCALE_ATTRS = ['hp', 'attack', 'intelligence', 'agility']
     if scalecustom_nonboss is not None:
         normal_scale_weight = scalecustom_nonboss
     if scalecustom_boss is not None:
