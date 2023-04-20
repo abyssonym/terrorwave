@@ -6487,7 +6487,7 @@ def make_open_world(custom=None):
     character_locations = ir.get_valid_locations('maxim')
     character_locations = sorted(
         character_locations, key=lambda loc: (ir.get_location_rank(loc), loc))
-    for i, character in enumerate(characters[:3]):
+    for i, character in enumerate(characters[:4]):
         key = 'character%s' % (i+1)
         location = ir.get_assigned_location(key)
         ir.assignments[location] = character

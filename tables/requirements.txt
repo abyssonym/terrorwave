@@ -11,16 +11,23 @@
 .def any_tool arrow|bomb|hook|hammer|fire_arrow
 .def party0 any_tool&character0
 
-.def party1 character1|character2|character3
+.def party1 character1|character2|character3|character4
 
 .def party2a character1&character2
 .def party2b character1&character3
-.def party2c character2&character3
-.def party2 party2a|party2b|party2c
+.def party2c character1&character4
+.def party2d character2&character3
+.def party2e character2&character4
+.def party2f character3&character4
+.def party2 party2a|party2b|party2c|party2d|party2e|party2f
 
-.def party3 character1&character2&character3
+.def party3a character1&character2&character3
+.def party3b character1&character2&character4
+.def party3c character1&character3&character4
+.def party3d character2&character3&character4
+.def party3 party3a|party3b|party3c|party3d
 
-.def party4 party3&all_capsules
+.def party4 character1&character2&character3&character4&all_capsules
 
 .def airship engine
 .def submarine mermaid_jade
