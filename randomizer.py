@@ -6398,7 +6398,7 @@ def make_four_keys():
         }
 
     for location, master_index in sorted(master_keys.items()):
-        master_key = ItemNameObject.get(master_index)
+        master_key = ItemObject.get(master_index)
         name_text = 'ALL {0}'.format(location).upper()
         master_key.set_name(name_text)
 
@@ -6413,6 +6413,7 @@ def make_four_keys():
             assert 1 <= opcode <= 6 or opcode == 0x40
             key_index = script.script[0][2][0]
             key = ItemObject.get(key_index)
+            key.set_name('Useless key')
             locations = [loc for loc in keydict if key in keydict[loc]]
             if not locations:
                 continue
@@ -6426,6 +6427,11 @@ def make_four_keys():
                 'key_index': key_index,
                 }
             patch_with_template('master_key_door', parameters)
+
+    patch_text = ('!npc 0f (00) 9a:fe,fe\n'
+                  'EVENT 9A-C-5E\n'
+                  '0000. 00()\n')
+    patch_game_script(patch_text)
 
 
 def make_open_world(custom=None):

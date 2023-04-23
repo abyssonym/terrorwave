@@ -315,8 +315,8 @@ EVENT 80-C-5E
 1060. 08: Okay.
           No way.<CHOICE>
 1070. 08: Great! Just hold
-          on to this for
-          me. Bye!<END MESSAGE>
+          on to this item
+          for me. Bye!<END MESSAGE>
 1080. 1C(@3000)
 2000. 08: Suit yourself. <END EVENT>
 3000. A3({{starting_character_index}}-85)
