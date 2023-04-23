@@ -5290,6 +5290,10 @@ def assign_iris_shop(iris_item):
 def generate_hints(boss_events, blue_chests, wild_jelly_map,
                    iris_iris, thieves, num_hints=500):
     BG_OVERRIDES = {
+        0xae: [0x0e, 0x0f],
+        0xcb: [0x0e, 0x0f],
+        0xcc: [0x0e, 0x0f],
+        0xd1: [0x0e, 0x0f],
         0xee: [0x0e, 0x0f],
         0xef: [0x0e, 0x0f],
         }
