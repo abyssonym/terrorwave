@@ -303,21 +303,23 @@ EVENT 80-C-5E
           again?<END MESSAGE>
 0020. 1C(@3000)
 1000. 08: Are you stuck?<END MESSAGE>
-1010. 10(02-@1030-@2000)
+1010. 10(02-@1040-@2000)
 1020. 08: Yes.
           No.<CHOICE>
-1030. 08: Boy, you've really
+1030. 1C(@2000)
+1040. 08: Boy, you've really
           done it this time.<END MESSAGE>
-1040. 08: I can warp you
+1050. 08: I can warp you
           out, but you have
           to do me a favor.<END MESSAGE>
-1050. 10(02-@1070-@2000)
-1060. 08: Okay.
+1060. 10(02-@1090-@2000)
+1070. 08: Okay.
           No way.<CHOICE>
-1070. 08: Great! Just hold
+1080. 1C(@2000)
+1090. 08: Great! Just hold
           on to this item
           for me. Bye!<END MESSAGE>
-1080. 1C(@3000)
+10A0. 1C(@3000)
 2000. 08: Suit yourself. <END EVENT>
 3000. A3({{starting_character_index}}-85)
 3100. 16(A2-0B-04)
