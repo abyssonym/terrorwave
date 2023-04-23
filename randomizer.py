@@ -4586,8 +4586,41 @@ class OpenNPCGenerator:
     available_flags = list(reversed(range(0x20, 0x70)))
     for f in BANNED_FLAGS:
         available_flags.remove(f)
+    NUM_AVAILABLE_FLAGS = len(available_flags)
+    MIN_AVAILABLE_FLAG = min(available_flags)
+
+    RESERVED_FLAGS = {}
+    for line in read_lines_nocomment(path.join(tblpath, 'reserved_flags.txt')):
+        group, flag = line.split()
+        RESERVED_FLAGS[int(group, 0x10)] = int(flag, 0x10)
 
     done_locations = set()
+
+    @staticmethod
+    def get_event_flag(group, label):
+        key = '{0:0>2X}-{1:0>2X}'.format(group, label)
+        if group in OpenNPCGenerator.RESERVED_FLAGS:
+            flaghash = OpenNPCGenerator.RESERVED_FLAGS[group]
+        else:
+            candidates = sorted(OpenNPCGenerator.RESERVED_FLAGS,
+                                key=lambda g: (abs(group-g), g))
+            flaghash = OpenNPCGenerator.RESERVED_FLAGS[candidates[0]]
+
+        while True:
+            if flaghash in OpenNPCGenerator.RESERVED_FLAGS.values():
+                if group not in OpenNPCGenerator.RESERVED_FLAGS:
+                    flaghash += 1
+                    continue
+                elif OpenNPCGenerator.RESERVED_FLAGS[group] != flaghash:
+                    flaghash += 1
+                    continue
+            if flaghash not in OpenNPCGenerator.available_flags:
+                flaghash += 1
+            break
+
+        flag = flaghash
+        OpenNPCGenerator.available_flags.remove(flag)
+        return flag
 
     @staticmethod
     def get_properties_by_name(name):
@@ -4948,7 +4981,6 @@ class OpenNPCGenerator:
 
     @staticmethod
     def create_prince(location):
-        event_flag = OpenNPCGenerator.available_flags.pop()
         location = OpenNPCGenerator.boss_location_properties[location]
         map_bgm = location.map_bgm
         map_index = location.map_index
@@ -4961,6 +4993,7 @@ class OpenNPCGenerator:
         min_line = script.script[0][0]
         map_meta = MapMetaObject.get(map_index)
         npc_index = map_meta.get_next_npc_index()
+        event_flag = OpenNPCGenerator.get_event_flag(map_index, npc_index)
         map_npc_index = npc_index + 0x4f
         sprite = 0x14
         new_command = (min_line-1, 0x68, [map_npc_index, sprite])
@@ -5003,7 +5036,6 @@ class OpenNPCGenerator:
             reward2 = None
         parameters['reward1_event'] = ''
         parameters['reward2_event'] = ''
-        parameters['boss_flag'] = OpenNPCGenerator.available_flags.pop()
 
         location = OpenNPCGenerator.boss_location_properties[location]
 
@@ -5028,6 +5060,8 @@ class OpenNPCGenerator:
         old_event_signature = '%s-X-XX' % location.map_index
         map_index = int(location.map_index, 0x10)
         npc_index = MapMetaObject.get(map_index).get_next_npc_index()
+        event_flag = OpenNPCGenerator.get_event_flag(map_index, npc_index)
+        parameters['boss_flag'] = event_flag
         parameters['npc_index'] = npc_index
         parameters['npc_event_index'] = npc_index + 0x4f
 
@@ -6520,9 +6554,9 @@ def make_open_world(custom=None):
     item_acquire_opcode = '21' if item_index >= 0x100 else '20'
     item_acquire_opcode = '{0}({1:0>2X}-01)'.format(
             item_acquire_opcode, item_index & 0xFF)
-    final_boss_flag = OpenNPCGenerator.available_flags.pop()
-    iris_ending_flag = OpenNPCGenerator.available_flags.pop()
-    jelly_flag = OpenNPCGenerator.available_flags.pop()
+    final_boss_flag = OpenNPCGenerator.get_event_flag(0xe9, 0x01)
+    iris_ending_flag = OpenNPCGenerator.get_event_flag(0x69, 0x01)
+    jelly_flag = OpenNPCGenerator.get_event_flag(0x69, 0x02)
     ending_npcs = [0x50, 0x51, 0x52]
     random.shuffle(ending_npcs)
     a, b, c = ending_npcs
