@@ -1,3 +1,11 @@
+VERSION 3.15
+-Added an NPC to prevent softlocks on flower mountain.
+-Bonus items (frequently seen in `fourkeys`) may occasionally appear as a reward in standard open world mode.
+-Removed the Egg Ring from the bonus item pool.
+-Fixed bug where randomizer kept running out of locations to place character recruitment, particularly in `fourkeys`.
+-Removed key shop, obsolete keys from `fourkeys`.
+-Changed how event flags are distributed. The objective is to reserve flags for locations that are persistent from seed to seed, to assist with troubleshooting. However, this also means that many flags that were not being used previously, are now being used, so certain bugs related to event triggers might start showing up in this version.
+
 VERSION 3.14
 -Added a new game mode: `fourkeys`. In `fourkeys` there are only four keys.
 -Capsule monster reverts to the one you selected after battle.
