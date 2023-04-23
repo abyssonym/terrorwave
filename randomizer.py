@@ -6317,7 +6317,7 @@ def scale_enemies(location_ranks, ranked_bosses,
         m.scale_stats(scale_amount)
 
 
-def make_spoiler(ir):
+def make_spoiler(ir, character_recruitments):
     head, tail = path.split(get_outfile())
     outfilename = path.join(head, 'spoiler.{0}.txt'.format(tail))
     randomness = [o.random_degree for o in ALL_OBJECTS]
@@ -6333,6 +6333,14 @@ def make_spoiler(ir):
          )
     header = '\n'.join(s)
     footer = ir.report
+    for recruitment, character_name in character_recruitments.items():
+        while len(character_name) < len(recruitment):
+            character_name += ' '
+        footer = footer.replace(recruitment, character_name)
+    for i in ItemObject.every:
+        key = 'item_{0:0>3x}'.format(i.index)
+        if key in footer:
+            footer = footer.replace(key, i.name)
     with open(outfilename, 'w+') as f:
         f.write('{0}\n\n{1}\n'.format(header, footer))
 
@@ -6413,6 +6421,9 @@ def make_open_world(custom=None):
         else:
             meo.change_escapability(make_escapable=True)
 
+    for ipa in IPAttackObject.every:
+        ipa.replace_banned_animation()
+
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item', 'hidden_item'}
     MapEventObject.class_reseed('item_route')
     if 'fourkeys' in get_activated_codes():
@@ -6440,27 +6451,6 @@ def make_open_world(custom=None):
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
 
-    if 'fourkeys' in get_activated_codes():
-        buyable_items = {i for s in ShopObject.every for i in s.wares_flat}
-        rare_items = [i for i in ItemObject.every
-                      if i.price > 0 and i.rank > 0 and i not in buyable_items]
-
-        num_bonus = min(len(rare_items), 10)
-        remaining_locations = sorted(ir.get_valid_locations('dankirk_key'))
-        random.shuffle(remaining_locations)
-        remaining_locations = remaining_locations[:num_bonus]
-        bonus_items = []
-        rare_items = sorted(rare_items, key=lambda i: (i.rank, i.signature))
-        max_index = len(rare_items)-1
-        while len(bonus_items) < num_bonus:
-            index = random.randint(random.randint(0, max_index), max_index)
-            item = rare_items[index]
-            if item not in bonus_items:
-                bonus_items.append(item)
-
-        for location, item in zip(remaining_locations, bonus_items):
-            ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
-
     for loc in ir.unassigned_locations:
         if loc.endswith('1'):
             other = loc[:-1] + '2'
@@ -6470,8 +6460,8 @@ def make_open_world(custom=None):
     MapEventObject.class_reseed('selecting_characters')
     VALID_LEADERS = ['selan', 'guy', 'tia', 'dekar']
     assert ir.assignments['starting_character'] == 'character0'
-    ir.assignments['starting_character'] = random.choice(VALID_LEADERS)
-    name = ir.assignments['starting_character']
+    name = random.choice(VALID_LEADERS)
+    character_recruitments = {'character0': name}
     starting_character = OpenNPCGenerator.get_properties_by_name(name)
     dual_blade = ItemObject.get(0x36)
     dual_blade.equipability = 0
@@ -6484,23 +6474,25 @@ def make_open_world(custom=None):
     characters = ['maxim', 'selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
     characters.remove(name)
     random.shuffle(characters)
-    character_locations = ir.get_valid_locations('maxim')
+    for i, character in enumerate(characters):
+        key = 'character%s' % (i+1)
+        assert key not in character_recruitments
+        assert character not in character_recruitments.values()
+        character_recruitments[key] = character
+
+    character_locations = ir.get_valid_locations('character1')
     character_locations = sorted(
         character_locations, key=lambda loc: (ir.get_location_rank(loc), loc))
-    for i, character in enumerate(characters[:4]):
-        key = 'character%s' % (i+1)
-        location = ir.get_assigned_location(key)
-        ir.assignments[location] = character
-        characters.remove(character)
-
-    for character in characters:
+    for i in range(1, 7):
+        key = 'character%s' % i
+        if key in ir.assignments.values():
+            continue
         max_index = len(character_locations)-1
         index = random.randint(random.randint(0, max_index), max_index)
         location = character_locations[index]
         character_locations.remove(location)
-        ir.assignments[location] = character
-
-    make_spoiler(ir)
+        assert location not in ir.assignments
+        ir.assignments[location] = key
 
     assigned_item_indexes = []
 
@@ -6560,19 +6552,21 @@ def make_open_world(custom=None):
 
     MapEventObject.class_reseed('boss_route1')
     sorted_locations = []
+    used_locations = set()
     for rank in sorted(ir.location_ranks):
         locs = set(ir.location_ranks[rank])
         locs = sorted(locs)
         random.shuffle(locs)
         for l in locs:
-            if l not in ir.assignments:
-                continue
             key = l.rstrip('1').rstrip('2')
+            if l in ir.assignments:
+                used_locations.add(key)
             if l in NOBOSS_LOCATIONS or key in NOBOSS_LOCATIONS:
                 continue
             if key in sorted_locations:
                 continue
             sorted_locations.append(key)
+    used_locations -= NOBOSS_LOCATIONS
 
     bosses = sorted(OpenNPCGenerator.boss_properties.values(),
                     key=lambda b: b.name)
@@ -6600,9 +6594,6 @@ def make_open_world(custom=None):
         if bfo.index in SCRAP_FORMATIONS and bfo not in spare_formations:
             spare_formations.append(bfo)
 
-    for ipa in IPAttackObject.every:
-        ipa.replace_banned_animation()
-
     for f in spare_formations:
         for i in range(1000):
             f.reseed('become%s' % i)
@@ -6615,8 +6606,43 @@ def make_open_world(custom=None):
                 break
 
     del(BossFormationObject._class_property_cache['ranked'])
-    MapEventObject.class_reseed('boss_route2')
     chosen_bosses = chosen_bosses + spare_formations
+    remaining_locations = sorted(ir.get_valid_locations('dankirk_key'))
+    remaining_locations = {l.rstrip('1').rstrip('2')
+                           for l in remaining_locations}
+    remaining_locations = sorted(remaining_locations - used_locations)
+
+    MapEventObject.class_reseed('bonus_items')
+    buyable_items = {i for s in ShopObject.every for i in s.wares_flat}
+    rare_items = [i for i in ItemObject.every
+                  if i.price > 0 and i.rank > 0 and i not in buyable_items]
+    rare_items = sorted(rare_items, key=lambda i: (i.rank, i.signature))
+    egg_ring = ItemObject.get(0x168)
+    if egg_ring in rare_items:
+        rare_items.remove(egg_ring)
+
+    num_bonus = len(chosen_bosses) - len(used_locations)
+    assert num_bonus >= 0
+    num_bonus = min(num_bonus, len(remaining_locations))
+    random.shuffle(remaining_locations)
+    for _ in range(num_bonus):
+        location = remaining_locations.pop()
+        used_locations.add(location)
+        if location not in ir.all_locations:
+            location = '%s2' % location
+        assert location in ir.all_locations
+        assert location not in ir.assignments
+        max_index = len(rare_items)-1
+        index = random.randint(random.randint(0, max_index), max_index)
+        item = rare_items[index]
+        rare_items.remove(item)
+        ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
+
+    sorted_locations = [l for l in sorted_locations if l in used_locations]
+    assert len(chosen_bosses) == len(sorted_locations) == len(used_locations)
+    make_spoiler(ir, character_recruitments)
+
+    MapEventObject.class_reseed('boss_route2')
     random.shuffle(chosen_bosses)
     chosen_bosses = chosen_bosses[:len(sorted_locations)]
     while len(chosen_bosses) < len(sorted_locations):
@@ -6669,7 +6695,14 @@ def make_open_world(custom=None):
         key = '%s2' % location
         if key in ir.assignments:
             reward2 = ir.assignments[key]
+        if not (reward1 or reward2):
+            print('WARNING: No reward for %s' % location)
+            continue
         assert reward1 or reward2
+        if isinstance(reward1, str) and reward1.startswith('character'):
+            reward1 = character_recruitments[reward1]
+        if isinstance(reward2, str) and reward2.startswith('character'):
+            reward2 = character_recruitments[reward2]
         result = OpenNPCGenerator.create_boss_npc(location, boss,
                                                   reward1, reward2, parameters)
         location, boss, reward1, reward2, event = result
