@@ -1429,6 +1429,12 @@ class ItemObject(AdditionalPropertiesMixin, PriceMixin, TableObject):
         self._rank = min(self._rank, 65000)
         return self.rank
 
+    def set_name(self, name_text):
+        while len(name_text) < 12:
+            name_text += ' '
+        assert len(name_text) == 12
+        ItemNameObject.get(self.index).name_text = name_text.encode('ascii')
+
     def cleanup(self):
         if self.index == 0x36 and 'KUREJI' in get_global_label().upper():
             for charname in ['maxim', 'selan', 'guy', 'artea',
@@ -6360,10 +6366,7 @@ def make_four_keys():
     for location, master_index in sorted(master_keys.items()):
         master_key = ItemNameObject.get(master_index)
         name_text = 'ALL {0}'.format(location).upper()
-        while len(name_text) < 12:
-            name_text += ' '
-        assert len(name_text) == 12
-        master_key.name_text = name_text.encode('ascii')
+        master_key.set_name(name_text)
 
     keydict = get_keydict()
     for meo in MapEventObject.every:
@@ -6427,6 +6430,9 @@ def make_open_world(custom=None):
 
     for ipa in IPAttackObject.every:
         ipa.replace_banned_animation()
+
+    treasure_sword = ItemObject.get(0x1ac)
+    treasure_sword.set_name('SHAME JADE')
 
     NOBOSS_LOCATIONS = {'starting_character', 'starting_item', 'hidden_item'}
     MapEventObject.class_reseed('item_route')

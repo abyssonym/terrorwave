@@ -284,6 +284,61 @@ EVENT 69-C-6D
 7000. 16(E7-62-01)                   # Warp to Map & Event E7-B-62 (01)
 7FFF. 00()
 
+!npc 0f (00) 80:0e,04
+EVENT 80-X-XX
+0000. 74(01)                         # Set Battle BG
+0002. 69(01)                         # Set Map Properties (escapable, etc.)
+0004. 69(11)                         # Set Map Properties (escapable, etc.)
+0006. 4B(13)                         # Play BGM
+0008. 7B(50-AB)                      # Load Monster NPC (07,1c) 50: ab Necromancer
+0100. 14(C2-0029-0001-20-@7FFF-FF)
+0110. 14(C2-01a7-0001-20-@7FFF-FF)
+0120. 68(5E-37)
+7FFF. 00()                           # End Event
+
+EVENT 80-C-5E
+0000. 14(C2-01AC-0001-30-@1000-FF)
+0010. 08: What the heck?!
+          Why are you here
+          again?<END MESSAGE>
+0020. 1C(@3000)
+1000. 08: Are you stuck?<END MESSAGE>
+1010. 10(02-@1030-@2000)
+1020. 08: Yes.
+          No.<CHOICE>
+1030. 08: Boy, you've really
+          done it this time.<END MESSAGE>
+1040. 08: I can warp you
+          out, but you have
+          to do me a favor.<END MESSAGE>
+1050. 10(02-@1070-@2000)
+1060. 08: Okay.
+          No way.<CHOICE>
+1070. 08: Great! Just hold
+          on to this for
+          me. Bye!<END MESSAGE>
+1080. 1C(@3000)
+2000. 08: Suit yourself. <END EVENT>
+3000. A3({{starting_character_index}}-85)
+3100. 16(A2-0B-04)
+3110. 00()
+
+EVENT A2-B-0B
+0000. 59(11)
+0010. 14(C2-01AC-0001-20-@7FFF-FF)
+1010. 4B(33)
+1020. 8C(00-0A-0F)
+1030. 86(00-40)
+1040. 49(C8)
+1050. 9E: <POSITION 02>Gets the
+          JADE OF SHAME.<END MESSAGE>
+1060. 89(00)
+1070. 49(00)
+1080. 21(AC-01)
+1090. 70()
+10A0. 4B(07)
+7FFF. 00()
+
 !npc 1e (00) 87:07,1f
 !npc 1f (00) 87:04,05
 EVENT 87-X-XX  # $3a0e9:3a0e9
@@ -416,8 +471,9 @@ EVENT A2-D-0A
 1020. 08: Yes.
           No.<CHOICE>
 1030. 00()
-1040. 7D(02)
-1050. 7F(FF)
+1040. 7E(00)
+1050. 7D(02)
+1060. 7F(FF)
 1100. 2E(00)
 1110. 2E(01)
 1120. 2E(02)
