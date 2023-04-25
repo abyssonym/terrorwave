@@ -45,7 +45,7 @@ EVENT_PATCHES = [
 
 def check_open_world():
     if any(code in get_activated_codes() for code in
-            {'open', 'airship', 'custom'}) or 'w' in get_flags():
+            {'open', 'airship', 'custom', 'fourkeys'}) or 'w' in get_flags():
         return True
     return False
 

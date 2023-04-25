@@ -37,9 +37,10 @@ Secret Codes:
     custom                  Use a custom seed for open-world mode
     airship                 Start the game with the airship.
     bossy                   Very random bosses (unbalanced even with scaling)
+    fourkeys                Open World, but there are only four keys
 
     OPEN WORLD ENEMY SCALING
-    scale                   Scale enemy states in open-world mode
+    scale                   Scale enemy status in open-world mode
     noscale                 Do not scale enemies in open-world mode
     splitscale              Input custom values for scaling bosses and nonbosses.
 
@@ -61,6 +62,8 @@ Output files:
 
 Credits:
     Artemis - Creator of various mods and assistance with several bugs and features
+    EveTheFeesh - Sprite updates for Artea and Lexis
+        http://twitch.tv/eve___
     Relnqshd - Creator of "Fixxxer Deluxe" mod
         http://www.romhacking.net/hacks/229/
     Rainponcho - Creator of the Ancient Cave item fix patch
