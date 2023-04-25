@@ -20,8 +20,8 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.15'
-TEXT_VERSION = 'Three Fifteen'
+VERSION = '3.16'
+TEXT_VERSION = 'Three Sixteen'
 ALL_OBJECTS = None
 DEBUG_MODE = False
 
@@ -2556,6 +2556,9 @@ class TownSpriteObject(TableObject):
         image.save(filename, transparency=0)
 
     def import_data(self, data):
+        if isinstance(data, str):
+            with open(data, 'r+b') as f:
+                data = f.read()
         assert len(data) <= 0x1800
         if self.index not in [3, 6]:
             pointer = map_from_lorom(self.sprite_pointer)
@@ -2601,6 +2604,10 @@ class TownSpriteObject(TableObject):
         tiles = SnesGfxManager.pixels_to_tiles(pixels, width=image.width//8)
         tiles = self.reinterleave_tiles(tiles)
         data = SnesGfxManager.tiles_to_data(tiles)
+        with open('{0}.bin'.format(filename), 'w+') as f:
+            pass
+        with open('{0}.bin'.format(filename), 'r+b') as f:
+            f.write(data)
         self.import_data(data)
 
 
@@ -5956,6 +5963,7 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     roles = [
         ('Fixxxer Patch Author', 'Relnqshd'),
         ('Legacy Documentation', 'Relnqshd'),
+        ('Sprite Art', 'EveTheFeesh'),
         ('Background Listening', 'Two Tone Tony'),
         ('Special Thanks', 'Lufia II Speedrun Community'),
         ]
@@ -6435,6 +6443,9 @@ def make_four_keys():
 
 
 def make_open_world(custom=None):
+    TownSpriteObject.get(3).import_data(path.join(tblpath, 'new_artea.bin'))
+    TownSpriteObject.get(6).import_data(path.join(tblpath, 'new_lexis.bin'))
+
     # new coin shop on forfeit island (only supports coins + 3 items)
     s = ShopObject.get(0x1a)
     s.become_coin_shop()
@@ -6508,7 +6519,10 @@ def make_open_world(custom=None):
                 assert not ir.assignments[other].endswith('_key')
 
     MapEventObject.class_reseed('selecting_characters')
-    VALID_LEADERS = ['selan', 'guy', 'tia', 'dekar']
+    if VERSION == '3.16' and 1682460000 <= get_seed() <= 1682460000 + 172800:
+        VALID_LEADERS = ['artea', 'lexis']
+    else:
+        VALID_LEADERS = ['selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
     assert ir.assignments['starting_character'] == 'character0'
     name = random.choice(VALID_LEADERS)
     character_recruitments = {'character0': name}
@@ -7017,9 +7031,6 @@ if __name__ == '__main__':
 
         if 'personnel' in get_activated_codes():
             print('NOTHING PERSONNEL KID.')
-
-        #TownSpriteObject.get(3).import_file('new_artea.png')
-        #TownSpriteObject.get(6).import_file('new_lexis.png')
 
         patch_events()
         MapEventObject.roaming_comments = set()
