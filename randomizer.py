@@ -6686,24 +6686,23 @@ def make_open_world(custom=None):
         rare_items.remove(egg_ring)
 
     num_bonus = len(chosen_bosses) - len(used_locations)
-    assert num_bonus >= 0
-    num_bonus = min(num_bonus, len(remaining_locations))
-    random.shuffle(remaining_locations)
-    for _ in range(num_bonus):
-        location = remaining_locations.pop()
-        used_locations.add(location)
-        if location not in ir.all_locations:
-            location = '%s2' % location
-        assert location in ir.all_locations
-        assert location not in ir.assignments
-        max_index = len(rare_items)-1
-        index = random.randint(random.randint(0, max_index), max_index)
-        item = rare_items[index]
-        rare_items.remove(item)
-        ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
+    if num_bonus > 0:
+        num_bonus = min(num_bonus, len(remaining_locations))
+        random.shuffle(remaining_locations)
+        for _ in range(num_bonus):
+            location = remaining_locations.pop()
+            used_locations.add(location)
+            if location not in ir.all_locations:
+                location = '%s2' % location
+            assert location in ir.all_locations
+            assert location not in ir.assignments
+            max_index = len(rare_items)-1
+            index = random.randint(random.randint(0, max_index), max_index)
+            item = rare_items[index]
+            rare_items.remove(item)
+            ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
 
     sorted_locations = [l for l in sorted_locations if l in used_locations]
-    assert len(chosen_bosses) == len(sorted_locations) == len(used_locations)
     make_spoiler(ir, character_recruitments)
 
     MapEventObject.class_reseed('boss_route2')
@@ -6711,6 +6710,7 @@ def make_open_world(custom=None):
     chosen_bosses = chosen_bosses[:len(sorted_locations)]
     while len(chosen_bosses) < len(sorted_locations):
         chosen_bosses.append(random.choice(chosen_bosses))
+    assert len(chosen_bosses) == len(sorted_locations) == len(used_locations)
     sorted_bosses = sorted(chosen_bosses, key=lambda b: (b.rank, b.index))
 
     shuffled_bosses = shuffle_simple(
