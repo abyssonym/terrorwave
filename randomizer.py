@@ -5600,7 +5600,8 @@ def generate_thieves(iris_item):
     buyable_items = {i for s in ShopObject.every for i in s.wares_flat}
     rare_items = [i for i in ItemObject.every
                   if i.price > 0 and i.rank > 0 and i not in buyable_items]
-    rare_items = sorted(rare_items, key=lambda i: i.rank)
+    rare_items = sorted(rare_items,
+                        key=lambda i: (i.rank, i.signature, i.index))
     max_index = len(rare_items)-1
     index = random.randint(random.randint(1, max_index), max_index)
     iris_exchange_item = rare_items[index]
@@ -5609,7 +5610,8 @@ def generate_thieves(iris_item):
         iris_exchange_quantity += 1
     iris_exchange_quantity = min(iris_exchange_quantity, 99)
 
-    buyable_items = sorted(buyable_items, key=lambda i: i.price)
+    buyable_items = sorted(buyable_items,
+                           key=lambda i: (i.price, i.signature, i.index))
     max_index = len(buyable_items)-1
     index = random.randint(random.randint(1, max_index), max_index)
     second_exchange_item = buyable_items[index]
