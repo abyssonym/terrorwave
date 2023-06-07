@@ -51,6 +51,7 @@ Secret Codes:
     FOR FUN
     monstermash             Randomize which monsters appear in dungeons.
     nothingpersonnelkid     Extremely aggressive enemies.
+    nocap                   Disables in-battle capsule swapping
     anywhere                Equipment slots are randomized (breaks "Strongest")
 
 Randomness:
