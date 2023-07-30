@@ -38,6 +38,7 @@ Secret Codes:
     airship                 Start the game with the airship.
     bossy                   Very random bosses (unbalanced even with scaling)
     fourkeys                Open World, but there are only four keys
+    blitz                   Allows a faster playthrough
 
     OPEN WORLD ENEMY SCALING
     scale                   Scale enemy status in open-world mode

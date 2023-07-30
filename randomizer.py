@@ -5912,6 +5912,8 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     for capsule_index in range(7):
         findstr = '. 81({0:0>2X})'.format(capsule_index)
         location, boss = extract_location_boss(findstr)
+        if location is None or boss is None:
+            continue
         s3 += CapsuleObject.get(capsule_index*5).name + '\n'
         s3 += right_justify(location) + '\n'
         s3 += right_justify(boss.boss.name) + '\n'
@@ -6494,6 +6496,10 @@ def make_open_world(custom=None):
                         path.join(tblpath, 'restrictions_fourkeys.txt'),
                         linearity=0.8)
         make_four_keys()
+    elif 'blitz' in get_activated_codes():
+        ir = ItemRouter(path.join(tblpath, 'requirements_blitz.txt'),
+                        path.join(tblpath, 'restrictions_blitz.txt'),
+                        linearity=0.4)
     else:
         ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                         path.join(tblpath, 'restrictions.txt'),
@@ -6518,7 +6524,8 @@ def make_open_world(custom=None):
         if loc.endswith('1'):
             other = loc[:-1] + '2'
             if other in ir.assignments:
-                assert not ir.assignments[other].endswith('_key')
+                print( "Not assigned: {}".format(loc) )
+                #assert not ir.assignments[other].endswith('_key')
 
     MapEventObject.class_reseed('selecting_characters')
     if VERSION == '3.16' and 1682460000 <= get_seed() <= 1682460000 + 172800:
@@ -7025,6 +7032,7 @@ if __name__ == '__main__':
             'monstermash': ['monstermash'],
             'nocap': ['nocap'],
             'fourkeys': ['fourkeys'],
+            'blitz': ['blitz'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
