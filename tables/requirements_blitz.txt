@@ -10,6 +10,12 @@
 
 .def any_tool arrow|bomb|hook|hammer|fire_arrow
 .def any_key sky_key|lake_key|ruby_key|wind_key|cloud_key|light_key|sword_key|tree_key|flower_key|magma_key|heart_key|ghost_key|trial_key|dankirk_key|basement_key|narcysus_key|truth_key
+.def any_dungeon_key lake_key|ruby_key|dankirk_key|basement_key
+.def any_shrine_key sword_key|heart_key|ghost_key
+.def any_mountain_key tree_key|magma_key|flower_key
+.def any_tower_key cloud_key|light_key|narcysus_key|sky_key|trial_key|truth_key|wind_key
+.def some_key any_dungeon_key&any_shrine_key&any_mountain_key&any_tower_key
+
 .def party0 any_tool&character0
 
 .def party1 character1|character2|character3|character4
@@ -89,7 +95,4 @@ gratze_basement     gratze&arrowlike&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
-lisa				arrowlike
-marie				breakable
-clare				party1
-daos_shrine         lisa&marie&clare&any_key
+daos_shrine         lisa&marie&clare&some_key

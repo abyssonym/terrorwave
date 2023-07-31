@@ -164,8 +164,8 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
-            price = price - 1
+        #if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
+            #price = price - 1
         self.price = int(round(price))
 
 
@@ -6752,7 +6752,10 @@ def make_open_world(custom=None):
         parameters['hidden_item'] = ''
 
     # Apply base patches BEFORE procedural modifications
-    patch_with_template('open_world_events', parameters)
+    if 'blitz' in get_activated_codes():
+        patch_with_template('open_world_events_blitz', parameters)
+    else:
+        patch_with_template('open_world_events', parameters)
 
     boss_events = []
     assert len(shuffled_bosses) == len(sorted_locations)
@@ -6984,9 +6987,11 @@ def key_shop():
 
 def run_trials():
     LOGFILE = 'trial_log.txt'
-    NUM_TRIALS = 1000
+    NUM_TRIALS = 100
     victory_set = {'lisa', 'marie', 'clare', 'engine'}
     linearity = 0
+    with open(LOGFILE, 'w') as f:
+        pass
     for n in range(NUM_TRIALS):
         MapEventObject.class_reseed('trial%s-%s' % (linearity, n+4000))
         ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
@@ -6997,15 +7002,17 @@ def run_trials():
         assert 'daos_shrine' not in ir.assignments
         ir.assignments['daos_shrine'] = 'victory'
         items = set()
+        noLocChecks = 0
         for rank in sorted(ir.location_ranks):
             locations = ir.location_ranks[rank]
             for loc in sorted(locations):
+                noLocChecks = noLocChecks + 1
                 if loc in ir.assignments:
                     items.add(ir.assignments[loc])
             if items >= victory_set:
                 break
         with open(LOGFILE, 'a+') as f:
-            s = '%s %s %s\n' % (linearity, rank, max(ir.location_ranks))
+            s = '%s %s %s %s\n' % (linearity, rank, max(ir.location_ranks), noLocChecks)
             f.write(s)
         print(s.strip())
 
