@@ -3,8 +3,8 @@ name: Python Packaging
 on: [push]
 
 jobs:
-  build-windows:
-    runs-on: windows
+  build-linux:
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
 
