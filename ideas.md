@@ -34,3 +34,11 @@ Stop the guard from blocking the way after 5-15 seconds or give opportunity to *
 	- Make most chests empty in order to reduce number of checks
 	- Chests may contain warp/escape spell/items
 
+
+# Hero Mode
+- Open world
+- Remove grinding entirely.
+	- Instead of grinding money for gear you find suitable in chests. (no junk)
+	- You also find suitable spells in chests. (no tier 1 spells)
+	- All characters are level 30 and monsters are scaled based on that.
+	- Monsters no longer give xp

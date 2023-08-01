@@ -164,8 +164,8 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        #if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
-            #price = price - 1
+        if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
+            price = price - 1
         self.price = int(round(price))
 
 
@@ -5218,6 +5218,57 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
                 script.script = new_script
 
 
+class LocationTime:
+    def __init__(self):
+        self.location_time = {
+            'starting_character': 0,
+            'starting_item': 0,
+            'hidden_item': 0,
+            'daos_shrine': 0,
+            'foomy_woods': 1,
+            'darbi_shrine': 1,
+            'zeppy_cave': 1,
+            'lexis_lab': 1,
+            'underwater_shrine': 1,
+            'daos_shrine': 1,
+            'no_return_mountain': 2,
+            'skill_cave': 2,
+            'sundletan_cave': 2,
+            'ruby_cave': 2,
+            'ruby_capsule': 2,
+            'cave_bridge': 2,
+            'north_dungeon': 4,
+            'north_capsule': 4,
+            'catfish_cave': 5,
+            'alunze_cave': 5,
+            'alunze_basement': 5,
+            'sacrifice_tower': 5,
+            'sacrifice_capsule': 5,
+            'northeast_tower': 5,
+            'flower_mountain': 7,
+            'flower_capsule': 7,
+            'tanbel_tower': 10,
+            'ancient_tower': 10,
+            'lighthouse': 10,
+            'gratze_basement': 10,
+            'shuman': 10,
+            'stradha': 10,
+            'kamirno': 10,
+            'truth_tower': 10,
+            'karlloon_shrine': 15,
+            'divine_shrine': 15,
+            'vengeance_shrine': 15,
+            'dragon_mountain': 20,
+            'tsword_shrine': 20,
+            'gordovan_tower': 20,
+            'phantom_mountain': 20,
+            'dankirk_dungeon': 25,
+        }
+
+    def get_time_of_location(self, loc):
+        key = loc.rstrip('1').rstrip('2')
+        return self.location_time[key] if key in self.location_time else 20
+
 def make_wild_jelly(jelly_flag):
     MapEventObject.class_reseed('make_wild_jelly')
     JELLY_SPRITE_INDEX = 0x94
@@ -6499,7 +6550,7 @@ def make_open_world(custom=None):
     elif 'blitz' in get_activated_codes():
         ir = ItemRouter(path.join(tblpath, 'requirements_blitz.txt'),
                         path.join(tblpath, 'restrictions_blitz.txt'),
-                        linearity=0.4)
+                        linearity=0.8)
     else:
         ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                         path.join(tblpath, 'restrictions.txt'),
@@ -6520,18 +6571,38 @@ def make_open_world(custom=None):
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
 
-    for loc in ir.unassigned_locations:
-        if loc.endswith('1'):
-            other = loc[:-1] + '2'
-            if other in ir.assignments:
-                print( "Not assigned: {}".format(loc) )
-                #assert not ir.assignments[other].endswith('_key')
+    if 'blitz' in get_activated_codes():
+        locTime = LocationTime()
+        for r in range(20): # Retry count for a good blitz seed
+            victory_set = {'lisa', 'marie', 'clare'}
+            items = set()
+            noLocChecks = 0
+            for rank in sorted(ir.location_ranks):
+                locations = ir.location_ranks[rank]
+                for loc in sorted(locations, key=locTime.get_time_of_location):
+                    noLocChecks = noLocChecks + 1
+                    if loc in ir.assignments:
+                        items.add(ir.assignments[loc])
+                        if items >= victory_set:
+                            break
+                if items >= victory_set:
+                    break
+            if noLocChecks >= 20 and noLocChecks <= 30:
+                break
+            print( "{} checks are bad. Retrying.".format( noLocChecks ) )
+            ir.clear_assignments()
+            ir.assign_everything()
+            ir.assignments['daos_shrine'] = 'victory'
+
+    else: # Disallow non-key rewards for non-blitz
+        for loc in ir.unassigned_locations:
+            if loc.endswith('1'):
+                other = loc[:-1] + '2'
+                if other in ir.assignments:
+                    assert not ir.assignments[other].endswith('_key')
 
     MapEventObject.class_reseed('selecting_characters')
-    if VERSION == '3.16' and 1682460000 <= get_seed() <= 1682460000 + 172800:
-        VALID_LEADERS = ['artea', 'lexis']
-    else:
-        VALID_LEADERS = ['selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
+    VALID_LEADERS = ['selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
     assert ir.assignments['starting_character'] == 'character0'
     name = random.choice(VALID_LEADERS)
     character_recruitments = {'character0': name}
@@ -6987,7 +7058,7 @@ def key_shop():
 
 def run_trials():
     LOGFILE = 'trial_log.txt'
-    NUM_TRIALS = 100
+    NUM_TRIALS = 1000
     victory_set = {'lisa', 'marie', 'clare', 'engine'}
     linearity = 0
     with open(LOGFILE, 'w') as f:

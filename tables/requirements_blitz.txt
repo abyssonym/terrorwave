@@ -14,7 +14,7 @@
 .def any_shrine_key sword_key|heart_key|ghost_key
 .def any_mountain_key tree_key|magma_key|flower_key
 .def any_tower_key cloud_key|light_key|narcysus_key|sky_key|trial_key|truth_key|wind_key
-.def some_key any_dungeon_key&any_shrine_key&any_mountain_key&any_tower_key
+.def some_keys any_dungeon_key&any_shrine_key&any_mountain_key&any_tower_key
 
 .def party0 any_tool&character0
 
@@ -95,4 +95,4 @@ gratze_basement     gratze&arrowlike&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
-daos_shrine         lisa&marie&clare&some_key
+daos_shrine         lisa&marie&clare&some_keys&all_tools
