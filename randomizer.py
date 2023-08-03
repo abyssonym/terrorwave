@@ -45,7 +45,7 @@ EVENT_PATCHES = [
 
 def check_open_world():
     if any(code in get_activated_codes() for code in
-            {'open', 'airship', 'custom', 'fourkeys'}) or 'w' in get_flags():
+            {'open', 'airship', 'custom', 'fourkeys', 'blitz'}) or 'w' in get_flags():
         return True
     return False
 
@@ -6587,7 +6587,7 @@ def make_open_world(custom=None):
                             break
                 if items >= victory_set:
                     break
-            if noLocChecks >= 20 and noLocChecks <= 30:
+            if 20 <= noLocChecks <= 30:
                 break
             print( "{} checks are bad. Retrying.".format( noLocChecks ) )
             ir.clear_assignments()
@@ -7061,8 +7061,6 @@ def run_trials():
     NUM_TRIALS = 1000
     victory_set = {'lisa', 'marie', 'clare', 'engine'}
     linearity = 0
-    with open(LOGFILE, 'w') as f:
-        pass
     for n in range(NUM_TRIALS):
         MapEventObject.class_reseed('trial%s-%s' % (linearity, n+4000))
         ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
@@ -7073,17 +7071,15 @@ def run_trials():
         assert 'daos_shrine' not in ir.assignments
         ir.assignments['daos_shrine'] = 'victory'
         items = set()
-        noLocChecks = 0
         for rank in sorted(ir.location_ranks):
             locations = ir.location_ranks[rank]
             for loc in sorted(locations):
-                noLocChecks = noLocChecks + 1
                 if loc in ir.assignments:
                     items.add(ir.assignments[loc])
             if items >= victory_set:
                 break
         with open(LOGFILE, 'a+') as f:
-            s = '%s %s %s %s\n' % (linearity, rank, max(ir.location_ranks), noLocChecks)
+            s = '%s %s %s\n' % (linearity, rank, max(ir.location_ranks))
             f.write(s)
         print(s.strip())
 
