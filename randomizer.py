@@ -6573,23 +6573,24 @@ def make_open_world(custom=None):
 
     if 'blitz' in get_activated_codes():
         locTime = LocationTime()
+        victory_set = {'lisa', 'marie', 'clare'}
         for r in range(20): # Retry count for a good blitz seed
-            victory_set = {'lisa', 'marie', 'clare'}
             items = set()
-            noLocChecks = 0
+            locsChecked = set()
             for rank in sorted(ir.location_ranks):
                 locations = ir.location_ranks[rank]
                 for loc in sorted(locations, key=locTime.get_time_of_location):
-                    noLocChecks = noLocChecks + 1
+                    key = loc.rstrip('1').rstrip('2')
+                    locsChecked.add(key)
                     if loc in ir.assignments:
                         items.add(ir.assignments[loc])
                         if items >= victory_set:
                             break
                 if items >= victory_set:
                     break
-            if 20 <= noLocChecks <= 30:
+            if 20 <= len(locsChecked) <= 25:
                 break
-            print( "{} checks are bad. Retrying.".format( noLocChecks ) )
+            print( "{} checks are bad. Retrying.".format( len(locsChecked) ) )
             ir.clear_assignments()
             ir.assign_everything()
             ir.assignments['daos_shrine'] = 'victory'

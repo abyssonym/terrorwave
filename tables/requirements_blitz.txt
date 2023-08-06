@@ -7,6 +7,7 @@
 
 .def all_capsules jelze&flash&gusto&zeppy&darbi&sully&blaze
 .def some_capsules jelze|flash|gusto|zeppy|darbi|sully|blaze
+.def less_capsules gusto|darbi|sully|blaze
 
 .def any_tool arrow|bomb|hook|hammer|fire_arrow
 .def any_key sky_key|lake_key|ruby_key|wind_key|cloud_key|light_key|sword_key|tree_key|flower_key|magma_key|heart_key|ghost_key|trial_key|dankirk_key|basement_key|narcysus_key|truth_key
@@ -95,4 +96,4 @@ gratze_basement     gratze&arrowlike&basement_key&party2
 shuman              airship&party3
 stradha             airship&party3
 kamirno             airship&party3
-daos_shrine         lisa&marie&clare&some_keys&all_tools
+daos_shrine         lisa&marie&clare&some_keys&all_tools&less_capsules
