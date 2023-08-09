@@ -20,7 +20,7 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.16 blitz1.0.3'
+VERSION = '3.16 blitz1.0.4'
 TEXT_VERSION = 'Three Sixteen'
 ALL_OBJECTS = None
 DEBUG_MODE = False
@@ -6424,7 +6424,7 @@ def scale_enemies(location_ranks, ranked_bosses,
         m.scale_stats(scale_amount)
 
 
-def make_spoiler(ir, character_recruitments):
+def make_spoiler(ir, character_recruitments, location2BossMap={}):
     head, tail = path.split(get_outfile())
     outfilename = path.join(head, 'spoiler.{0}.txt'.format(tail))
     randomness = [o.random_degree for o in ALL_OBJECTS]
@@ -6439,7 +6439,17 @@ def make_spoiler(ir, character_recruitments):
          'difficulty: {}'.format(get_difficulty()),
          )
     header = '\n'.join(s)
-    footer = ir.report
+    footer = []
+    locTime = LocationTime()
+    for rank in sorted(ir.location_ranks):
+        locations = ir.location_ranks[rank]
+        for loc in sorted(locations, key=lambda k: (locTime.get_time_of_location(k), k) ):
+            if loc in ir.assignments:
+                item = ir.assignments[loc]
+                bossloc = loc.rstrip('2').rstrip('1')
+                boss = location2BossMap[bossloc] if bossloc in location2BossMap else '-'
+                footer.append( "{0:<20}{1:<20}{2}".format( loc, item, boss ) )
+    footer = "\n".join(footer)
     for recruitment, character_name in character_recruitments.items():
         while len(character_name) < len(recruitment):
             character_name += ' '
@@ -6784,7 +6794,6 @@ def make_open_world(custom=None):
             ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
 
     sorted_locations = [l for l in sorted_locations if l in used_locations]
-    make_spoiler(ir, character_recruitments)
 
     MapEventObject.class_reseed('boss_route2')
     random.shuffle(chosen_bosses)
@@ -6830,6 +6839,8 @@ def make_open_world(custom=None):
         patch_with_template('open_world_events', parameters)
 
     boss_events = []
+    sinistrals = {"Gades x1", "Amon x1", "Erim x1", "Daos x1"}
+    location2BossMap = {'starting_item': '', 'starting_character': '', 'hidden_item': ''}
     assert len(shuffled_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
         assert location not in NOBOSS_LOCATIONS
@@ -6851,6 +6862,23 @@ def make_open_world(custom=None):
             reward1 = character_recruitments[reward1]
         if isinstance(reward2, str) and reward2.startswith('character'):
             reward2 = character_recruitments[reward2]
+        if 'sinistrals' in get_activated_codes():
+            if reward1 == "lisa" or reward2 == "lisa":
+                boss = "gades2"
+            elif reward1 == "clare" or reward2 == "clare":
+                boss = "amon1"
+            elif reward1 == "marie" or reward2 == "marie":
+                boss = "erim"
+            elif reward1 == "victory":
+                boss = "daos"
+            elif boss.name in sinistrals:
+                for i in range(100):
+                    boss.reseed("boss%s" % (i) )
+                    boss.become_random()
+                    if boss.name not in sinistrals:
+                        break
+        bossName = boss if isinstance(boss, str) else boss.name
+        location2BossMap[location.rstrip('1').rstrip('2')] = bossName.strip()
         result = OpenNPCGenerator.create_boss_npc(location, boss,
                                                   reward1, reward2, parameters)
         location, boss, reward1, reward2, event = result
@@ -6859,6 +6887,8 @@ def make_open_world(custom=None):
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes.append(int(reward.item_index,
                                                  0x10))
+
+    make_spoiler(ir, character_recruitments, location2BossMap)
 
     for location in sorted(OpenNPCGenerator.boss_location_properties):
         if location not in OpenNPCGenerator.done_locations:
@@ -7108,6 +7138,7 @@ if __name__ == '__main__':
             'nocap': ['nocap'],
             'fourkeys': ['fourkeys'],
             'blitz': ['blitz'],
+            'sinistrals': ['sinistrals'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
