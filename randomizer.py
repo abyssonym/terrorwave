@@ -20,7 +20,7 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.16 blitz1.0.4'
+VERSION = '3.16 blitz1.0.5'
 TEXT_VERSION = 'Three Sixteen'
 ALL_OBJECTS = None
 DEBUG_MODE = False
@@ -6877,8 +6877,18 @@ def make_open_world(custom=None):
                     boss.become_random()
                     if boss.name not in sinistrals:
                         break
+        elif 'last_sinistral' in get_activated_codes():
+            if reward1 == "victory":
+                boss = random.choice(["gades4", "amon2", "erim", "daos"])
+            elif boss.name in sinistrals:
+                for i in range(100):
+                    boss.reseed("boss%s" % (i) )
+                    boss.become_random()
+                    if boss.name not in sinistrals:
+                        break
+
         bossName = boss if isinstance(boss, str) else boss.name
-        location2BossMap[location.rstrip('1').rstrip('2')] = bossName.strip()
+        location2BossMap[location.rstrip('1').rstrip('2')] = bossName
         result = OpenNPCGenerator.create_boss_npc(location, boss,
                                                   reward1, reward2, parameters)
         location, boss, reward1, reward2, event = result
@@ -7139,6 +7149,7 @@ if __name__ == '__main__':
             'fourkeys': ['fourkeys'],
             'blitz': ['blitz'],
             'sinistrals': ['sinistrals'],
+            'last_sinistral': ['last_sinistral'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)
