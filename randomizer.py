@@ -20,7 +20,7 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.16 blitz1.0.5'
+VERSION = '3.16 blitz1.0.6'
 TEXT_VERSION = 'Three Sixteen'
 ALL_OBJECTS = None
 DEBUG_MODE = False
@@ -164,8 +164,6 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
-            price = price - 1
         self.price = int(round(price))
 
 
@@ -473,6 +471,9 @@ class BossFormationObject(TableObject):
                        for (x, y) in self.monster_coordinates]
         coordinates = ' '.join(coordinates)
         return '{0}\n{1}\n{2}'.format(s, coordinates, hexify(self.unknown))
+
+    def rewind(self):
+        self.monster_indexes = self.old_data['monster_indexes']
 
     @property
     def monsters(self):
@@ -5182,6 +5183,7 @@ class OpenNPCGenerator:
                 parameters[attr] = getattr(propobj, attr)
 
         if 'victory' in (reward1, reward2):
+            parameters['music_id'] = '1B' if 'music_last_sinistral' in get_activated_codes() else '1C'
             patch_with_template('final_boss_npc', parameters)
         elif reward1 and reward2:
             patch_with_template('boss_npc_double_reward', parameters)
@@ -6723,6 +6725,8 @@ def make_open_world(custom=None):
             sorted_locations.append(key)
     used_locations -= NOBOSS_LOCATIONS
 
+    sinistrals = {"Gades x1", "Amon x1", "Erim x1", "Daos x1"}
+    skip_sinistrals = 'sinistrals' in get_activated_codes() or 'last_sinistral' in get_activated_codes()
     bosses = sorted(OpenNPCGenerator.boss_properties.values(),
                     key=lambda b: b.name)
     random.shuffle(bosses)
@@ -6733,11 +6737,13 @@ def make_open_world(custom=None):
         key = b.name
         if key[-1] in '0123456789':
             key = key[:-1]
-        b = BossFormationObject.get(int(b.boss_formation_index, 0x10))
-        if key in done_bosses:
-            spare_formations.append(b)
+        bfo = BossFormationObject.get(int(b.boss_formation_index, 0x10))
+        if skip_sinistrals and bfo.name in sinistrals:
             continue
-        chosen_bosses.append(b)
+        if key in done_bosses:
+            spare_formations.append(bfo)
+            continue
+        chosen_bosses.append(bfo)
         done_bosses.add(key)
 
     old_formations = {bfo.name for bfo in BossFormationObject.uniques}
@@ -6839,7 +6845,7 @@ def make_open_world(custom=None):
         patch_with_template('open_world_events', parameters)
 
     boss_events = []
-    sinistrals = {"Gades x1", "Amon x1", "Erim x1", "Daos x1"}
+
     location2BossMap = {'starting_item': '', 'starting_character': '', 'hidden_item': ''}
     assert len(shuffled_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
@@ -6863,14 +6869,19 @@ def make_open_world(custom=None):
         if isinstance(reward2, str) and reward2.startswith('character'):
             reward2 = character_recruitments[reward2]
         if 'sinistrals' in get_activated_codes():
-            if reward1 == "lisa" or reward2 == "lisa":
-                boss = "gades2"
-            elif reward1 == "clare" or reward2 == "clare":
-                boss = "amon1"
-            elif reward1 == "marie" or reward2 == "marie":
-                boss = "erim"
-            elif reward1 == "victory":
-                boss = "daos"
+            r = (reward1, reward2)
+            if 'lisa' in r:
+                bfi = OpenNPCGenerator.boss_properties['gades2'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'clare' in r:
+                bfi = OpenNPCGenerator.boss_properties['amon1'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'marie' in r:
+                bfi = OpenNPCGenerator.boss_properties['erim'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'victory' in r:
+                bfi = OpenNPCGenerator.boss_properties['daos'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
             elif boss.name in sinistrals:
                 for i in range(100):
                     boss.reseed("boss%s" % (i) )
@@ -6878,8 +6889,10 @@ def make_open_world(custom=None):
                     if boss.name not in sinistrals:
                         break
         elif 'last_sinistral' in get_activated_codes():
-            if reward1 == "victory":
-                boss = random.choice(["gades4", "amon2", "erim", "daos"])
+            if 'victory' in (reward1, reward2):
+                bna = random.choice(["gades4", "amon2", "erim", "daos"])
+                bfi = OpenNPCGenerator.boss_properties[bna].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
             elif boss.name in sinistrals:
                 for i in range(100):
                     boss.reseed("boss%s" % (i) )
@@ -7150,6 +7163,7 @@ if __name__ == '__main__':
             'blitz': ['blitz'],
             'sinistrals': ['sinistrals'],
             'last_sinistral': ['last_sinistral'],
+            'music_last_sinistral': ['music_last_sinistral'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)

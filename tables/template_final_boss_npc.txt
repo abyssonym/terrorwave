@@ -6,7 +6,7 @@ EVENT {{map_index}}-X-XX
     {{old_event}}
 
 EVENT {{map_index}}-C-{{npc_event_index}}
-    1020. 4B(1C)
+    1020. 4B({{music_id}})
     1030. 74({{battle_bg}})
     1040. 53({{boss_formation_index}})
     1050. 6A(FF-@1080)
