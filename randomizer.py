@@ -20,7 +20,7 @@ from string import ascii_letters, digits, punctuation, printable
 from traceback import format_exc
 
 
-VERSION = '3.16'
+VERSION = '3.16 blitz1.0.6'
 TEXT_VERSION = 'Three Sixteen'
 ALL_OBJECTS = None
 DEBUG_MODE = False
@@ -45,7 +45,7 @@ EVENT_PATCHES = [
 
 def check_open_world():
     if any(code in get_activated_codes() for code in
-            {'open', 'airship', 'custom', 'fourkeys'}) or 'w' in get_flags():
+            {'open', 'airship', 'custom', 'fourkeys', 'blitz'}) or 'w' in get_flags():
         return True
     return False
 
@@ -164,8 +164,6 @@ class PriceMixin(object):
         price /= (10**power)
         price = price / 2
         assert price <= 65500
-        if price > 10 and price % 10 == 0 and int(VERSION[0]) % 2 == 1:
-            price = price - 1
         self.price = int(round(price))
 
 
@@ -473,6 +471,9 @@ class BossFormationObject(TableObject):
                        for (x, y) in self.monster_coordinates]
         coordinates = ' '.join(coordinates)
         return '{0}\n{1}\n{2}'.format(s, coordinates, hexify(self.unknown))
+
+    def rewind(self):
+        self.monster_indexes = self.old_data['monster_indexes']
 
     @property
     def monsters(self):
@@ -5182,6 +5183,7 @@ class OpenNPCGenerator:
                 parameters[attr] = getattr(propobj, attr)
 
         if 'victory' in (reward1, reward2):
+            parameters['music_id'] = '1B' if 'music_last_sinistral' in get_activated_codes() else '1C'
             patch_with_template('final_boss_npc', parameters)
         elif reward1 and reward2:
             patch_with_template('boss_npc_double_reward', parameters)
@@ -5217,6 +5219,57 @@ def set_new_leader_for_events(new_character_index, old_character_index=0):
                     new_script.append((line_number, opcode, parameters))
                 script.script = new_script
 
+
+class LocationTime:
+    def __init__(self):
+        self.location_time = {
+            'starting_character': 0,
+            'starting_item': 0,
+            'hidden_item': 0,
+            'daos_shrine': 0,
+            'foomy_woods': 1,
+            'darbi_shrine': 1,
+            'zeppy_cave': 1,
+            'lexis_lab': 1,
+            'underwater_shrine': 1,
+            'daos_shrine': 1,
+            'no_return_mountain': 2,
+            'skill_cave': 2,
+            'sundletan_cave': 2,
+            'ruby_cave': 2,
+            'ruby_capsule': 2,
+            'cave_bridge': 2,
+            'north_dungeon': 4,
+            'north_capsule': 4,
+            'catfish_cave': 5,
+            'alunze_cave': 5,
+            'alunze_basement': 5,
+            'sacrifice_tower': 5,
+            'sacrifice_capsule': 5,
+            'northeast_tower': 5,
+            'flower_mountain': 7,
+            'flower_capsule': 7,
+            'tanbel_tower': 10,
+            'ancient_tower': 10,
+            'lighthouse': 10,
+            'gratze_basement': 10,
+            'shuman': 10,
+            'stradha': 10,
+            'kamirno': 10,
+            'truth_tower': 10,
+            'karlloon_shrine': 15,
+            'divine_shrine': 15,
+            'vengeance_shrine': 15,
+            'dragon_mountain': 20,
+            'tsword_shrine': 20,
+            'gordovan_tower': 20,
+            'phantom_mountain': 20,
+            'dankirk_dungeon': 25,
+        }
+
+    def get_time_of_location(self, loc):
+        key = loc.rstrip('1').rstrip('2')
+        return self.location_time[key] if key in self.location_time else 20
 
 def make_wild_jelly(jelly_flag):
     MapEventObject.class_reseed('make_wild_jelly')
@@ -5912,6 +5965,8 @@ def write_credits(boss_events, blue_chests, wild_jelly_map,
     for capsule_index in range(7):
         findstr = '. 81({0:0>2X})'.format(capsule_index)
         location, boss = extract_location_boss(findstr)
+        if location is None or boss is None:
+            continue
         s3 += CapsuleObject.get(capsule_index*5).name + '\n'
         s3 += right_justify(location) + '\n'
         s3 += right_justify(boss.boss.name) + '\n'
@@ -6371,7 +6426,7 @@ def scale_enemies(location_ranks, ranked_bosses,
         m.scale_stats(scale_amount)
 
 
-def make_spoiler(ir, character_recruitments):
+def make_spoiler(ir, character_recruitments, location2BossMap={}):
     head, tail = path.split(get_outfile())
     outfilename = path.join(head, 'spoiler.{0}.txt'.format(tail))
     randomness = [o.random_degree for o in ALL_OBJECTS]
@@ -6386,7 +6441,17 @@ def make_spoiler(ir, character_recruitments):
          'difficulty: {}'.format(get_difficulty()),
          )
     header = '\n'.join(s)
-    footer = ir.report
+    footer = []
+    locTime = LocationTime()
+    for rank in sorted(ir.location_ranks):
+        locations = ir.location_ranks[rank]
+        for loc in sorted(locations, key=lambda k: (locTime.get_time_of_location(k), k) ):
+            if loc in ir.assignments:
+                item = ir.assignments[loc]
+                bossloc = loc.rstrip('2').rstrip('1')
+                boss = location2BossMap[bossloc] if bossloc in location2BossMap else '-'
+                footer.append( "{0:<20}{1:<20}{2}".format( loc, item, boss ) )
+    footer = "\n".join(footer)
     for recruitment, character_name in character_recruitments.items():
         while len(character_name) < len(recruitment):
             character_name += ' '
@@ -6494,6 +6559,10 @@ def make_open_world(custom=None):
                         path.join(tblpath, 'restrictions_fourkeys.txt'),
                         linearity=0.8)
         make_four_keys()
+    elif 'blitz' in get_activated_codes():
+        ir = ItemRouter(path.join(tblpath, 'requirements_blitz.txt'),
+                        path.join(tblpath, 'restrictions_blitz.txt'),
+                        linearity=0.8)
     else:
         ir = ItemRouter(path.join(tblpath, 'requirements.txt'),
                         path.join(tblpath, 'restrictions.txt'),
@@ -6514,17 +6583,39 @@ def make_open_world(custom=None):
     assert 'daos_shrine' not in ir.assignments
     ir.assignments['daos_shrine'] = 'victory'
 
-    for loc in ir.unassigned_locations:
-        if loc.endswith('1'):
-            other = loc[:-1] + '2'
-            if other in ir.assignments:
-                assert not ir.assignments[other].endswith('_key')
+    if 'blitz' in get_activated_codes():
+        locTime = LocationTime()
+        victory_set = {'lisa', 'marie', 'clare'}
+        for r in range(20): # Retry count for a good blitz seed
+            items = set()
+            locsChecked = set()
+            for rank in sorted(ir.location_ranks):
+                locations = ir.location_ranks[rank]
+                for loc in sorted(locations, key=locTime.get_time_of_location):
+                    key = loc.rstrip('1').rstrip('2')
+                    locsChecked.add(key)
+                    if loc in ir.assignments:
+                        items.add(ir.assignments[loc])
+                        if items >= victory_set:
+                            break
+                if items >= victory_set:
+                    break
+            if 20 <= len(locsChecked) <= 25:
+                break
+            print( "{} checks are bad. Retrying.".format( len(locsChecked) ) )
+            ir.clear_assignments()
+            ir.assign_everything()
+            ir.assignments['daos_shrine'] = 'victory'
+
+    else: # Disallow non-key rewards for non-blitz
+        for loc in ir.unassigned_locations:
+            if loc.endswith('1'):
+                other = loc[:-1] + '2'
+                if other in ir.assignments:
+                    assert not ir.assignments[other].endswith('_key')
 
     MapEventObject.class_reseed('selecting_characters')
-    if VERSION == '3.16' and 1682460000 <= get_seed() <= 1682460000 + 172800:
-        VALID_LEADERS = ['artea', 'lexis']
-    else:
-        VALID_LEADERS = ['selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
+    VALID_LEADERS = ['selan', 'guy', 'artea', 'tia', 'dekar', 'lexis']
     assert ir.assignments['starting_character'] == 'character0'
     name = random.choice(VALID_LEADERS)
     character_recruitments = {'character0': name}
@@ -6634,6 +6725,8 @@ def make_open_world(custom=None):
             sorted_locations.append(key)
     used_locations -= NOBOSS_LOCATIONS
 
+    sinistrals = {"Gades x1", "Amon x1", "Erim x1", "Daos x1"}
+    skip_sinistrals = 'sinistrals' in get_activated_codes() or 'last_sinistral' in get_activated_codes()
     bosses = sorted(OpenNPCGenerator.boss_properties.values(),
                     key=lambda b: b.name)
     random.shuffle(bosses)
@@ -6644,11 +6737,13 @@ def make_open_world(custom=None):
         key = b.name
         if key[-1] in '0123456789':
             key = key[:-1]
-        b = BossFormationObject.get(int(b.boss_formation_index, 0x10))
-        if key in done_bosses:
-            spare_formations.append(b)
+        bfo = BossFormationObject.get(int(b.boss_formation_index, 0x10))
+        if skip_sinistrals and bfo.name in sinistrals:
             continue
-        chosen_bosses.append(b)
+        if key in done_bosses:
+            spare_formations.append(bfo)
+            continue
+        chosen_bosses.append(bfo)
         done_bosses.add(key)
 
     old_formations = {bfo.name for bfo in BossFormationObject.uniques}
@@ -6705,7 +6800,6 @@ def make_open_world(custom=None):
             ir.assignments[location] = 'item_{0:0>3x}'.format(item.index)
 
     sorted_locations = [l for l in sorted_locations if l in used_locations]
-    make_spoiler(ir, character_recruitments)
 
     MapEventObject.class_reseed('boss_route2')
     random.shuffle(chosen_bosses)
@@ -6745,9 +6839,14 @@ def make_open_world(custom=None):
         parameters['hidden_item'] = ''
 
     # Apply base patches BEFORE procedural modifications
-    patch_with_template('open_world_events', parameters)
+    if 'blitz' in get_activated_codes():
+        patch_with_template('open_world_events_blitz', parameters)
+    else:
+        patch_with_template('open_world_events', parameters)
 
     boss_events = []
+
+    location2BossMap = {'starting_item': '', 'starting_character': '', 'hidden_item': ''}
     assert len(shuffled_bosses) == len(sorted_locations)
     for location, boss in sorted(location_bosses.items()):
         assert location not in NOBOSS_LOCATIONS
@@ -6769,6 +6868,40 @@ def make_open_world(custom=None):
             reward1 = character_recruitments[reward1]
         if isinstance(reward2, str) and reward2.startswith('character'):
             reward2 = character_recruitments[reward2]
+        if 'sinistrals' in get_activated_codes():
+            r = (reward1, reward2)
+            if 'lisa' in r:
+                bfi = OpenNPCGenerator.boss_properties['gades2'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'clare' in r:
+                bfi = OpenNPCGenerator.boss_properties['amon1'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'marie' in r:
+                bfi = OpenNPCGenerator.boss_properties['erim'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif 'victory' in r:
+                bfi = OpenNPCGenerator.boss_properties['daos'].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif boss.name in sinistrals:
+                for i in range(100):
+                    boss.reseed("boss%s" % (i) )
+                    boss.become_random()
+                    if boss.name not in sinistrals:
+                        break
+        elif 'last_sinistral' in get_activated_codes():
+            if 'victory' in (reward1, reward2):
+                bna = random.choice(["gades4", "amon2", "erim", "daos"])
+                bfi = OpenNPCGenerator.boss_properties[bna].boss_formation_index
+                boss = BossFormationObject.get(int(bfi, 0x10))
+            elif boss.name in sinistrals:
+                for i in range(100):
+                    boss.reseed("boss%s" % (i) )
+                    boss.become_random()
+                    if boss.name not in sinistrals:
+                        break
+
+        bossName = boss if isinstance(boss, str) else boss.name
+        location2BossMap[location.rstrip('1').rstrip('2')] = bossName
         result = OpenNPCGenerator.create_boss_npc(location, boss,
                                                   reward1, reward2, parameters)
         location, boss, reward1, reward2, event = result
@@ -6777,6 +6910,8 @@ def make_open_world(custom=None):
             if hasattr(reward, 'item_index'):
                 assigned_item_indexes.append(int(reward.item_index,
                                                  0x10))
+
+    make_spoiler(ir, character_recruitments, location2BossMap)
 
     for location in sorted(OpenNPCGenerator.boss_location_properties):
         if location not in OpenNPCGenerator.done_locations:
@@ -7025,6 +7160,10 @@ if __name__ == '__main__':
             'monstermash': ['monstermash'],
             'nocap': ['nocap'],
             'fourkeys': ['fourkeys'],
+            'blitz': ['blitz'],
+            'sinistrals': ['sinistrals'],
+            'last_sinistral': ['last_sinistral'],
+            'music_last_sinistral': ['music_last_sinistral'],
         }
         run_interface(ALL_OBJECTS, snes=True, codes=codes,
                       custom_degree=True, custom_difficulty=True)

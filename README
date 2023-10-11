@@ -38,6 +38,9 @@ Secret Codes:
     airship                 Start the game with the airship.
     bossy                   Very random bosses (unbalanced even with scaling)
     fourkeys                Open World, but there are only four keys
+    blitz                   Allows a faster open world playthrough
+    sinistrals              Maidens are always guarded by sinistrals. Makes Daos final boss.
+    last_sinistral          Final boss is always one of the sinistrals. Conflicts with 'sinistrals' code.
 
     OPEN WORLD ENEMY SCALING
     scale                   Scale enemy status in open-world mode
@@ -53,6 +56,7 @@ Secret Codes:
     nothingpersonnelkid     Extremely aggressive enemies.
     nocap                   Disables in-battle capsule swapping
     anywhere                Equipment slots are randomized (breaks "Strongest")
+    music_last_sinistral    Final boss music is sinistrals battle theme.
 
 Randomness:
     Terror Wave is the first Abyssonym randomizer to include a "randomness" option. This option controls how extreme the randomizations are. At 0.0, almost nothing will be randomized. At 1.0, enemies in the starting area will most likely have boss stats. I suggest leaving it at the default setting of 0.5 for your first run.
