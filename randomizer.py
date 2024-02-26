@@ -6423,6 +6423,8 @@ def make_four_keys():
             assert 1 <= opcode <= 6 or opcode == 0x40
             key_index = script.script[0][2][0]
             key = ItemObject.get(key_index)
+            if key.name.upper() in ['DOOR KEY', 'VIP CARD']:
+                continue
             key.set_name('Useless key')
             locations = [loc for loc in keydict if key in keydict[loc]]
             if not locations:
@@ -6874,9 +6876,14 @@ ALL_OBJECTS = [g for g in globals().values()
 
 
 def get_keydict():
-    tower = {'sky', 'wind', 'cloud', 'light', 'trial', 'truth', 'narcysus'}
+    frue = bool(re.search(r'FRUE|KUREJI|SPEKKIO', get_global_label()))
+    narcysus_name = 'sacral' if frue else 'narcysus'
+    gratze_name = 'jail' if frue else 'basement'
+    dankirk_name = 'angel' if frue else 'dankirk'
+                     
+    tower = {'sky', 'wind', 'cloud', 'light', 'trial', 'truth', narcysus_name}
     shrine = {'sword', 'heart', 'ghost'}
-    dungeon = {'lake', 'ruby', 'dankirk', 'basement', 'ancient'}
+    dungeon = {'lake', 'ruby', 'ancient', dankirk_name, gratze_name}
     mountain = {'magma', 'flower', 'tree'}
 
     keys = lange(0x1af, 0x1c0) + [0x1c2]
