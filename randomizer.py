@@ -6423,7 +6423,7 @@ def make_four_keys():
             assert 1 <= opcode <= 6 or opcode == 0x40
             key_index = script.script[0][2][0]
             key = ItemObject.get(key_index)
-            if key.name in ['Door Key', 'VIP Card']:
+            if key.name.upper() in ['DOOR KEY', 'VIP CARD']:
                 continue
             key.set_name('Useless key')
             locations = [loc for loc in keydict if key in keydict[loc]]
